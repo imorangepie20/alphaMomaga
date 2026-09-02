@@ -29,6 +29,7 @@
 6. 서버 주도 역할 및 권한 정책 정의
 7. 명시적으로 선택 가능한 로컬 demo fallback을 포함한 서명 Bearer JWT 인증 경계
 8. `401`, `403`, `400`을 구분하는 RBAC 보호 임차인 생성
+9. PostgreSQL Drizzle 스키마와 6개 핵심 운영 테이블 migration 생성
 
 관리자 UI는 한국어 우선으로 구성되어 있습니다. 네비게이션, 대시보드 라벨, breadcrumb, 공용 셸 라벨, 운영 페이지, 관리자 역할 화면에 한국어 용어를 사용합니다.
 
@@ -41,14 +42,14 @@
 
 Cloudflare 호스트명은 로컬 서비스에 대한 스테이징 접속 지점이며 운영 배포가 아닙니다. tunnel route가 응답하려면 API origin이 계속 실행 중이어야 합니다.
 
-## Core workstreams
+## 핵심 작업 영역
 
-1. Real-estate dashboard customization
-2. Domain model definition for property, tenant, contract, payment, maintenance
-3. Auth and role-based access control
-4. CRUD API and data persistence
-5. Admin and manager workflows
-6. Verification and bug fixing before expanding scope
+1. 부동산 관리 대시보드 맞춤화
+2. 자산, 임차인, 계약, 수납, 유지보수 도메인 모델 정의
+3. 인증과 역할 기반 접근 제어
+4. CRUD API와 데이터 영속화
+5. 관리자와 매니저 업무 흐름
+6. 범위 확장 전 검증과 버그 수정
 
 ## 검증 상태
 
@@ -62,13 +63,14 @@ Cloudflare 호스트명은 로컬 서비스에 대한 스테이징 접속 지점
 - API origin 재시작 후 공개 관리자 호스트명 복구. 이전 Cloudflare `502`는 중단된 로컬 API 서비스가 원인이었음
 - 인증 경계 테스트: 유효 역할 주체, 역할 누락 거부, 서명 JWT 설정 경로를 단위/e2e 테스트로 검증
 - 보호된 변경 테스트: Property Manager는 임차인 생성 가능, Finance는 `403` 거부, 잘못된 입력은 `400` 반환
+- 영속화 스키마: Drizzle migration 생성 및 6개 테이블과 외래키 확인. 적용은 PostgreSQL 서버 준비 후 진행
 
 ## 규칙
 
-- Document every meaningful change.
-- Do not postpone required work.
-- Understand the overall flow before editing isolated parts.
-- Validate each step before proceeding to the next.
+- 의미 있는 모든 변경을 문서에 기록합니다.
+- 필요한 작업을 미루지 않습니다.
+- 개별 부분을 수정하기 전에 전체 흐름을 이해합니다.
+- 다음 단계로 넘어가기 전에 각 단계를 검증합니다.
 
 ## 다음 구현 단위
 
