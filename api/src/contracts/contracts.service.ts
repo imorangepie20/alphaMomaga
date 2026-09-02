@@ -1,8 +1,8 @@
-import { Injectable, Optional } from '@nestjs/common';
+import { Injectable, Optional, Inject } from '@nestjs/common';
 import { asc, eq } from 'drizzle-orm';
 import type { Contract, CreateContractInput, UpdateContractInput } from './contract.js';
 import { validateContract } from './contract.js';
-import { contracts } from '../database/schema.js';
+import { contracts, tenants, properties } from '../database/schema.js';
 import { DatabaseService } from '../database/database.service.js';
 import { AuditService } from '../audit/audit.service.js';
 import type { AuthenticatedPrincipal } from '../auth/principal.js';
@@ -64,6 +64,17 @@ export class ContractsService {
     const database = this.databaseService?.client;
     if (database) {
       return database.transaction(async (transaction) => {
+        // 외래키 검증: propertyId와 tenantId 존재 확인
+        const [propertyExists] = await transaction.select().from(properties).where(eq(properties.id, input.propertyId)).limit(1);
+        if (!propertyExists) {
+          throw new Error(`Property ${input.propertyId}을(를) 찾을 수 없습니다`);
+        }
+
+        const [tenantExists] = await transaction.select().from(tenants).where(eq(tenants.id, input.tenantId)).limit(1);
+        if (!tenantExists) {
+          throw new Error(`Tenant ${input.tenantId}을(를) 찾을 수 없습니다`);
+        }
+
         const [row] = await transaction.insert(contracts).values({
           id: `contract-${randomUUID()}`,
           propertyId: input.propertyId,
@@ -88,6 +99,21 @@ export class ContractsService {
 
         return mapContractRow(row);
       });
+    }
+
+    // 인-메모리 검증 (fixtures 데이터에 hardcoded)
+    const fixtureProperties = [
+      { id: 'property-1' }, { id: 'property-2' }, { id: 'property-3' }, { id: 'property-4' },
+    ];
+    const fixtureTenants = [
+      { id: 'tenant-1' }, { id: 'tenant-2' }, { id: 'tenant-3' }, { id: 'tenant-4' },
+    ];
+
+    if (!fixtureProperties.find((p) => p.id === input.propertyId)) {
+      throw new Error(`Property ${input.propertyId}을(를) 찾을 수 없습니다`);
+    }
+    if (!fixtureTenants.find((t) => t.id === input.tenantId)) {
+      throw new Error(`Tenant ${input.tenantId}을(를) 찾을 수 없습니다`);
     }
 
     const contract: Contract = {

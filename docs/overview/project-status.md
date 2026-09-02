@@ -42,6 +42,7 @@
 19. GitHub Actions PostgreSQL service 기반 API migration/seed/e2e 검증
 20. 계약(Contract), 수납(Payment), 유지보수(Maintenance), 점검(Inspection) 엔티티에 대한 데이터베이스 기반 POST/PUT 엔드포인트
 21. Properties/Tenants DELETE 엔드포인트 및 임차인 중복 검증(같은 propertyId+unit 조합)
+22. 외래키 검증: Contract는 propertyId/tenantId, Payment는 contractId, Maintenance/Inspection은 propertyId 확인
 
 관리자 UI는 한국어 우선으로 구성되어 있습니다. 네비게이션, 대시보드 라벨, breadcrumb, 공용 셸 라벨, 운영 페이지, 관리자 역할 화면에 한국어 용어를 사용합니다.
 

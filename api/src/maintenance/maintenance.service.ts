@@ -2,7 +2,7 @@ import { Injectable, Optional } from '@nestjs/common';
 import { asc, eq } from 'drizzle-orm';
 import type { Maintenance, CreateMaintenanceInput, UpdateMaintenanceInput } from './maintenance.js';
 import { validateMaintenance } from './maintenance.js';
-import { maintenance } from '../database/schema.js';
+import { maintenance, properties } from '../database/schema.js';
 import { DatabaseService } from '../database/database.service.js';
 import { AuditService } from '../audit/audit.service.js';
 import type { AuthenticatedPrincipal } from '../auth/principal.js';
@@ -51,6 +51,12 @@ export class MaintenanceService {
     const database = this.databaseService?.client;
     if (database) {
       return database.transaction(async (transaction) => {
+        // 외래키 검증: propertyId 존재 확인
+        const [propertyExists] = await transaction.select().from(properties).where(eq(properties.id, input.propertyId)).limit(1);
+        if (!propertyExists) {
+          throw new Error(`Property ${input.propertyId}을(를) 찾을 수 없습니다`);
+        }
+
         const [row] = await transaction.insert(maintenance).values({
           id: `maintenance-${randomUUID()}`,
           propertyId: input.propertyId,
@@ -72,6 +78,15 @@ export class MaintenanceService {
 
         return mapMaintenanceRow(row);
       });
+    }
+
+    // 인-메모리 검증 (fixtures 데이터에 hardcoded)
+    const fixtureProperties = [
+      { id: 'property-1' }, { id: 'property-2' }, { id: 'property-3' }, { id: 'property-4' },
+    ];
+
+    if (!fixtureProperties.find((p) => p.id === input.propertyId)) {
+      throw new Error(`Property ${input.propertyId}을(를) 찾을 수 없습니다`);
     }
 
     const item2: Maintenance = {

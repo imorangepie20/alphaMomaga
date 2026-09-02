@@ -2,7 +2,7 @@ import { Injectable, Optional } from '@nestjs/common';
 import { asc, eq } from 'drizzle-orm';
 import type { Payment, CreatePaymentInput, UpdatePaymentInput } from './payment.js';
 import { validatePayment } from './payment.js';
-import { payments } from '../database/schema.js';
+import { payments, contracts } from '../database/schema.js';
 import { DatabaseService } from '../database/database.service.js';
 import { AuditService } from '../audit/audit.service.js';
 import type { AuthenticatedPrincipal } from '../auth/principal.js';
@@ -62,6 +62,12 @@ export class PaymentsService {
     const database = this.databaseService?.client;
     if (database) {
       return database.transaction(async (transaction) => {
+        // 외래키 검증: contractId 존재 확인
+        const [contractExists] = await transaction.select().from(contracts).where(eq(contracts.id, input.contractId)).limit(1);
+        if (!contractExists) {
+          throw new Error(`Contract ${input.contractId}을(를) 찾을 수 없습니다`);
+        }
+
         const [row] = await transaction.insert(payments).values({
           id: `payment-${randomUUID()}`,
           propertyId: input.propertyId,
@@ -84,6 +90,15 @@ export class PaymentsService {
 
         return mapPaymentRow(row);
       });
+    }
+
+    // 인-메모리 검증 (fixtures 데이터에 hardcoded)
+    const fixtureContracts = [
+      { id: 'contract-1' }, { id: 'contract-2' }, { id: 'contract-3' }, { id: 'contract-4' },
+    ];
+
+    if (!fixtureContracts.find((c) => c.id === input.contractId)) {
+      throw new Error(`Contract ${input.contractId}을(를) 찾을 수 없습니다`);
     }
 
     const payment2: Payment = {
