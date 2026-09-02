@@ -10,6 +10,19 @@ export type Payment = {
   paidAt?: string;
 };
 
+export type CreatePaymentInput = {
+  propertyId: string;
+  contractId: string;
+  amount: string;
+  dueDate: string;
+  status: PaymentStatus;
+};
+
+export type UpdatePaymentInput = {
+  status?: PaymentStatus;
+  paidAt?: string;
+};
+
 export function validatePayment(payment: Payment, referenceDate = new Date()): void {
   const datePattern = /^\d{4}-\d{2}-\d{2}$/;
   const dueDate = new Date(`${payment.dueDate}T00:00:00.000Z`);

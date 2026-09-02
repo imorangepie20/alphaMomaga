@@ -1,9 +1,12 @@
 import { Injectable, Optional } from '@nestjs/common';
-import { asc } from 'drizzle-orm';
-import type { Maintenance } from './maintenance.js';
+import { asc, eq } from 'drizzle-orm';
+import type { Maintenance, CreateMaintenanceInput, UpdateMaintenanceInput } from './maintenance.js';
 import { validateMaintenance } from './maintenance.js';
 import { maintenance } from '../database/schema.js';
 import { DatabaseService } from '../database/database.service.js';
+import { AuditService } from '../audit/audit.service.js';
+import type { AuthenticatedPrincipal } from '../auth/principal.js';
+import { randomUUID } from 'node:crypto';
 
 type MaintenanceRow = typeof maintenance.$inferSelect;
 
@@ -13,7 +16,10 @@ export function mapMaintenanceRow(row: MaintenanceRow): Maintenance {
 
 @Injectable()
 export class MaintenanceService {
-  constructor(@Optional() private readonly databaseService?: DatabaseService) {}
+  constructor(
+    @Optional() private readonly databaseService?: DatabaseService,
+    @Optional() private readonly auditService?: AuditService,
+  ) {}
 
   private readonly maintenance: Maintenance[] = [
     { id: 'maintenance-1', propertyId: 'property-1', task: '승강기 정기 점검', dueDate: '2026-09-07', status: 'Scheduled' },
@@ -29,5 +35,97 @@ export class MaintenanceService {
       : this.maintenance;
     records.forEach(validateMaintenance);
     return records;
+  }
+
+  async create(input: CreateMaintenanceInput, principal?: AuthenticatedPrincipal): Promise<Maintenance> {
+    if (!input.propertyId || !input.task || !input.dueDate || !input.status) {
+      throw new Error('Maintenance requires propertyId, task, dueDate, and status');
+    }
+
+    const item: Maintenance = {
+      id: `maintenance-temp`,
+      ...input,
+    };
+    validateMaintenance(item);
+
+    const database = this.databaseService?.client;
+    if (database) {
+      return database.transaction(async (transaction) => {
+        const [row] = await transaction.insert(maintenance).values({
+          id: `maintenance-${randomUUID()}`,
+          propertyId: input.propertyId,
+          task: input.task,
+          dueDate: input.dueDate,
+          status: input.status,
+        }).returning();
+
+        if (this.auditService) {
+          await this.auditService.record(transaction, {
+            action: 'maintenance.created',
+            actorSubject: principal?.subject ?? 'system',
+            actorRole: principal?.role ?? 'system',
+            entityType: 'maintenance',
+            entityId: row.id,
+            metadata: { propertyId: input.propertyId, task: input.task },
+          });
+        }
+
+        return mapMaintenanceRow(row);
+      });
+    }
+
+    const item2: Maintenance = {
+      id: `maintenance-${this.maintenance.length + 1}`,
+      ...input,
+    };
+    this.maintenance.push(item2);
+    return item2;
+  }
+
+  async update(id: string, input: UpdateMaintenanceInput, principal?: AuthenticatedPrincipal): Promise<Maintenance> {
+    const database = this.databaseService?.client;
+    if (database) {
+      return database.transaction(async (transaction) => {
+        const [row] = await transaction
+          .update(maintenance)
+          .set({
+            ...(input.status !== undefined && { status: input.status }),
+            ...(input.dueDate !== undefined && { dueDate: input.dueDate }),
+          })
+          .where(eq(maintenance.id, id))
+          .returning();
+
+        if (!row) {
+          throw new Error(`Maintenance ${id} not found`);
+        }
+
+        const item = mapMaintenanceRow(row);
+        validateMaintenance(item);
+
+        if (this.auditService) {
+          await this.auditService.record(transaction, {
+            action: 'maintenance.updated',
+            actorSubject: principal?.subject ?? 'system',
+            actorRole: principal?.role ?? 'system',
+            entityType: 'maintenance',
+            entityId: id,
+            metadata: { changes: input },
+          });
+        }
+
+        return item;
+      });
+    }
+
+    const item = this.maintenance.find((m) => m.id === id);
+    if (!item) {
+      throw new Error(`Maintenance ${id} not found`);
+    }
+
+    if (input.status !== undefined) item.status = input.status;
+    if (input.dueDate !== undefined) item.dueDate = input.dueDate;
+
+    validateMaintenance(item);
+    return item;
   }
 }

@@ -8,6 +8,18 @@ export type Maintenance = {
   status: MaintenanceStatus;
 };
 
+export type CreateMaintenanceInput = {
+  propertyId: string;
+  task: string;
+  dueDate: string;
+  status: MaintenanceStatus;
+};
+
+export type UpdateMaintenanceInput = {
+  status?: MaintenanceStatus;
+  dueDate?: string;
+};
+
 export function validateMaintenance(item: Maintenance): void {
   const date = new Date(`${item.dueDate}T00:00:00.000Z`);
   if (!item.id || !item.propertyId || !item.task) throw new Error(`Maintenance ${item.id} is incomplete`);

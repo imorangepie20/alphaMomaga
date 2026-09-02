@@ -12,6 +12,21 @@ export type Contract = {
   terminatedAt?: string;
 };
 
+export type CreateContractInput = {
+  propertyId: string;
+  tenantId: string;
+  unit: string;
+  monthlyRent: string;
+  startDate: string;
+  endDate: string;
+  status: ContractStatus;
+};
+
+export type UpdateContractInput = {
+  status?: ContractStatus;
+  terminatedAt?: string;
+};
+
 export function validateContract(contract: Contract, referenceDate = new Date()): void {
   const datePattern = /^\d{4}-\d{2}-\d{2}$/;
   if (!datePattern.test(contract.startDate) || !datePattern.test(contract.endDate)) {

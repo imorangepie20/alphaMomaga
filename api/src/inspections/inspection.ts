@@ -11,6 +11,19 @@ export type Inspection = {
   completedAt?: string;
 };
 
+export type CreateInspectionInput = {
+  propertyId: string;
+  type: string;
+  scheduledDate: string;
+  status: InspectionStatus;
+  priority: InspectionPriority;
+};
+
+export type UpdateInspectionInput = {
+  status?: InspectionStatus;
+  completedAt?: string;
+};
+
 export function validateInspection(item: Inspection, referenceDate = new Date()): void {
   const datePattern = /^\d{4}-\d{2}-\d{2}$/;
   const scheduledDate = new Date(`${item.scheduledDate}T00:00:00.000Z`);

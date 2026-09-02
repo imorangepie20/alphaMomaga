@@ -1,9 +1,12 @@
 import { Injectable, Optional } from '@nestjs/common';
-import { asc } from 'drizzle-orm';
-import type { Payment } from './payment.js';
+import { asc, eq } from 'drizzle-orm';
+import type { Payment, CreatePaymentInput, UpdatePaymentInput } from './payment.js';
 import { validatePayment } from './payment.js';
 import { payments } from '../database/schema.js';
 import { DatabaseService } from '../database/database.service.js';
+import { AuditService } from '../audit/audit.service.js';
+import type { AuthenticatedPrincipal } from '../auth/principal.js';
+import { randomUUID } from 'node:crypto';
 
 type PaymentRow = typeof payments.$inferSelect;
 
@@ -22,7 +25,10 @@ export function mapPaymentRow(row: PaymentRow): Payment {
 
 @Injectable()
 export class PaymentsService {
-  constructor(@Optional() private readonly databaseService?: DatabaseService) {}
+  constructor(
+    @Optional() private readonly databaseService?: DatabaseService,
+    @Optional() private readonly auditService?: AuditService,
+  ) {}
 
   private readonly payments: Payment[] = [
     { id: 'payment-1', propertyId: 'property-1', contractId: 'contract-1', amount: '₩12,400,000', dueDate: '2026-08-31', status: 'Paid', paidAt: '2026-08-29' },
@@ -38,5 +44,113 @@ export class PaymentsService {
       : this.payments;
     records.forEach((payment) => validatePayment(payment));
     return records;
+  }
+
+  async create(input: CreatePaymentInput, principal?: AuthenticatedPrincipal): Promise<Payment> {
+    if (!input.propertyId || !input.contractId || !input.amount || !input.dueDate || !input.status) {
+      throw new Error('Payment requires propertyId, contractId, amount, dueDate, and status');
+    }
+
+    const amountWon = this.parseAmount(input.amount);
+    const payment: Payment = {
+      id: `payment-temp`,
+      ...input,
+      amount: `₩${amountWon.toLocaleString('en-US')}`,
+    };
+    validatePayment(payment);
+
+    const database = this.databaseService?.client;
+    if (database) {
+      return database.transaction(async (transaction) => {
+        const [row] = await transaction.insert(payments).values({
+          id: `payment-${randomUUID()}`,
+          propertyId: input.propertyId,
+          contractId: input.contractId,
+          amountWon,
+          dueDate: input.dueDate,
+          status: input.status,
+        }).returning();
+
+        if (this.auditService) {
+          await this.auditService.record(transaction, {
+            action: 'payment.created',
+            actorSubject: principal?.subject ?? 'system',
+            actorRole: principal?.role ?? 'system',
+            entityType: 'payment',
+            entityId: row.id,
+            metadata: { propertyId: input.propertyId, contractId: input.contractId, amount: amountWon },
+          });
+        }
+
+        return mapPaymentRow(row);
+      });
+    }
+
+    const payment2: Payment = {
+      id: `payment-${this.payments.length + 1}`,
+      ...input,
+      amount: `₩${amountWon.toLocaleString('en-US')}`,
+    };
+    this.payments.push(payment2);
+    return payment2;
+  }
+
+  async update(id: string, input: UpdatePaymentInput, principal?: AuthenticatedPrincipal): Promise<Payment> {
+    const database = this.databaseService?.client;
+    if (database) {
+      return database.transaction(async (transaction) => {
+        const [row] = await transaction
+          .update(payments)
+          .set({
+            ...(input.status !== undefined && { status: input.status }),
+            ...(input.paidAt !== undefined && { paidAt: input.paidAt }),
+          })
+          .where(eq(payments.id, id))
+          .returning();
+
+        if (!row) {
+          throw new Error(`Payment ${id} not found`);
+        }
+
+        const payment = mapPaymentRow(row);
+        validatePayment(payment);
+
+        if (this.auditService) {
+          await this.auditService.record(transaction, {
+            action: 'payment.updated',
+            actorSubject: principal?.subject ?? 'system',
+            actorRole: principal?.role ?? 'system',
+            entityType: 'payment',
+            entityId: id,
+            metadata: { changes: input },
+          });
+        }
+
+        return payment;
+      });
+    }
+
+    const payment = this.payments.find((p) => p.id === id);
+    if (!payment) {
+      throw new Error(`Payment ${id} not found`);
+    }
+
+    if (input.status !== undefined) payment.status = input.status;
+    if (input.paidAt !== undefined) payment.paidAt = input.paidAt;
+
+    validatePayment(payment);
+    return payment;
+  }
+
+  private parseAmount(amount: string): number {
+    if (!/^₩[\d,]+$/.test(amount)) {
+      throw new Error('Payment amount must be a positive won amount such as ₩12,400,000');
+    }
+
+    const amountWon = Number.parseInt(amount.replaceAll(',', '').slice(1), 10);
+    if (!Number.isSafeInteger(amountWon) || amountWon <= 0) {
+      throw new Error('Payment amount must be a positive won amount');
+    }
+    return amountWon;
   }
 }
