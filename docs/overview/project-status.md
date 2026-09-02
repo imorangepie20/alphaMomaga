@@ -37,6 +37,7 @@
 14. `DATABASE_URL` 설정 시 PostgreSQL을 조회하는 Contract repository 전환
 15. `DATABASE_URL` 설정 시 PostgreSQL을 조회하는 Payment repository 전환
 16. `DATABASE_URL` 설정 시 PostgreSQL을 조회하는 Maintenance·Inspection repository 전환
+17. 로컬 PostgreSQL 실행을 위한 Docker Compose 구성
 
 관리자 UI는 한국어 우선으로 구성되어 있습니다. 네비게이션, 대시보드 라벨, breadcrumb, 공용 셸 라벨, 운영 페이지, 관리자 역할 화면에 한국어 용어를 사용합니다.
 
@@ -78,6 +79,7 @@ Cloudflare 호스트명은 로컬 서비스에 대한 스테이징 접속 지점
 - Contract repository: DB 설정 시 조회 수행, `monthly_rent_won` 정수와 API 원화 문자열 변환, 미설정 시 메모리 fixture 사용
 - Payment repository: DB 설정 시 조회 수행, `amount_won` 정수와 API 원화 문자열 변환, 미설정 시 메모리 fixture 사용
 - Maintenance·Inspection repository: DB 설정 시 조회 수행, 날짜와 nullable 완료일 매핑, 미설정 시 메모리 fixture 사용
+- 로컬 PostgreSQL: `infra/docker-compose.yml` 제공. Docker가 없는 현재 환경에서는 컨테이너와 migration을 아직 실행하지 못함
 
 ## 규칙
 
