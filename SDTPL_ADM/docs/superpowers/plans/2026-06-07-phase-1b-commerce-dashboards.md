@@ -1,18 +1,18 @@
-# Phase 1b — Commerce Dashboards (E-commerce · Sales · CRM)
+# 1b단계: 커머스 대시보드(E-commerce · Sales · CRM)
 
-> **For agentic workers:** REQUIRED SUB-SKILL: superpowers:subagent-driven-development.
+> **에이전트 작업자 안내:** 필수 기술: superpowers:subagent-driven-development.
 
-**Goal:** Faithfully build 3 commerce dashboards (`/dashboard/ecommerce`, `/dashboard/sales`, `/dashboard/crm`), replacing their placeholders, using a shared `KpiCard` plus dashboard-specific widgets + mock data.
+**목표:** 공통 `KpiCard`, 대시보드별 위젯, mock data를 사용해 3개 커머스 대시보드(`/dashboard/ecommerce`, `/dashboard/sales`, `/dashboard/crm`)를 충실히 구현하고 placeholder를 교체합니다.
 
 **Architecture:** A shared `src/components/dashboards/shared/kpi-card.tsx` is reused across all dashboards. Each dashboard gets a folder `src/components/dashboards/<name>/` with widget components + a colocated `data.ts`, composed by the route `page.tsx`. Charts use shadcn `chart` (Recharts); tables use shadcn `Table` (simple) or TanStack where rich. Interactive widgets are client components; pages stay server components.
 
-**Tech:** Next.js 16 · React 19 · Tailwind v4 · shadcn/ui (Base UI) · Recharts · @tanstack/react-table. **Reminders:** Base UI `render` prop (not `asChild`); Checkbox uses a separate `indeterminate` boolean; keep `CardTitle` as `<div>`; Playwright runs the PROD build; test card titles with `getByText(..., {exact:true})`.
+**기술:** Next.js 16 · React 19 · Tailwind v4 · shadcn/ui(Base UI) · Recharts · @tanstack/react-table. **주의:** Base UI는 `asChild`가 아닌 `render` prop을 사용하고, Checkbox는 별도의 `indeterminate` boolean을 사용하며, `CardTitle`은 `<div>`로 유지합니다. Playwright는 PROD build를 실행하고 카드 제목은 `getByText(..., {exact:true})`로 테스트합니다.
 
-**Reference:** https://shadcnuikit.com/dashboard/{ecommerce,sales,crm}. Spec: [phase-1 design §5](../specs/2026-06-07-phase-1-dashboards-design.md).
+**참조:** https://shadcnuikit.com/dashboard/{ecommerce,sales,crm}. 사양: [phase-1 design §5](../specs/2026-06-07-phase-1-dashboards-design.md).
 
 ---
 
-## Task 1: Shared `KpiCard`
+## 작업 1: 공통 `KpiCard`
 
 **File:** Create `src/components/dashboards/shared/kpi-card.tsx`.
 
@@ -56,7 +56,7 @@ Verify `tsc --noEmit`; commit `feat: add shared KpiCard`.
 
 ---
 
-## Task 2: E-commerce dashboard (`/dashboard/ecommerce`)
+## 작업 2: E-commerce 대시보드(`/dashboard/ecommerce`)
 
 **Files:** `src/components/dashboards/ecommerce/data.ts`, widget components, and the page `src/app/(dashboard)/dashboard/ecommerce/page.tsx`.
 
@@ -79,7 +79,7 @@ Verify `tsc --noEmit` + the page builds; commit `feat: add e-commerce dashboard`
 
 ---
 
-## Task 3: Sales dashboard (`/dashboard/sales`)
+## 작업 3: Sales 대시보드(`/dashboard/sales`)
 
 **Files:** `src/components/dashboards/sales/data.ts`, widgets, page `src/app/(dashboard)/dashboard/sales/page.tsx`. Header title "Sales".
 
@@ -94,7 +94,7 @@ Verify + commit `feat: add sales dashboard`.
 
 ---
 
-## Task 4: CRM dashboard (`/dashboard/crm`)
+## 작업 4: CRM 대시보드(`/dashboard/crm`)
 
 **Files:** `src/components/dashboards/crm/data.ts`, widgets, page `src/app/(dashboard)/dashboard/crm/page.tsx`. Header title "CRM".
 
@@ -110,7 +110,7 @@ Verify + commit `feat: add crm dashboard`.
 
 ---
 
-## Task 5: Smoke tests + full verification
+## 작업 5: Smoke test 및 전체 검증
 
 **File:** Create `e2e/dashboards-commerce.spec.ts`.
 

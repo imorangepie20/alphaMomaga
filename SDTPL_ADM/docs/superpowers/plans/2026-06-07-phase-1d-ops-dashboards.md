@@ -1,14 +1,14 @@
-# Phase 1d — Ops Dashboards (Hotel · Hospital · Real Estate)
+# 1d단계: 운영 대시보드(Hotel · Hospital · Real Estate)
 
-> **For agentic workers:** REQUIRED SUB-SKILL: superpowers:subagent-driven-development.
+> **에이전트 작업자 안내:** 필수 기술: superpowers:subagent-driven-development.
 
-**Goal:** Faithfully build `/dashboard/hotel`, `/dashboard/hospital`, `/dashboard/real-estate`, replacing placeholders. These are rich dashboards (11–13 widgets each). Reuse shared `KpiCard`; per-dashboard widgets + colocated `data.ts`.
+**목표:** `/dashboard/hotel`, `/dashboard/hospital`, `/dashboard/real-estate`를 충실히 구현해 placeholder를 교체합니다. 각 대시보드는 11~13개의 위젯으로 구성됩니다. 공통 `KpiCard`, 대시보드별 위젯, 함께 배치한 `data.ts`를 재사용합니다.
 
-**Conventions (same as Phase 1b/1c):** shared `KpiCard` at `@/components/dashboards/shared/kpi-card`; widgets under `src/components/dashboards/<name>/`; shadcn `card/chart/table/badge/progress/avatar/button/select/tabs/calendar/separator`; Recharts; Base UI (`render` prop, Checkbox `indeterminate` boolean, Select `onValueChange` may emit `string|null`); charts/interactive widgets `"use client"`, pages server; `CardTitle` is a div; only import what you use; status badges via `cn()` on `Badge`; smoke-test card titles with `getByText(..., {exact:true})`. Branch `feat/phase-1d-ops-dashboards`. References: https://shadcnuikit.com/dashboard/{hotel,hospital-management,real-estate} (note: our hospital route is `/dashboard/hospital`).
+**규칙(1b/1c단계와 동일):** 공통 `KpiCard`는 `@/components/dashboards/shared/kpi-card`, 위젯은 `src/components/dashboards/<name>/` 아래에 둡니다. shadcn `card/chart/table/badge/progress/avatar/button/select/tabs/calendar/separator`, Recharts, Base UI(`render` prop, Checkbox `indeterminate` boolean, Select `onValueChange`는 `string|null`일 수 있음)를 사용합니다. 차트/상호작용 위젯은 `"use client"`, 페이지는 server component로 두고 `CardTitle`은 div로 유지합니다. 필요한 것만 import하고 상태 badge는 `Badge`에 `cn()`을 적용하며 제목은 `getByText(..., {exact:true})`로 smoke test합니다. Branch `feat/phase-1d-ops-dashboards`. 참조: https://shadcnuikit.com/dashboard/{hotel,hospital-management,real-estate}(hospital route는 `/dashboard/hospital`).
 
 ---
 
-## Task 1: Hotel dashboard (`/dashboard/hotel`) — header "Hotel"
+## 작업 1: Hotel 대시보드(`/dashboard/hotel`) — 제목 "Hotel"
 
 **Widgets (faithful):**
 1. **KPI row (4 `KpiCard`s):** Today's Check-in `200`; Today Check-out `34`; Total Guests `3,432` (delta `+152` or `+4.6%` up); Total Amount `$668,726` (delta `+12%` up).
@@ -25,7 +25,7 @@ Data → `hotel/data.ts`. `tsc --noEmit && pnpm build`; commit `feat: add hotel 
 
 ---
 
-## Task 2: Hospital dashboard (`/dashboard/hospital`) — header "Hospital"
+## 작업 2: Hospital 대시보드(`/dashboard/hospital`) — 제목 "Hospital"
 
 > The reference renders KPI values as 0 (loading state). Use realistic values with the EXACT deltas below.
 
@@ -43,7 +43,7 @@ Data → `hospital/data.ts`. `tsc --noEmit && pnpm build`; commit `feat: add hos
 
 ---
 
-## Task 3: Real Estate dashboard (`/dashboard/real-estate`) — header "Real Estate"
+## 작업 3: Real Estate 대시보드(`/dashboard/real-estate`) — 제목 "Real Estate"
 
 **Widgets (faithful):**
 1. **KPI row (4 `KpiCard`s):** Active Leads `120` `+12%` up; Total Revenue `$96.7M` `+12%` up; Active Listing `23` `-12%` **down**; Total Closed `42` `+12%` up.
@@ -61,7 +61,7 @@ Data → `real-estate/data.ts`. `tsc --noEmit && pnpm build`; commit `feat: add 
 
 ---
 
-## Task 4: Smoke tests + full verification
+## 작업 4: Smoke test 및 전체 검증
 
 Create `e2e/dashboards-ops.spec.ts` — per dashboard assert status<400, no `pageerror`, 3 exact unique widget texts (READ widgets to pick exact strings, e.g. hotel: "Booking List", "Campaign Overview", "Recent Activities"; hospital: "Top Treatment", "Upcoming Appointments", "Patients by Department"; real-estate: "Featured Property" or "The Somerset", "Sales Analytics", "Property Overview"). `getByText(t,{exact:true}).first()`. Run full suite (`CI=1`, kill :3000) — expect 57 prior + 3 = 60 pass; fix real render bugs at root (charts `"use client"`; Calendar may warn if given bad props — verify the `Calendar` API). `pnpm lint` 0 errors (remove unused imports). Commit `test: add ops dashboards smoke tests`.
 

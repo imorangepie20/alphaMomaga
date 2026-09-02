@@ -1,14 +1,14 @@
-# Phase 1c — Finance Dashboards (Payment · Crypto · Finance)
+# 1c단계: 금융 대시보드(Payment · Crypto · Finance)
 
-> **For agentic workers:** REQUIRED SUB-SKILL: superpowers:subagent-driven-development.
+> **에이전트 작업자 안내:** 필수 기술: superpowers:subagent-driven-development.
 
-**Goal:** Faithfully build `/dashboard/payment`, `/dashboard/crypto`, `/dashboard/finance`, replacing placeholders. Reuse shared `KpiCard`; per-dashboard widgets + colocated `data.ts`.
+**목표:** `/dashboard/payment`, `/dashboard/crypto`, `/dashboard/finance`를 충실히 구현해 placeholder를 교체합니다. 공통 `KpiCard`와 대시보드별 위젯 및 함께 배치한 `data.ts`를 재사용합니다.
 
-**Conventions (same as Phase 1b):** shared `KpiCard` at `@/components/dashboards/shared/kpi-card`; widgets under `src/components/dashboards/<name>/`; shadcn `card/chart/table/badge/progress/avatar/button/select/tabs/input`; Recharts; Base UI (`render` prop, Checkbox `indeterminate` boolean); charts are `"use client"`, pages server; `CardTitle` is a div; status badges via `cn()` on `Badge`; smoke-test card titles with `getByText(..., {exact:true})`. Branch `feat/phase-1c-finance-dashboards`. Reference: https://shadcnuikit.com/dashboard/{payment,crypto,finance}.
+**규칙(1b단계와 동일):** 공통 `KpiCard`는 `@/components/dashboards/shared/kpi-card`, 위젯은 `src/components/dashboards/<name>/` 아래에 둡니다. shadcn `card/chart/table/badge/progress/avatar/button/select/tabs/input`, Recharts, Base UI(`render` prop, Checkbox `indeterminate` boolean)를 사용합니다. 차트는 `"use client"`, 페이지는 server component로 두고 `CardTitle`은 div로 유지합니다. 상태 badge는 `Badge`에 `cn()`을 적용하고 카드 제목은 `getByText(..., {exact:true})`로 smoke test합니다. Branch `feat/phase-1c-finance-dashboards`. 참조: https://shadcnuikit.com/dashboard/{payment,crypto,finance}.
 
 ---
 
-## Task 1: Payment dashboard (`/dashboard/payment`) — header "Payment"
+## 작업 1: Payment 대시보드(`/dashboard/payment`) — 제목 "Payment"
 
 **Widgets (faithful):**
 1. **Balances** — card "Total funds in all balances" big `1,740.30 USD`; below, 3 currency rows (USD `1,200.00`, EUR `380.50`, GBP `159.80`) each with flag-ish label + amount.
@@ -21,7 +21,7 @@ Data → `payment/data.ts`. Layout: top row Balances + Verification + Exchange R
 
 ---
 
-## Task 2: Crypto dashboard (`/dashboard/crypto`) — header "Crypto"
+## 작업 2: Crypto 대시보드(`/dashboard/crypto`) — 제목 "Crypto"
 
 **Widgets (faithful):**
 1. **Overview KPI row (4 `KpiCard`s):** Transactions `150`; Wallets `3`; Current Balance `$46,200`; USDT Balance `4,620,910 USDT` delta `+12%` up.
@@ -35,7 +35,7 @@ Data → `crypto/data.ts`. `tsc --noEmit && pnpm build`; commit `feat: add crypt
 
 ---
 
-## Task 3: Finance dashboard (`/dashboard/finance`) — header "Finance"
+## 작업 3: Finance 대시보드(`/dashboard/finance`) — 제목 "Finance"
 
 **Widgets (faithful):**
 1. **KPI row (4 `KpiCard`s):** My Balance `$125,430` `+12.5%` up "compared to last month"; Net Profit `$38,700` `+8.5%` up; Expenses `$26,450` `+5.5%` up (or down per design — use up/neutral); Pending Invoices `$3,200` sublabel "3 overdue invoices" (no trend arrow, or use a warning icon).
@@ -50,7 +50,7 @@ Data → `finance/data.ts`. `tsc --noEmit && pnpm build`; commit `feat: add fina
 
 ---
 
-## Task 4: Smoke tests + full verification
+## 작업 4: Smoke test 및 전체 검증
 
 Create `e2e/dashboards-finance.spec.ts` — per dashboard: assert status<400, no `pageerror`, and 3 exact unique widget texts visible (READ the built widgets to pick exact strings, e.g. payment: "Exchange Rates", "Convert Currencies", "Balances"; crypto: "Digital Wallets" or "Wallets", "Recent Activities", "Balance Summary"; finance: "Income Sources", "Saving Goal", "Expense Summary"). Use `getByText(t,{exact:true}).first()`. Run full suite (`CI=1`, kill :3000 first) — expect 54 prior + 3 = 57 pass; fix real render bugs at root. `pnpm lint` 0 errors. Commit `test: add finance dashboards smoke tests`.
 

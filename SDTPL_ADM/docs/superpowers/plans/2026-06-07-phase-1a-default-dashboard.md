@@ -1,20 +1,20 @@
-# Phase 1a — Default Dashboard Implementation Plan
+# 1a단계: 기본 대시보드 구현 계획
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax.
+> **에이전트 작업자 안내:** 이 계획은 superpowers:subagent-driven-development 기술을 사용해 작업별로 구현합니다. 단계 추적에는 checkbox (`- [ ]`) 문법을 사용합니다.
 
-**Goal:** Replace the `/dashboard/default` placeholder with a faithful clone of the shadcnuikit Default dashboard — page header (date-range picker + Download) and 7 widgets (Subscriptions, Total Revenue, Team Members, New Message chat, Exercise Minutes chart, Latest Payments table, Payment Method form).
+**목표:** `/dashboard/default` placeholder를 shadcnuikit 기본 대시보드의 충실한 복제본으로 교체합니다. 페이지 헤더(date-range picker + Download)와 7개 위젯(Subscriptions, Total Revenue, Team Members, New Message chat, Exercise Minutes chart, Latest Payments table, Payment Method form)을 포함합니다.
 
-**Architecture:** Each widget is a focused component under `src/components/dashboards/default/`. The page (`(dashboard)/dashboard/default/page.tsx`) composes them in a responsive grid. Mock data lives in `src/lib/data.ts`. Charts use shadcn's `chart` (Recharts) components; the payments table uses TanStack Table. Widgets needing interactivity are client components.
+**아키텍처:** 각 위젯은 `src/components/dashboards/default/` 아래의 독립 컴포넌트입니다. 페이지(`(dashboard)/dashboard/default/page.tsx`)가 반응형 grid로 조합합니다. mock data는 `src/lib/data.ts`에 둡니다. 차트는 shadcn의 `chart`(Recharts)를 사용하고 수납 테이블은 TanStack Table을 사용합니다. 상호작용이 필요한 위젯은 client component입니다.
 
-**Tech Stack:** Next.js 16 · React 19 · Tailwind v4 · shadcn/ui (Base UI) · Recharts (via shadcn `chart`) · @tanstack/react-table · lucide-react.
+**기술 스택:** Next.js 16 · React 19 · Tailwind v4 · shadcn/ui(Base UI) · Recharts(shadcn `chart` 경유) · @tanstack/react-table · lucide-react.
 
-**Reference:** Spec [docs/superpowers/specs/2026-06-07-phase-1-dashboards-design.md](../specs/2026-06-07-phase-1-dashboards-design.md). Live: https://shadcnuikit.com/dashboard/default.
+**참조:** 사양 [docs/superpowers/specs/2026-06-07-phase-1-dashboards-design.md](../specs/2026-06-07-phase-1-dashboards-design.md). 실제 참조: https://shadcnuikit.com/dashboard/default.
 
 **Base UI reminders (from Phase 0):** triggers use the `render` prop (NOT `asChild`); the generated `CommandDialog` lacks a `<Command>` root; verify each generated component's API before consuming it. Playwright `webServer` runs the PROD build. `pnpm lint` runs separately from `pnpm build`.
 
 ---
 
-## File Structure (this phase)
+## 파일 구조(이 단계)
 
 ```
 src/
@@ -33,7 +33,7 @@ e2e/dashboard-default.spec.ts   # widget smoke tests
 
 ---
 
-## Task 1: Add chart + supporting shadcn components
+## 작업 1: chart 및 관련 shadcn 컴포넌트 추가
 
 **Files:** `src/components/ui/chart.tsx`, `calendar.tsx`, `select.tsx`, `checkbox.tsx`, `progress.tsx` (CLI-generated); `package.json` (recharts, @tanstack/react-table).
 
@@ -66,7 +66,7 @@ git commit -m "chore: add chart/calendar/select/checkbox/progress + tanstack-tab
 
 ---
 
-## Task 2: Extend mock data (`src/lib/data.ts`)
+## 작업 2: mock data 확장(`src/lib/data.ts`)
 
 **Files:** Modify `src/lib/data.ts` (keep existing exports; ADD the below).
 
@@ -146,7 +146,7 @@ Note: existing imports of `teamMembers` (Phase 0 had no role usage) and `latestP
 
 ---
 
-## Task 3: Metric cards — Subscriptions + Total Revenue
+## 작업 3: Metric 카드 — Subscriptions 및 Total Revenue
 
 **Files:** Create `src/components/dashboards/default/metric-cards.tsx`.
 
@@ -219,7 +219,7 @@ git commit -m "feat: add subscriptions + total revenue metric cards"
 
 ---
 
-## Task 4: Team Members card
+## 작업 4: Team Members 카드
 
 **Files:** Create `src/components/dashboards/default/team-members.tsx`.
 
@@ -298,7 +298,7 @@ git commit -m "feat: add team members card"
 
 ---
 
-## Task 5: New Message chat card
+## 작업 5: New Message 채팅 카드
 
 **Files:** Create `src/components/dashboards/default/chat-card.tsx`.
 
@@ -373,7 +373,7 @@ git commit -m "feat: add new message chat card"
 
 ---
 
-## Task 6: Exercise Minutes chart card
+## 작업 6: Exercise Minutes 차트 카드
 
 **Files:** Create `src/components/dashboards/default/exercise-card.tsx`.
 
@@ -430,7 +430,7 @@ git commit -m "feat: add exercise minutes chart card"
 
 ---
 
-## Task 7: Latest Payments — TanStack data table
+## 작업 7: Latest Payments — TanStack 데이터 테이블
 
 **Files:** Create `src/components/dashboards/default/payments-table.tsx`.
 
@@ -625,7 +625,7 @@ git commit -m "feat: add latest payments tanstack table"
 
 ---
 
-## Task 8: Payment Method form card
+## 작업 8: Payment Method 폼 카드
 
 **Files:** Create `src/components/dashboards/default/payment-method.tsx`.
 
@@ -726,7 +726,7 @@ git commit -m "feat: add payment method form card"
 
 ---
 
-## Task 9: Dashboard header (title + date-range picker + Download)
+## 작업 9: 대시보드 헤더(title + date-range picker + Download)
 
 **Files:** Create `src/components/dashboards/default/dashboard-header.tsx`.
 
@@ -780,7 +780,7 @@ git commit -m "feat: add dashboard header with date-range picker"
 
 ---
 
-## Task 10: Assemble the Default dashboard page
+## 작업 10: 기본 대시보드 페이지 조합
 
 **Files:** Modify `src/app/(dashboard)/dashboard/default/page.tsx`.
 
@@ -832,7 +832,7 @@ git commit -m "feat: assemble default dashboard page"
 
 ---
 
-## Task 11: Widget smoke tests + full verification
+## 작업 11: 위젯 smoke test 및 전체 검증
 
 **Files:** Create `e2e/dashboard-default.spec.ts`; verify the existing suite still passes.
 

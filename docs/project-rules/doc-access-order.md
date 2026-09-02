@@ -1,52 +1,52 @@
-# Project Documentation Access Order
+# 프로젝트 문서 확인 순서
 
-Use this order whenever you need to understand the project before implementing or debugging.
+구현이나 디버깅 전에 프로젝트를 이해해야 할 때는 항상 이 순서를 따릅니다.
 
-## 1. Project overview
+## 1. 프로젝트 개요
 
 - README.md
 - docs/overview/
-- product goals and current status notes
+- 제품 목표와 현재 상태 기록
 
-## 2. Architecture overview
+## 2. 아키텍처 개요
 
-- architecture diagrams
-- system boundaries
-- frontend/backend/database interactions
-- deployment and tooling notes
+- 아키텍처 다이어그램
+- 시스템 경계
+- 프론트엔드/백엔드/데이터베이스 상호작용
+- 배포와 도구 관련 기록
 
-## 3. Business domain model
+## 3. 비즈니스 도메인 모델
 
-- property management domain
-- tenant, contract, payment, maintenance, admin flows
-- business rules and status transitions
+- 부동산 관리 도메인
+- 임차인, 계약, 수납, 유지보수, 관리자 흐름
+- 비즈니스 규칙과 상태 전이
 
-## 4. Current implementation status
+## 4. 현재 구현 상태
 
-- current features implemented
-- pending tasks
-- known risks or open issues
+- 구현된 기능
+- 예정 작업
+- 알려진 위험과 미해결 문제
 
-## 5. Relevant feature docs or bug notes
+## 5. 관련 기능 문서와 버그 기록
 
-- specific feature docs
-- discovered root causes
-- prior fixes or known caveats
+- 특정 기능 문서
+- 발견된 근본 원인
+- 이전 수정 사항과 알려진 주의점
 
-## 6. Implementation files
+## 6. 구현 파일
 
-- target modules
-- files directly related to the task
-- tests or adjacent modules that may be impacted
+- 대상 모듈
+- 작업과 직접 관련된 파일
+- 영향을 받을 수 있는 테스트와 인접 모듈
 
-## 7. Make the change
+## 7. 변경 수행
 
-- apply the minimal fix or feature work
-- verify behavior with focused checks
+- 최소 수정 또는 기능 작업을 적용합니다.
+- 집중 검증으로 동작을 확인합니다.
 
-## 8. Document the result
+## 8. 결과 문서화
 
-- update the relevant docs
-- record decisions, findings, and changed behavior
+- 관련 문서를 갱신합니다.
+- 의사결정, 발견 사항, 변경된 동작을 기록합니다.
 
-This order is mandatory to avoid blind changes and unnecessary exploration.
+이 순서는 맹목적인 변경과 불필요한 탐색을 막기 위한 필수 규칙입니다.

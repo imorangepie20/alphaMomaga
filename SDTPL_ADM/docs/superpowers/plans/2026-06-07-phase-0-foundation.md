@@ -1,8 +1,8 @@
-# Phase 0 — Foundation Implementation Plan
+# 0단계: 기반 구현 계획
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **에이전트 작업자 안내:** 이 계획은 superpowers:subagent-driven-development 또는 superpowers:executing-plans 기술을 사용해 작업별로 구현합니다. 단계 추적에는 checkbox (`- [ ]`) 문법을 사용합니다.
 
-**Goal:** Stand up the shared app foundation (scaffold, theme, app shell, ⌘K palette, notifications, nav config, mock-data skeleton, and stubs for every route) so all later phases can fill in real pages on a working, navigable shell.
+**목표:** 공통 앱 기반(scaffold, theme, app shell, ⌘K palette, notifications, nav config, mock-data skeleton, 전체 route stub)을 구성해 이후 단계가 동작하고 탐색 가능한 셸에 실제 페이지를 채울 수 있게 합니다.
 
 **Architecture:** Next.js 16 App Router with two layout groups — `(dashboard)` (full app shell) and `(auth)` (bare auth layout). A single `src/lib/nav.ts` sitemap drives both the sidebar and the ⌘K command palette. Every route in the kit is created as a placeholder page in this phase so navigation works end-to-end; later phases replace placeholders with real pages. Theme is light/dark/system via `next-themes`. Verification is Playwright route-render smoke tests plus `pnpm lint`/`pnpm build`.
 
@@ -12,7 +12,7 @@
 
 ---
 
-## File Structure (created in this phase)
+## 파일 구조(이 단계에서 생성)
 
 ```
 src/
@@ -49,7 +49,7 @@ playwright.config.ts
 
 ---
 
-## Task 1: Scaffold Next.js 16 app (preserving existing docs + git)
+## 작업 1: Next.js 16 앱 scaffold(기존 docs와 git 보존)
 
 **Files:**
 - Create: project scaffold (`package.json`, `tsconfig.json`, `next.config.ts`, `src/app/*`, `eslint.config.mjs`, …)
@@ -96,7 +96,7 @@ git commit -m "chore: scaffold Next.js 16 + Tailwind v4 + TS"
 
 ---
 
-## Task 2: Initialize shadcn/ui (Base UI) and add core components
+## 작업 2: shadcn/ui(Base UI) 초기화 및 핵심 컴포넌트 추가
 
 **Files:**
 - Create: `components.json`, `src/components/ui/*`, `src/lib/utils.ts`
@@ -137,7 +137,7 @@ git commit -m "chore: init shadcn/ui (Base UI) and add core components"
 
 ---
 
-## Task 3: Playwright smoke-test harness
+## 작업 3: Playwright smoke-test harness
 
 **Files:**
 - Create: `playwright.config.ts`, `e2e/smoke.spec.ts`
@@ -231,7 +231,7 @@ git commit -m "test: add Playwright smoke harness + root redirect"
 
 ---
 
-## Task 4: Nav config — full sitemap (`src/lib/nav.ts`)
+## 작업 4: Nav config — 전체 sitemap(`src/lib/nav.ts`)
 
 **Files:**
 - Create: `src/lib/nav.ts`
@@ -357,7 +357,7 @@ git commit -m "feat: add full sitemap nav config"
 
 ---
 
-## Task 5: Mock data layer skeleton (`src/lib/data.ts`)
+## 작업 5: Mock data 계층 골격(`src/lib/data.ts`)
 
 **Files:**
 - Create: `src/lib/data.ts`
@@ -405,7 +405,7 @@ git commit -m "feat: add mock data layer skeleton"
 
 ---
 
-## Task 6: Theme provider + toggle
+## 작업 6: Theme provider 및 toggle
 
 **Files:**
 - Create: `src/components/layout/theme-provider.tsx`, `src/components/layout/theme-toggle.tsx`
@@ -518,7 +518,7 @@ git commit -m "feat: add theme provider and toggle"
 
 ---
 
-## Task 7: Reusable placeholder page + breadcrumbs
+## 작업 7: 재사용 가능한 placeholder 페이지 및 breadcrumbs
 
 **Files:**
 - Create: `src/components/placeholder-page.tsx`, `src/components/layout/breadcrumbs.tsx`
@@ -593,7 +593,7 @@ git commit -m "feat: add placeholder page and breadcrumbs"
 
 ---
 
-## Task 8: App sidebar, header, command palette, notifications
+## 작업 8: App sidebar, header, command palette, notifications
 
 **Files:**
 - Create: `src/components/layout/app-sidebar.tsx`, `app-header.tsx`, `command-palette.tsx`, `notifications.tsx`
@@ -818,7 +818,7 @@ git commit -m "feat: add sidebar, header, command palette, notifications"
 
 ---
 
-## Task 9: Dashboard layout group + default dashboard placeholder
+## 작업 9: Dashboard layout group 및 기본 대시보드 placeholder
 
 **Files:**
 - Create: `src/app/(dashboard)/layout.tsx`, `src/app/(dashboard)/dashboard/default/page.tsx`
@@ -898,7 +898,7 @@ git commit -m "feat: add dashboard shell layout + default placeholder"
 
 ---
 
-## Task 10: Generate placeholder pages for every remaining route
+## 작업 10: 나머지 route의 placeholder 페이지 생성
 
 **Files:**
 - Create: one `page.tsx` per route under `src/app/(dashboard)/...` for all `allNavItems` except the default dashboard already created.
@@ -1011,7 +1011,7 @@ git commit -m "feat: add placeholder pages for all routes + auth group"
 
 ---
 
-## Task 11: Full route-render smoke test + lint clean
+## 작업 11: 전체 route-render smoke test 및 lint 정리
 
 **Files:**
 - Modify: `e2e/smoke.spec.ts`, `eslint.config.mjs`
@@ -1073,7 +1073,7 @@ git commit -m "test: add full route-render smoke suite; lint config"
 
 ---
 
-## Task 12: README + .gitignore sanity
+## 작업 12: README 및 .gitignore 점검
 
 **Files:**
 - Create/Modify: `README.md`

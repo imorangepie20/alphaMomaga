@@ -1,30 +1,30 @@
-# System Overview
+# 시스템 개요
 
-## High-level architecture
+## 상위 수준 아키텍처
 
-- Frontend: Next.js app for admin and manager workflows
-- Backend: NestJS API for domain logic and business rules
-- Data layer: relational database with explicit domain models
-- UI shell: reusable admin dashboard template from `SDTPL_ADM`
+- 프론트엔드: 관리자와 매니저 업무 흐름을 위한 Next.js 앱
+- 백엔드: 도메인 로직과 비즈니스 규칙을 담당하는 NestJS API
+- 데이터 계층: 명시적인 도메인 모델을 사용하는 관계형 데이터베이스
+- UI 셸: `SDTPL_ADM`의 재사용 가능한 관리자 대시보드 템플릿
 
-## Responsibilities
+## 책임 범위
 
-### Frontend
-- dashboard views
-- table/list screens
-- forms and detail pages
-- role-based navigation
-- analytics and operational summary cards
+### 프론트엔드
+- 대시보드 화면
+- 테이블과 목록 화면
+- 폼과 상세 페이지
+- 역할 기반 네비게이션
+- 분석 및 운영 요약 카드
 
-### Backend
-- auth and access control
-- business validation
-- CRUD operations for entities
-- payment and contract rules
-- admin insights and reporting
+### 백엔드
+- 인증과 접근 제어
+- 비즈니스 검증
+- 엔터티 CRUD 작업
+- 수납과 계약 규칙
+- 관리자 인사이트와 보고서
 
-### Shared concerns
-- consistent status naming
-- typed APIs and domain objects
-- validation close to the input boundary
-- traceable actions and audit-friendly records
+### 공통 관심사
+- 일관된 상태 명명
+- 타입이 지정된 API와 도메인 객체
+- 입력 경계에 가까운 검증
+- 추적 가능한 작업과 감사에 적합한 기록

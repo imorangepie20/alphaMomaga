@@ -1,25 +1,25 @@
-# Phase 1: Dashboard Customization
+# 1단계: 대시보드 맞춤화
 
-## Goal
+## 목표
 
-Adapt the starter admin template so it reflects a property management business context rather than a generic real-estate sales dashboard.
+기본 관리자 템플릿을 일반적인 부동산 영업 대시보드가 아닌 부동산 관리 업무에 맞게 조정합니다.
 
-## Changes made
+## 변경 사항
 
-- Replaced the page heading with "Property Manager Dashboard".
-- Updated KPI labels to match property operations: portfolio value, occupancy rate, monthly rent, overdue units.
-- Reframed reminder cards around operational property workflows: inspections, lease renewal review, and rent collection follow-up.
+- 페이지 제목을 "부동산 관리 대시보드"로 변경했습니다.
+- KPI 라벨을 자산 가치, 점유율, 월 임대료, 연체 세대 등 부동산 운영에 맞게 변경했습니다.
+- 알림 카드를 점검, 계약 갱신 검토, 임대료 수납 후속 조치 등 실제 운영 흐름 중심으로 바꿨습니다.
 
-## Why this matters
+## 중요한 이유
 
-This is the first step in moving from a generic UI template to a realistic asset management application. It anchors the product in daily management tasks instead of marketing or sales-only language.
+일반 UI 템플릿을 현실적인 자산 관리 애플리케이션으로 전환하는 첫 단계입니다. 제품을 마케팅이나 영업 전용 용어가 아닌 일상적인 관리 업무에 맞춥니다.
 
-## Next step
+## 다음 단계
 
-Customize the remaining cards and charts to reflect property management data and workflows such as:
+남은 카드와 차트를 다음과 같은 부동산 관리 데이터와 흐름에 맞게 조정합니다.
 
-- occupied vs vacant units
-- rent status by property
-- maintenance backlog
-- upcoming contract renewals
-- admin/user activity summary
+- 점유 세대와 공실 세대
+- 자산별 임대료 상태
+- 유지보수 backlog
+- 예정된 계약 갱신
+- 관리자/사용자 활동 요약

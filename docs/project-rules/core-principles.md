@@ -1,37 +1,37 @@
-# Core Principles for This Project
+# 이 프로젝트의 핵심 원칙
 
-This document is the mandatory reminder for all work on this project.
+이 문서는 프로젝트의 모든 작업에 적용되는 필수 원칙입니다.
 
-## 1. Record every change in documentation
+## 1. 모든 변경 사항을 문서에 기록
 
-- Every meaningful change must be captured in a relevant document under the docs folder.
-- Any action that affects architecture, workflow, decisions, or implementation should be documented for the next session.
-- If a fix is made, write down what broke, why it broke, and what was changed.
-- Use structured docs, not loose notes scattered across the repo.
+- 의미 있는 모든 변경은 docs 폴더의 관련 문서에 기록합니다.
+- 아키텍처, 업무 흐름, 의사결정 또는 구현에 영향을 주는 작업은 다음 세션을 위해 문서화합니다.
+- 수정이 발생하면 무엇이 깨졌는지, 원인이 무엇인지, 무엇을 변경했는지 기록합니다.
+- 저장소 곳곳에 흩어진 메모 대신 구조화된 문서를 사용합니다.
 
-## 2. Do not postpone the task that must be done now
+## 2. 지금 해야 할 작업을 미루지 않기
 
-- If a task is required to keep progress correct, do it immediately.
-- Do not defer essential work for later “when time allows.”
-- Deferred critical work usually creates larger problems and rework.
+- 진행을 올바르게 유지하는 데 필요한 작업은 즉시 수행합니다.
+- 핵심 작업을 나중에 시간이 날 때까지 미루지 않습니다.
+- 중요한 작업을 미루면 더 큰 문제와 재작업이 발생합니다.
 
-## 3. Maintain a documented project understanding flow
+## 3. 문서화된 프로젝트 이해 흐름 유지
 
-- Before touching code, identify the relevant documentation first.
-- The reading order should be:
-  1. project overview / goals
-  2. architecture and domain model
-  3. business logic and workflows
-  4. current implementation status
-  5. relevant feature docs or bug notes
-  6. implementation files directly related to the task
-- This prevents blind code changes and unnecessary exploration.
+- 코드를 수정하기 전에 관련 문서를 먼저 확인합니다.
+- 읽는 순서는 다음과 같습니다.
+  1. 프로젝트 개요와 목표
+  2. 아키텍처와 도메인 모델
+  3. 비즈니스 로직과 업무 흐름
+  4. 현재 구현 상태
+  5. 관련 기능 문서와 버그 기록
+  6. 작업과 직접 관련된 구현 파일
+- 이를 통해 맹목적인 코드 변경과 불필요한 탐색을 방지합니다.
 
-## 4. Keep all documentation inside the docs folder
+## 4. 모든 문서를 docs 폴더 안에 보관
 
-- Documentation must live under docs with a clear structure.
-- Avoid ad hoc notes outside the docs folder.
-- Use a predictable organization such as:
+- 문서는 명확한 구조를 가진 docs 아래에 둡니다.
+- docs 폴더 밖에 임의의 메모를 만들지 않습니다.
+- 다음과 같이 예측 가능한 구조를 사용합니다.
   - docs/overview/
   - docs/architecture/
   - docs/business-logic/
@@ -39,35 +39,35 @@ This document is the mandatory reminder for all work on this project.
   - docs/changes/
   - docs/project-rules/
 
-## 5. Fix root causes, not symptoms
+## 5. 증상이 아니라 근본 원인을 수정
 
-- When something breaks, trace to the underlying cause.
-- Do not patch around symptoms when the true cause is still unresolved.
-- Time spent validating the root cause is always cheaper than repeated quick fixes.
+- 문제가 발생하면 근본 원인을 추적합니다.
+- 진짜 원인이 해결되지 않은 상태에서 증상만 우회하지 않습니다.
+- 근본 원인을 검증하는 시간은 반복적인 임시 수정 비용보다 항상 저렴합니다.
 
-## 6. Map business logic relationships before changing behavior
+## 6. 동작을 변경하기 전에 비즈니스 관계를 파악
 
-- For each major business area, maintain a relationship map.
-- Examples: property -> tenant -> contract -> payment -> maintenance.
-- Understand how entities connect before adding features or making changes.
-- This prevents accidental breakage of the whole workflow.
+- 주요 비즈니스 영역마다 관계 맵을 유지합니다.
+- 예시: property -> tenant -> contract -> payment -> maintenance
+- 기능을 추가하거나 변경하기 전에 엔터티 연결 관계를 이해합니다.
+- 이를 통해 전체 업무 흐름이 우발적으로 깨지는 일을 방지합니다.
 
-## 7. Work steadily and verify each step
+## 7. 꾸준히 작업하고 각 단계를 검증
 
-- Do not rush for speed alone.
-- Solve one issue at a time and confirm it is correct before continuing.
-- Incremental proof is more reliable than fast but fragile progress.
+- 속도만을 위해 서두르지 않습니다.
+- 한 번에 하나의 문제를 해결하고 올바름을 확인한 뒤 계속합니다.
+- 단계별 증명이 빠르지만 취약한 진행보다 신뢰할 수 있습니다.
 
-## 8. Always keep the end-to-end flow in view
+## 8. 항상 전체 업무 흐름을 기준으로 판단
 
-- Do not get trapped in a local optimization or a single component detail.
-- Think in terms of the overall user workflow and business process.
-- Components, data, and logic should support the whole system, not isolated fragments.
+- 특정 최적화나 단일 컴포넌트 세부 사항에만 갇히지 않습니다.
+- 전체 사용자 흐름과 비즈니스 프로세스 관점에서 생각합니다.
+- 컴포넌트, 데이터, 로직은 고립된 일부가 아니라 전체 시스템을 지원해야 합니다.
 
-## Required reminder cadence
+## 필수 점검 주기
 
-- Review this file at the start of each session.
-- Re-check before starting a non-trivial change.
-- Update docs when a milestone is reached or a problem is resolved.
+- 매 세션 시작 시 이 파일을 검토합니다.
+- 중요도가 높은 변경을 시작하기 전에 다시 확인합니다.
+- 마일스톤에 도달하거나 문제가 해결되면 문서를 갱신합니다.
 
-This is a project rule, not an optional preference.
+이는 선택 사항이 아니라 프로젝트 규칙입니다.

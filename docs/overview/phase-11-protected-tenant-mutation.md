@@ -1,26 +1,26 @@
-# Phase 11: Protected Tenant Mutation
+# 11단계: 보호된 임차인 변경 작업
 
-## Goal
+## 목표
 
-Apply the server-owned role policy to a real business mutation while preserving clear authentication and authorization responses.
+명확한 인증 및 인가 응답을 유지하면서 서버 주도 역할 정책을 실제 비즈니스 변경 작업에 적용합니다.
 
-## Implemented
+## 구현 내용
 
-- Added `POST /tenants` for creating a tenant record in the current in-memory model.
-- Added explicit tenant input validation at the controller boundary.
-- Added reusable permission metadata and `PermissionsGuard`.
-- Required `tenant:manage` for tenant creation.
-- Allowed Admin and Property Manager roles through the existing policy.
-- Denied Finance and Inspector roles with HTTP `403`.
-- Kept missing identity failures at HTTP `401` and invalid input at HTTP `400`.
-- Added unit and end-to-end coverage for the authorization boundary.
+- 현재 메모리 모델에 임차인 기록을 생성하는 `POST /tenants`를 추가했습니다.
+- controller 경계에서 임차인 입력을 명시적으로 검증합니다.
+- 재사용 가능한 권한 메타데이터와 `PermissionsGuard`를 추가했습니다.
+- 임차인 생성에 `tenant:manage` 권한을 요구합니다.
+- 기존 정책을 통해 Admin과 Property Manager 역할을 허용합니다.
+- Finance와 Inspector 역할은 HTTP `403`으로 거부합니다.
+- 신원이 없으면 HTTP `401`, 입력이 잘못되면 HTTP `400`을 반환합니다.
+- 인가 경계에 대한 단위 테스트와 end-to-end 테스트를 추가했습니다.
 
-## Current boundary
+## 현재 범위
 
-Tenant creation is still in-memory and is not yet persisted. Authentication uses the signed JWT boundary when configured and the explicitly enabled local demo role fallback for development tests. Production identity, database transactions, audit logging, and mutation workflows remain follow-up work.
+임차인 생성은 아직 메모리에서만 처리되며 영속화되지 않습니다. 인증은 설정된 경우 서명된 JWT 경계를 사용하고, 개발 테스트에서는 명시적으로 활성화한 로컬 demo role fallback을 사용합니다. 운영용 신원 확인, 데이터베이스 transaction, 감사 로그, 변경 업무 흐름은 후속 작업입니다.
 
-## Verification
+## 검증
 
-The full API unit and e2e suites, API build, frontend lint, and protected tenant mutation tests pass.
+전체 API 단위 및 e2e 모음, API build, 프론트엔드 lint, 보호된 임차인 변경 테스트가 통과했습니다.
 
-Next step: add database persistence and audit records before expanding write operations across contracts, payments, and maintenance.
+다음 단계: 계약, 수납, 유지보수의 쓰기 작업을 확장하기 전에 데이터베이스 영속화와 감사 기록을 추가합니다.

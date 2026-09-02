@@ -1,4 +1,4 @@
-# Phase 1 — Dashboards (Design / Spec)
+# 1단계: 대시보드(설계 / 사양)
 
 - **작성일:** 2026-06-07
 - **상위 스펙:** [2026-06-07-shadcn-ui-kit-clone-design.md](2026-06-07-shadcn-ui-kit-clone-design.md)

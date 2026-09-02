@@ -1,24 +1,24 @@
-# Phase 5: Contract Workflow
+# 5단계: 계약 업무 흐름
 
-## Goal
+## 목표
 
-Make lease terms and lifecycle validity explicit for property managers.
+부동산 매니저가 임대 조건과 계약 lifecycle의 유효성을 명확히 확인할 수 있게 합니다.
 
-## Implemented
+## 구현 내용
 
-- Added `GET /contracts` to the NestJS API.
-- Added property and tenant relationships through stable IDs.
-- Added ISO calendar-date and lifecycle-state validation.
-- Added service tests for upcoming, active, expired, and terminated contracts, including invalid dates.
-- Connected the Contracts screen to API-backed data and tenant names.
-- Derived active and renewal-review metrics from returned contract records.
+- NestJS API에 `GET /contracts`를 추가했습니다.
+- 안정적인 ID를 통해 자산과 임차인 관계를 추가했습니다.
+- ISO 날짜와 lifecycle 상태 검증을 추가했습니다.
+- 예정, 유효, 만료, 종료 계약과 잘못된 날짜를 검증하는 서비스 테스트를 추가했습니다.
+- 계약 화면을 API 데이터와 임차인 이름에 연결했습니다.
+- 반환된 계약 데이터에서 유효 계약과 갱신 검토 지표를 계산합니다.
 
-## Current boundary
+## 현재 범위
 
-The contract endpoint remains an in-memory read model. Create/update mutations, persistence, authentication, and authorization remain follow-up work.
+계약 endpoint는 메모리 기반 조회 모델로 유지됩니다. 생성/수정 작업, 영속화, 인증, 인가는 후속 작업입니다.
 
-## Verification
+## 검증
 
 The contract lifecycle unit tests and contracts API e2e test pass. The browser screen displays the returned lease records and derived status labels.
 
-Next step: introduce persistence and mutation boundaries, beginning with the payment workflow.
+다음 단계: 수납 업무 흐름부터 영속화와 변경 작업의 경계를 도입합니다.

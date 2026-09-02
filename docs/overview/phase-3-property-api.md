@@ -1,21 +1,21 @@
-# Phase 3: Property API Foundation
+# 3단계: 매물 API 기반
 
-## Goal
+## 목표
 
-Establish the first server-owned domain contract for the property management workflow.
+부동산 관리 업무 흐름을 위한 첫 번째 서버 주도 도메인 계약을 수립합니다.
 
-## Implemented
+## 구현 내용
 
-- Added `GET /properties` in the NestJS API.
-- Added an explicit `Property` type with identity, location, asset type, occupancy, and operational status.
-- Added a focused service test covering the response shape and initial records.
-- Registered the controller and service in the root application module.
+- NestJS API에 `GET /properties`를 추가했습니다.
+- 식별자, 위치, 자산 유형, 점유율, 운영 상태를 포함하는 명시적 `Property` 타입을 추가했습니다.
+- 응답 형식과 초기 데이터를 검증하는 집중 서비스 테스트를 추가했습니다.
+- 루트 애플리케이션 모듈에 컨트롤러와 서비스를 등록했습니다.
 
-## Current boundary
+## 현재 범위
 
-The endpoint currently uses in-memory records. Database persistence, authentication, authorization, filtering, and mutations remain separate follow-up phases. Keeping this boundary small lets the frontend contract be verified before introducing database or permission complexity.
+현재 endpoint는 메모리 데이터를 사용합니다. 데이터베이스 영속화, 인증, 인가, 필터링, 변경 작업은 별도 후속 단계로 남겨두었습니다. 범위를 작게 유지해 데이터베이스나 권한 복잡성을 도입하기 전에 프론트엔드 계약을 검증할 수 있습니다.
 
-## Verification
+## 검증
 
 The focused API test passes:
 
@@ -24,4 +24,4 @@ Test Files  1 passed
 Tests       1 passed
 ```
 
-Next step: replace the frontend Properties page's local records with this API contract behind an environment-based API URL, then add persistence and role enforcement.
+다음 단계: 환경 기반 API URL을 통해 프론트엔드 매물 페이지의 로컬 데이터를 이 API 계약으로 교체한 뒤 영속화와 역할 제어를 추가합니다.

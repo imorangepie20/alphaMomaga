@@ -1,16 +1,16 @@
-# Onboarding + Users Pages Implementation Plan
+# 온보딩 및 사용자 페이지 구현 계획
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **에이전트 작업자 안내:** 이 계획은 superpowers:subagent-driven-development 또는 superpowers:executing-plans 기술을 사용해 작업별로 구현합니다. 단계 추적에는 checkbox (`- [ ]`) 문법을 사용합니다.
 
-**Goal:** Build two production-quality shadcn-style dashboard pages — a 4-step onboarding wizard and a TanStack data-table users list — replacing placeholder pages.
+**목표:** placeholder 페이지를 대체할 운영 품질 shadcn 스타일 대시보드 두 개, 즉 4단계 온보딩 마법사와 TanStack 데이터 테이블 사용자 목록을 구현합니다.
 
-**Architecture:** Each page is a single client component in `src/components/pages/<name>/`. The `page.tsx` in the dashboard route simply re-exports the component. The users page splits static fixture data into a `data.ts` sidecar so the component stays focused on rendering. Both pages wire local state only — no server calls.
+**아키텍처:** 각 페이지는 `src/components/pages/<name>/`의 단일 client component입니다. 대시보드 route의 `page.tsx`는 컴포넌트를 다시 export합니다. 사용자 페이지는 정적 fixture 데이터를 `data.ts` 보조 파일로 분리해 렌더링에 집중합니다. 두 페이지 모두 로컬 상태만 사용하며 서버 호출은 없습니다.
 
-**Tech Stack:** Next.js 16, React 19, Tailwind v4, Base UI (via shadcn wrappers in `src/components/ui/`), `@tanstack/react-table` v8, lucide-react.
+**기술 스택:** Next.js 16, React 19, Tailwind v4, Base UI (`src/components/ui/`의 shadcn wrapper), `@tanstack/react-table` v8, lucide-react.
 
 ---
 
-## File Map
+## 파일 구성
 
 | Action | Path | Responsibility |
 |--------|------|---------------|
@@ -22,7 +22,7 @@
 
 ---
 
-## Task 1: Onboarding wizard component
+## 작업 1: 온보딩 마법사 컴포넌트
 
 **Files:**
 - Create: `src/components/pages/onboarding/onboarding-page.tsx`
@@ -408,7 +408,7 @@ Expected: no errors in `onboarding-page.tsx`.
 
 ---
 
-## Task 2: Users data fixtures
+## 작업 2: 사용자 fixture 데이터
 
 **Files:**
 - Create: `src/components/pages/users/data.ts`
@@ -453,7 +453,7 @@ export const USERS: User[] = [
 
 ---
 
-## Task 3: Users page component
+## 작업 3: 사용자 페이지 컴포넌트
 
 **Files:**
 - Create: `src/components/pages/users/users-page.tsx`
@@ -794,7 +794,7 @@ Expected: no errors in users files.
 
 ---
 
-## Task 4: Wire page.tsx routes
+## 작업 4: page.tsx route 연결
 
 **Files:**
 - Modify: `src/app/(dashboard)/onboarding/page.tsx`
@@ -826,7 +826,7 @@ export default function PUsersListPage() {
 
 ---
 
-## Task 5: Build verification + commit
+## 작업 5: build 검증 및 커밋
 
 **Files:** No new files.
 

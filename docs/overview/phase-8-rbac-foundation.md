@@ -1,24 +1,24 @@
-# Phase 8: RBAC Foundation
+# 8단계: RBAC 기반
 
-## Goal
+## 목표
 
-Define server-owned roles and permissions before introducing authentication or protected mutations.
+인증이나 보호된 변경 작업을 도입하기 전에 서버 주도 역할과 권한을 정의합니다.
 
-## Implemented
+## 구현 내용
 
-- Added typed roles: Admin, Property Manager, Finance, and Inspector.
-- Added a centralized permission matrix in the API.
-- Added `RolesService.can()` for reusable policy checks.
-- Added `GET /admin/roles` as a read-only policy endpoint.
-- Connected the Korean roles screen to the server policy with fallback data.
-- Added policy unit tests and an API end-to-end test.
+- 타입이 지정된 역할을 추가했습니다: Admin, Property Manager, Finance, Inspector.
+- API에 중앙화된 권한 매트릭스를 추가했습니다.
+- 재사용 가능한 정책 검사를 위해 `RolesService.can()`을 추가했습니다.
+- 읽기 전용 정책 endpoint로 `GET /admin/roles`를 추가했습니다.
+- 한국어 역할 화면을 fallback 데이터가 있는 서버 정책에 연결했습니다.
+- 정책 단위 테스트와 API end-to-end 테스트를 추가했습니다.
 
-## Current boundary
+## 현재 범위
 
-No request is authorized by this phase yet because authentication and user identity do not exist. The policy is ready for a NestJS guard in the next security phase; exposing role definitions does not grant permissions.
+이 단계에서는 아직 인증과 사용자 신원이 없으므로 요청을 인가하지 않습니다. 다음 보안 단계에서 사용할 NestJS guard를 적용할 수 있도록 정책을 준비했으며, 역할 정의를 공개한다고 권한이 부여되는 것은 아닙니다.
 
-## Verification
+## 검증
 
 Role policy unit tests, API end-to-end tests, API build, frontend lint, and browser rendering pass.
 
-Next step: add authentication and apply the policy to manager and administrator mutations.
+다음 단계: 인증을 추가하고 매니저와 관리자 변경 작업에 정책을 적용합니다.

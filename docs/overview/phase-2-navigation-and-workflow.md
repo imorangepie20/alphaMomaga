@@ -1,30 +1,30 @@
-# Phase 2: Navigation and Workflow Alignment
+# 2단계: 네비게이션과 업무 흐름 정렬
 
-## Goal
+## 목표
 
-Align the template navigation and task flow with property management operations instead of generic SaaS or marketing examples.
+템플릿의 네비게이션과 작업 흐름을 일반 SaaS나 마케팅 예시가 아닌 부동산 관리 운영에 맞춥니다.
 
-## Changes made
+## 변경 사항
 
-- Replaced the generic dashboard categories with property-management oriented groups:
-  - Overview
-  - Operations
-  - Admin
-- Updated the navigation items to reflect the actual business workflow:
-  - Properties
-  - Tenants
-  - Contracts
-  - Payments
-  - Maintenance
-  - Inspections
-  - Users
-  - Roles
-  - Reports
+- 일반 대시보드 분류를 부동산 관리 중심 그룹으로 변경했습니다.
+  - 개요
+  - 운영
+  - 관리자
+- 실제 업무 흐름을 반영하도록 네비게이션 항목을 변경했습니다.
+  - 매물
+  - 임차인
+  - 계약
+  - 수납
+  - 유지보수
+  - 점검
+  - 사용자
+  - 역할
+  - 보고서
 
-## Why this matters
+## 중요한 이유
 
-The navigation should mirror how a property manager actually works. This keeps the UI grounded in operational realities instead of abstract dashboard categories.
+네비게이션은 부동산 매니저가 실제로 일하는 방식을 반영해야 합니다. 이를 통해 UI가 추상적인 대시보드 분류가 아니라 운영 현실에 기반을 두게 됩니다.
 
-## Next step
+## 다음 단계
 
-Add domain-specific pages and data models under these sections so the navigation matches real screens and business flows.
+각 섹션에 도메인별 페이지와 데이터 모델을 추가해 네비게이션이 실제 화면과 업무 흐름에 맞도록 합니다.

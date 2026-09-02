@@ -1,14 +1,14 @@
-# Phase 1e — Final Dashboards (Project Management · Website Analytics · File Manager · Academy)
+# 1e단계: 최종 대시보드(Project Management · Website Analytics · File Manager · Academy)
 
-> **For agentic workers:** REQUIRED SUB-SKILL: superpowers:subagent-driven-development.
+> **에이전트 작업자 안내:** 필수 기술: superpowers:subagent-driven-development.
 
-**Goal:** Faithfully build the last 4 dashboards, completing all 14. Replace placeholders for `/dashboard/project-management`, `/dashboard/analytics`, `/dashboard/file-manager`, `/dashboard/academy`. Reuse shared `KpiCard`; per-dashboard widgets + colocated `data.ts`.
+**목표:** 마지막 4개 대시보드를 충실히 구현해 전체 14개를 완성합니다. `/dashboard/project-management`, `/dashboard/analytics`, `/dashboard/file-manager`, `/dashboard/academy`의 placeholder를 교체하고 공통 `KpiCard`와 대시보드별 위젯, `data.ts`를 재사용합니다.
 
-**Conventions (same as prior phases):** shared `KpiCard` at `@/components/dashboards/shared/kpi-card`; widgets under `src/components/dashboards/<name>/`; shadcn `card/chart/table/badge/progress/avatar/button/select/tabs/calendar/separator`; Recharts; Base UI (`render` prop; Tabs/Select `onValueChange` null-guard with `if (v != null)`); charts/interactive `"use client"`, pages server; `CardTitle` is a div; only import what you use; status/priority badges via `cn()` on `Badge`; FIXED date literals only (never argless `new Date()`); smoke-test titles with `getByText(..., {exact:true})`. Branch `feat/phase-1e-final-dashboards`. References: https://shadcnuikit.com/dashboard/{project-management,website-analytics,file-manager,academy} (note our routes `/dashboard/analytics` ↔ reference `website-analytics`).
+**규칙(이전 단계와 동일):** 공통 `KpiCard`는 `@/components/dashboards/shared/kpi-card`, 위젯은 `src/components/dashboards/<name>/` 아래에 둡니다. shadcn `card/chart/table/badge/progress/avatar/button/select/tabs/calendar/separator`, Recharts, Base UI(`render` prop, Tabs/Select `onValueChange`의 `if (v != null)` null guard)를 사용합니다. 차트/상호작용은 `"use client"`, 페이지는 server component로 두고 `CardTitle`은 div로 유지합니다. 필요한 것만 import하고 상태/우선순위 badge는 `Badge`에 `cn()`을 적용합니다. 날짜는 고정된 literal만 사용하며 인자 없는 `new Date()`는 사용하지 않습니다. 제목은 `getByText(..., {exact:true})`로 smoke test합니다. Branch `feat/phase-1e-final-dashboards`. 참조: https://shadcnuikit.com/dashboard/{project-management,website-analytics,file-manager,academy}(우리 route `/dashboard/analytics` ↔ reference `website-analytics`).
 
 ---
 
-## Task 1: Project Management (`/dashboard/project-management`) — header "Project Management"
+## 작업 1: Project Management(`/dashboard/project-management`) — 제목 "Project Management"
 
 1. **KPI row (4 `KpiCard`s):** Total Revenue `$45,231.89` `+20.1%` up; Active Projects `1,423` `+5.02%` up; New Leads `3,500` `-3.58%` **down**; Time Spent `168h 40m` `-3.58%` **down**.
 2. **Projects Overview** — chart Card; bar/area, "Total for the last 3 months", a range toggle (Tabs: 3 months / 30 days / 7 days). Client.
@@ -22,7 +22,7 @@ Data → `project-management/data.ts`. `tsc --noEmit && pnpm build`; commit `fea
 
 ---
 
-## Task 2: Website Analytics (`/dashboard/analytics`) — header "Website Analytics"
+## 작업 2: Website Analytics(`/dashboard/analytics`) — 제목 "Website Analytics"
 
 1. **KPI row (4 `KpiCard`s):** Daily Active Users `3,450` `+12.1%` up; Weekly Sessions `1,342` `-9.8%` **down**; Duration `5.2min` `+7.7%` up; Conversion Rate `2.8%` `+4.3%` up.
 2. **Traffic Overview** — area/line chart Card (sessions over ~12 points), "Last 28 days". Client.
@@ -36,7 +36,7 @@ Data → `analytics/data.ts`. `tsc --noEmit && pnpm build`; commit `feat: add we
 
 ---
 
-## Task 3: File Manager (`/dashboard/file-manager`) — header "File Manager"
+## 작업 3: File Manager(`/dashboard/file-manager`) — 제목 "File Manager"
 
 Header right: an "Upload" primary `Button` (upload icon).
 1. **Type cards (4):** small Cards with item count + size + a `Progress`: Documents (`120 items`, `2.1 GB used`, 35%), Images (`250 items`, `3.8 GB used`, 62%), Videos (`38 items`, `7.5 GB used`, 89%), Others (`64 items`, `1.2 GB used`, 28%). Use a distinct icon per type.
@@ -49,7 +49,7 @@ Data → `file-manager/data.ts`. `tsc --noEmit && pnpm build`; commit `feat: add
 
 ---
 
-## Task 4: Academy (`/dashboard/academy`) — header "Academy"
+## 작업 4: Academy(`/dashboard/academy`) — 제목 "Academy"
 
 - **Greeting** — Card "Hi, Andrew 👋" + a short motivational line + maybe a "Continue learning" button.
 1. **Learning Path** — Card "Learning Path"; title "Full-Stack Developer", "4 of 10 modules completed", a `Progress` at 40%.
@@ -65,7 +65,7 @@ Data → `academy/data.ts`. `tsc --noEmit && pnpm build`; commit `feat: add acad
 
 ---
 
-## Task 5: Smoke tests + full verification
+## 작업 5: Smoke test 및 전체 검증
 
 Create `e2e/dashboards-final.spec.ts` — per dashboard assert status<400, no `pageerror`, 3 exact unique widget texts (READ widgets; e.g. PM: "Recent Projects", "Achievement by Year", "Highlights"/"Reminders"; analytics: "Sales by Countries", "Traffic Sources", "Monthly Campaign State"; file-manager: "Recently Uploaded Files", "Storage Space Used", "Monthly File Transfer"; academy: "Leaderboard", "Learning Path", "Popular Courses"). `getByText(t,{exact:true}).first()`. Run full suite (`CI=1`, kill :3000) — expect 60 prior + 4 = 64 pass; fix real render bugs at root. `pnpm lint` 0 errors (remove unused imports). Commit `test: add final dashboards smoke tests`.
 

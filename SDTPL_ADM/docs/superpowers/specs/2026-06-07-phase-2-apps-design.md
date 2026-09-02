@@ -1,4 +1,4 @@
-# Phase 2 — Apps (Design / Spec)
+# 2단계: 앱(설계 / 사양)
 
 - **작성일:** 2026-06-07
 - **상위 스펙:** [shadcn UI Kit 전체 복제](2026-06-07-shadcn-ui-kit-clone-design.md)

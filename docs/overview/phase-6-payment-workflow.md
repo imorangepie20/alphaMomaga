@@ -1,25 +1,25 @@
-# Phase 6: Payment Workflow
+# 6단계: 수납 업무 흐름
 
-## Goal
+## 목표
 
-Make rent collection status and amount visibility explicit for property managers.
+부동산 매니저가 임대료 수납 상태와 금액을 명확히 확인할 수 있게 합니다.
 
-## Implemented
+## 구현 내용
 
-- Added `GET /payments` to the NestJS API.
-- Added explicit property and contract relationships.
-- Added validation for ISO due dates, won amounts, paid dates, and payment status timing.
-- Added service tests for paid, pending, overdue, and cancelled states plus invalid records.
-- Added an API end-to-end test for the collection response.
-- Connected the Korean Payments screen to API-backed data and property names.
-- Derived collected, pending, and overdue totals from returned amounts.
+- NestJS API에 `GET /payments`를 추가했습니다.
+- 자산과 계약의 명시적 관계를 추가했습니다.
+- ISO 납부 예정일, 원화 금액, 납부일, 수납 상태 시점 검증을 추가했습니다.
+- 납부 완료, 납부 예정, 연체, 취소 상태와 잘못된 데이터를 검증하는 서비스 테스트를 추가했습니다.
+- 수납 응답을 검증하는 API end-to-end 테스트를 추가했습니다.
+- 한국어 수납 화면을 API 데이터와 자산명에 연결했습니다.
+- 반환된 금액에서 수납 완료, 예정, 연체 합계를 계산합니다.
 
-## Current boundary
+## 현재 범위
 
-The payment endpoint remains an in-memory read model. Reconciliation mutations, persistence, authentication, and authorization remain follow-up work.
+수납 endpoint는 메모리 기반 조회 모델로 유지됩니다. 정산 변경 작업, 영속화, 인증, 인가는 후속 작업입니다.
 
-## Verification
+## 검증
 
 Payment unit and API end-to-end tests pass. The browser screen renders collection records and computed totals.
 
-Next step: add maintenance work orders and inspection status tracking.
+다음 단계: 유지보수 작업 요청과 점검 상태 추적을 추가합니다.
