@@ -1,0 +1,74 @@
+name: API CI
+
+on:
+  push:
+    paths:
+      - "api/**"
+      - ".github/workflows/api-ci.yml"
+  pull_request:
+    paths:
+      - "api/**"
+      - ".github/workflows/api-ci.yml"
+
+jobs:
+  quality:
+    name: API 품질 검사
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: api
+    steps:
+      - name: 저장소 checkout
+        uses: actions/checkout@v4
+      - name: Node.js 설정
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: api/package-lock.json
+      - name: 의존성 설치
+        run: npm ci
+      - name: 단위 테스트
+        run: npm test
+      - name: 빌드
+        run: npm run build
+
+  database-e2e:
+    name: PostgreSQL API e2e
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: api
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: property_manager
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres -d property_manager"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=12
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/property_manager
+    steps:
+      - name: 저장소 checkout
+        uses: actions/checkout@v4
+      - name: Node.js 설정
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: api/package-lock.json
+      - name: 의존성 설치
+        run: npm ci
+      - name: migration 적용
+        run: npm run db:migrate
+      - name: seed 적용
+        run: npm run db:seed
+      - name: API e2e 테스트
+        run: npm run test:e2e -- --no-file-parallelism
