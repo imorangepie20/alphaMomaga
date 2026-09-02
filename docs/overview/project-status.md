@@ -51,6 +51,7 @@
 28. Contracts PUT 엔드포인트로 계약 상태 및 종료일 수정 기능
 29. Payments PUT 업데이트의 원자적 검증 및 잘못된 상태 변경 방지
 30. Maintenance PUT 업데이트의 원자적 날짜 검증 및 실패 시 상태 보존
+31. Cloudflare Tunnel 브라우저 테스트 절차와 origin 포트/502 대응 문서화
 
 관리자 UI는 한국어 우선으로 구성되어 있습니다. 네비게이션, 대시보드 라벨, breadcrumb, 공용 셸 라벨, 운영 페이지, 관리자 역할 화면에 한국어 용어를 사용합니다.
 
@@ -60,6 +61,8 @@
 - Local API: `http://localhost:3100`
 - Cloudflare admin UI: `https://mnre.approid.team/`
 - Cloudflare API: `https://api.approid.team/`
+
+브라우저 테스트는 `docs/overview/cloudflare-browser-testing.md`의 Cloudflare 주소를 기준으로 진행합니다. `localhost:3000`은 터널 테스트 주소가 아닙니다.
 
 Cloudflare 호스트명은 로컬 서비스에 대한 스테이징 접속 지점이며 운영 배포가 아닙니다. tunnel route가 응답하려면 API origin이 계속 실행 중이어야 합니다.
 

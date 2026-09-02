@@ -9,6 +9,8 @@
 - Admin UI: `https://mnre.approid.team/`
 - API: `https://api.approid.team/`
 
+브라우저 테스트의 전체 실행 순서와 오류 대응은 `docs/overview/cloudflare-browser-testing.md`를 기준으로 합니다. 브라우저에서는 항상 Cloudflare 관리자 UI 주소를 사용하며, `localhost:3000`은 터널 테스트 주소로 사용하지 않습니다.
+
 ## 운영 조건
 
 Cloudflare Tunnel은 포트 `3001`의 로컬 Next.js 관리자 서버와 포트 `3100`의 NestJS API로 전달합니다. 두 origin 프로세스가 모두 실행 중이어야 하며, 어느 하나라도 중단되면 Cloudflare `502 Bad gateway` 응답이 발생할 수 있습니다.
