@@ -114,6 +114,114 @@ describe('PropertiesService', () => {
     });
   });
 
+    describe('update', () => {
+      it('updates property name with in-memory storage', async () => {
+        const service = new PropertiesService();
+        const created = await service.create({
+          name: 'Original Name',
+          location: 'Seoul, KR',
+          type: 'Apartment',
+        });
+
+        const updated = await service.update(created.id, { name: 'Updated Name' });
+
+        expect(updated).toMatchObject({
+          id: created.id,
+          name: 'Updated Name',
+          location: 'Seoul, KR',
+          type: 'Apartment',
+        });
+      });
+
+      it('updates property occupancy and status', async () => {
+        const service = new PropertiesService();
+        const created = await service.create({
+          name: 'Test Property',
+          location: 'Seoul, KR',
+          type: 'Apartment',
+          occupancy: 50,
+          status: 'Active',
+        });
+
+        const updated = await service.update(created.id, {
+          occupancy: 75,
+          status: 'Occupied',
+        });
+
+        expect(updated).toMatchObject({
+          occupancy: '75%',
+          status: 'Occupied',
+        });
+      });
+
+      it('updates multiple fields at once', async () => {
+        const service = new PropertiesService();
+        const created = await service.create({
+          name: 'Test',
+          location: 'Seoul, KR',
+          type: 'Apartment',
+          occupancy: 50,
+          status: 'Active',
+        });
+
+        const updated = await service.update(created.id, {
+          name: 'Updated Test',
+          location: 'Busan, KR',
+          type: 'Townhouse',
+          occupancy: 80,
+          status: 'Occupied',
+        });
+
+        expect(updated).toMatchObject({
+          name: 'Updated Test',
+          location: 'Busan, KR',
+          type: 'Townhouse',
+          occupancy: '80%',
+          status: 'Occupied',
+        });
+      });
+
+      it('throws error when property not found', async () => {
+        const service = new PropertiesService();
+        expect(async () => {
+          await service.update('non-existent-id', { name: 'Test' });
+        }).rejects.toThrow('찾을 수 없습니다');
+      });
+
+      it('throws error when no fields provided for update', async () => {
+        const service = new PropertiesService();
+        const created = await service.create({
+          name: 'Test',
+          location: 'Seoul, KR',
+          type: 'Apartment',
+        });
+
+        expect(service.update(created.id, {})).rejects.toThrow('At least one field is required');
+      });
+
+      it('throws error when occupancy is out of range', async () => {
+        const service = new PropertiesService();
+        const created = await service.create({
+          name: 'Test',
+          location: 'Seoul, KR',
+          type: 'Apartment',
+        });
+
+        expect(service.update(created.id, { occupancy: 101 })).rejects.toThrow('Occupancy must be between');
+      });
+
+      it('throws error when status is invalid', async () => {
+        const service = new PropertiesService();
+        const created = await service.create({
+          name: 'Test',
+          location: 'Seoul, KR',
+          type: 'Apartment',
+        });
+
+        expect(service.update(created.id, { status: 'Invalid' as any })).rejects.toThrow('Invalid status');
+      });
+    });
+
   describe('mapPropertyRow', () => {
     it('maps database occupancy integers to the public percentage contract', () => {
       expect(mapPropertyRow({

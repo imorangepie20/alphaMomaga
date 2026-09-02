@@ -1,6 +1,6 @@
-import { Controller, Delete, Get, Post, Param, Body, Req, UseGuards, BadRequestException } from '@nestjs/common';
+import { Controller, Delete, Get, Post, Put, Param, Body, Req, UseGuards, BadRequestException } from '@nestjs/common';
 import { PropertiesService } from './properties.service.js';
-import type { CreatePropertyInput } from './property.js';
+import type { CreatePropertyInput, UpdatePropertyInput } from './property.js';
 import { AuthGuard } from '../auth/auth.guard.js';
 import { RequirePermission } from '../auth/permissions.decorator.js';
 import { PermissionsGuard } from '../auth/permissions.guard.js';
@@ -25,6 +25,15 @@ export class PropertiesController {
     return this.propertiesService.create(input, request.user);
   }
 
+  @Put(':id')
+  @UseGuards(AuthGuard, PermissionsGuard)
+  @RequirePermission('property:manage')
+  async update(@Param('id') id: string, @Body() input: UpdatePropertyInput, @Req() request: AuthenticatedRequest) {
+    if (Object.keys(input).length === 0) {
+      throw new BadRequestException('업데이트할 필드가 최소 하나 필요합니다');
+    }
+    return this.propertiesService.update(id, input, request.user);
+  }
   @Delete(':id')
   @UseGuards(AuthGuard, PermissionsGuard)
   @RequirePermission('property:manage')

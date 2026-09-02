@@ -1,5 +1,5 @@
 import { Injectable, Optional } from '@nestjs/common';
-import type { Property, CreatePropertyInput } from './property.js';
+import type { Property, CreatePropertyInput, UpdatePropertyInput } from './property.js';
 import { validateProperty } from './property.js';
 import { asc, eq } from 'drizzle-orm';
 import { properties } from '../database/schema.js';
@@ -121,6 +121,75 @@ export class PropertiesService {
     };
     this.properties.push(newProperty);
     return newProperty;
+  }
+
+  async update(id: string, input: UpdatePropertyInput, principal?: AuthenticatedPrincipal): Promise<Property> {
+    if (Object.keys(input).length === 0) {
+      throw new Error('At least one field is required to update');
+    }
+
+    if (input.occupancy !== undefined && (input.occupancy < 0 || input.occupancy > 100)) {
+      throw new Error('Occupancy must be between 0 and 100');
+    }
+
+    if (input.status !== undefined && !['Occupied', 'Active', 'Pending'].includes(input.status)) {
+      throw new Error('Invalid status value');
+    }
+
+    const database = this.databaseService?.client;
+    if (database) {
+      return database.transaction(async (transaction) => {
+        const existing = await transaction.select().from(properties).where(eq(properties.id, id));
+        if (existing.length === 0) {
+          throw new Error(`Property ${id}을(를) 찾을 수 없습니다`);
+        }
+
+        const updateData: Record<string, unknown> = {};
+        if (input.name !== undefined) updateData.name = input.name;
+        if (input.location !== undefined) updateData.location = input.location;
+        if (input.type !== undefined) updateData.type = input.type;
+        if (input.occupancy !== undefined) updateData.occupancy = input.occupancy;
+        if (input.status !== undefined) updateData.status = input.status;
+
+        const [row] = await transaction.update(properties)
+          .set(updateData)
+          .where(eq(properties.id, id))
+          .returning();
+
+        if (this.auditService) {
+          await this.auditService.record(transaction, {
+            action: 'property.updated',
+            actorSubject: principal?.subject ?? 'system',
+            actorRole: principal?.role ?? 'system',
+            entityType: 'property',
+            entityId: id,
+            metadata: { changes: updateData },
+          });
+        }
+
+        return mapPropertyRow(row);
+      });
+    }
+
+    // 인-메모리 업데이트
+    const index = this.properties.findIndex((p) => p.id === id);
+    if (index === -1) {
+      throw new Error(`Property ${id}을(를) 찾을 수 없습니다`);
+    }
+
+    const existing = this.properties[index];
+    const updated: Property = {
+      id,
+      name: input.name ?? existing.name,
+      location: input.location ?? existing.location,
+      type: input.type ?? existing.type,
+      occupancy: input.occupancy !== undefined ? `${input.occupancy}%` : existing.occupancy,
+      status: input.status ?? existing.status,
+    };
+      validateProperty(updated);
+
+    this.properties[index] = updated;
+    return updated;
   }
 
   async delete(id: string, principal?: AuthenticatedPrincipal): Promise<void> {

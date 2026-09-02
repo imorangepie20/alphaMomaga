@@ -37,6 +37,14 @@ describe('PropertiesController', () => {
               status: 'Active',
             }),
             delete: vi.fn().mockResolvedValue(undefined),
+            update: vi.fn().mockResolvedValue({
+              id: 'property-1',
+              name: 'Updated Property',
+              location: 'Seoul, KR',
+              type: 'Apartment',
+              occupancy: '75%',
+              status: 'Occupied',
+            }),
           },
         },
         {
@@ -124,6 +132,33 @@ describe('PropertiesController', () => {
 
       expect(async () => {
         await controller.create(input, mockRequest);
+      }).rejects.toThrow(BadRequestException);
+    });
+  });
+
+  describe('update', () => {
+    it('should update a property', async () => {
+      const input = {
+        name: 'Updated Property',
+        occupancy: 75,
+        status: 'Occupied' as const,
+      };
+      const mockRequest = { user: { subject: 'user-1', role: 'admin' } } as any;
+
+      const result = await controller.update('property-1', input, mockRequest);
+      expect(result).toMatchObject({
+        id: 'property-1',
+        name: 'Updated Property',
+      });
+      expect(service.update).toHaveBeenCalledWith('property-1', input, mockRequest.user);
+    });
+
+    it('should throw BadRequestException when no fields provided', async () => {
+      const input = {};
+      const mockRequest = { user: { subject: 'user-1', role: 'admin' } } as any;
+
+      expect(async () => {
+        await controller.update('property-1', input, mockRequest);
       }).rejects.toThrow(BadRequestException);
     });
   });

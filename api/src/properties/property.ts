@@ -17,6 +17,14 @@ export type CreatePropertyInput = {
   status?: PropertyStatus; // default 'Active'
 };
 
+export type UpdatePropertyInput = {
+  name?: string;
+  location?: string;
+  type?: string;
+  occupancy?: number;
+  status?: PropertyStatus;
+};
+
 export function validateProperty(property: Property | (CreatePropertyInput & { id?: string })): void {
   if (!property.name || typeof property.name !== 'string' || property.name.trim().length === 0) {
     throw new Error('Property name is required');
