@@ -42,3 +42,43 @@ describe('validatePayment', () => {
     expect(() => validatePayment(payment(overrides), referenceDate)).toThrow();
   });
 });
+
+describe('PaymentsService.update', () => {
+  it('updates a payment status and paid date', async () => {
+    const service = new PaymentsService();
+
+    const updated = await service.update('payment-3', {
+      status: 'Paid',
+      paidAt: '2026-09-02',
+    });
+
+    expect(updated).toMatchObject({
+      id: 'payment-3',
+      status: 'Paid',
+      paidAt: '2026-09-02',
+    });
+  });
+
+  it('does not mutate a payment when the proposed state is invalid', async () => {
+    const service = new PaymentsService();
+
+    await expect(service.update('payment-3', { status: 'Overdue' })).rejects.toThrow();
+    const payments = await service.findAll();
+
+    expect(payments.find((item) => item.id === 'payment-3')).toMatchObject({
+      status: 'Pending',
+    });
+  });
+
+  it('throws when no fields are provided', async () => {
+    const service = new PaymentsService();
+
+    await expect(service.update('payment-3', {})).rejects.toThrow('At least one field is required');
+  });
+
+  it('throws when the payment does not exist', async () => {
+    const service = new PaymentsService();
+
+    await expect(service.update('non-existent-id', { status: 'Paid' })).rejects.toThrow('not found');
+  });
+});

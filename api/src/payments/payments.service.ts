@@ -111,6 +111,10 @@ export class PaymentsService {
   }
 
   async update(id: string, input: UpdatePaymentInput, principal?: AuthenticatedPrincipal): Promise<Payment> {
+    if (Object.keys(input).length === 0) {
+      throw new Error('At least one field is required to update');
+    }
+
     const database = this.databaseService?.client;
     if (database) {
       return database.transaction(async (transaction) => {
@@ -150,11 +154,15 @@ export class PaymentsService {
       throw new Error(`Payment ${id} not found`);
     }
 
-    if (input.status !== undefined) payment.status = input.status;
-    if (input.paidAt !== undefined) payment.paidAt = input.paidAt;
+    const updated: Payment = {
+      ...payment,
+      ...(input.status !== undefined && { status: input.status }),
+      ...(input.paidAt !== undefined && { paidAt: input.paidAt }),
+    };
+    validatePayment(updated);
 
-    validatePayment(payment);
-    return payment;
+    this.payments[this.payments.indexOf(payment)] = updated;
+    return updated;
   }
 
   private parseAmount(amount: string): number {
