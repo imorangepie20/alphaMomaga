@@ -18,10 +18,11 @@ import { RolesService } from './roles/roles.service.js';
 import { AuthController } from './auth/auth.controller.js';
 import { AuthGuard } from './auth/auth.guard.js';
 import { AuthService } from './auth/auth.service.js';
+import { PermissionsGuard } from './auth/permissions.guard.js';
 
 @Module({
   imports: [],
   controllers: [AppController, PropertiesController, TenantsController, ContractsController, PaymentsController, MaintenanceController, InspectionsController, RolesController, AuthController],
-  providers: [AppService, PropertiesService, TenantsService, ContractsService, PaymentsService, MaintenanceService, InspectionsService, RolesService, AuthGuard, AuthService],
+  providers: [AppService, PropertiesService, TenantsService, ContractsService, PaymentsService, MaintenanceService, InspectionsService, RolesService, AuthGuard, AuthService, PermissionsGuard],
 })
 export class AppModule {}

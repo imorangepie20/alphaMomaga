@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import type { Tenant } from './tenant.js';
+import type { CreateTenantInput, Tenant } from './tenant.js';
 
 @Injectable()
 export class TenantsService {
@@ -12,5 +12,15 @@ export class TenantsService {
 
   findAll(): Tenant[] {
     return this.tenants;
+  }
+
+  create(input: CreateTenantInput): Tenant {
+    if (!input.name || !input.propertyId || !input.unit || !/^₩[\d,]+$/.test(input.rent)) {
+      throw new Error('Tenant name, property, unit, and a valid rent are required');
+    }
+
+    const tenant: Tenant = { id: `tenant-${this.tenants.length + 1}`, ...input };
+    this.tenants.push(tenant);
+    return tenant;
   }
 }

@@ -28,6 +28,7 @@ Completed workflow slices:
 5. Maintenance work orders and inspection records with operational status validation.
 6. Server-owned role and permission policy definitions.
 7. Signed Bearer JWT authentication boundary with an explicitly opt-in local demo fallback.
+8. RBAC-protected tenant creation with distinct `401`, `403`, and `400` responses.
 
 The management UI is Korean-first. Navigation, dashboard labels, breadcrumbs, shared shell labels, operations pages, and administrator role screens use Korean terminology.
 
@@ -60,6 +61,7 @@ The Cloudflare hostnames are staging access points to the local services, not a 
 - Public API smoke test: `https://api.approid.team/properties` returned HTTP `200` with four property records.
 - Public admin hostname recovered after restarting the API origin; the earlier Cloudflare `502` was caused by the stopped local API service.
 - Auth boundary tests: valid role principal, missing role rejection, and signed JWT configuration path are covered by unit/e2e tests.
+- Protected mutation tests: Property Manager can create tenants; Finance is denied with `403`; invalid input returns `400`.
 
 ## Rules
 
@@ -70,4 +72,4 @@ The Cloudflare hostnames are staging access points to the local services, not a 
 
 ## Next implementation slice
 
-Connect the signed JWT boundary to the chosen identity provider, apply the role policy to protected mutations, and then introduce database persistence before adding write operations.
+Connect the signed JWT boundary to the chosen identity provider, introduce database persistence and audit records, then expand protected write operations.

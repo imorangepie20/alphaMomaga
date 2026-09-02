@@ -8,3 +8,5 @@ export type Tenant = {
   rent: string;
   status: TenantPaymentStatus;
 };
+
+export type CreateTenantInput = Omit<Tenant, 'id'>;

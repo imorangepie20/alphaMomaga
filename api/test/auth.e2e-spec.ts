@@ -24,5 +24,6 @@ describe('Auth boundary (e2e)', () => {
 
   afterEach(async () => {
     await app.close();
+    delete process.env.AUTH_ALLOW_DEMO_ROLE;
   });
 });
