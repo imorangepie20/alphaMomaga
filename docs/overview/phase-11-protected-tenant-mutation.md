@@ -14,6 +14,7 @@
 - Finance와 Inspector 역할은 HTTP `403`으로 거부합니다.
 - 신원이 없으면 HTTP `401`, 입력이 잘못되면 HTTP `400`을 반환합니다.
 - 인가 경계에 대한 단위 테스트와 end-to-end 테스트를 추가했습니다.
+- 데이터베이스가 설정된 경우 임차인 생성과 `tenant.created` 감사 로그를 하나의 transaction으로 처리합니다.
 
 ## 현재 범위
 

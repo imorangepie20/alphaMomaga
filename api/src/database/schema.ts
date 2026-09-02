@@ -1,4 +1,4 @@
-import { date, integer, pgEnum, pgTable, text, timestamp, varchar } from 'drizzle-orm/pg-core';
+import { date, index, integer, jsonb, pgEnum, pgTable, text, timestamp, varchar } from 'drizzle-orm/pg-core';
 
 export const propertyStatus = pgEnum('property_status', ['Occupied', 'Active', 'Pending']);
 export const tenantPaymentStatus = pgEnum('tenant_payment_status', ['Paid', 'Pending', 'Overdue']);
@@ -71,3 +71,17 @@ export const inspections = pgTable('inspections', {
   completedAt: date('completed_at'),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
 });
+
+export const auditLogs = pgTable('audit_logs', {
+  id: varchar('id', { length: 64 }).primaryKey(),
+  action: varchar('action', { length: 80 }).notNull(),
+  actorSubject: varchar('actor_subject', { length: 255 }).notNull(),
+  actorRole: varchar('actor_role', { length: 40 }).notNull(),
+  entityType: varchar('entity_type', { length: 40 }).notNull(),
+  entityId: varchar('entity_id', { length: 64 }).notNull(),
+  metadata: jsonb('metadata'),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+}, (table) => ({
+  entityIndex: index('audit_logs_entity_idx').on(table.entityType, table.entityId),
+  actorIndex: index('audit_logs_actor_created_idx').on(table.actorSubject, table.createdAt),
+}));

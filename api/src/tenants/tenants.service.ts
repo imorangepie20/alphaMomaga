@@ -4,6 +4,8 @@ import { asc } from 'drizzle-orm';
 import type { CreateTenantInput, Tenant } from './tenant.js';
 import { tenants } from '../database/schema.js';
 import { DatabaseService } from '../database/database.service.js';
+import { AuditService } from '../audit/audit.service.js';
+import type { AuthenticatedPrincipal } from '../auth/principal.js';
 
 type TenantRow = typeof tenants.$inferSelect;
 
@@ -32,7 +34,10 @@ export function mapTenantRow(row: TenantRow): Tenant {
 
 @Injectable()
 export class TenantsService {
-  constructor(@Optional() private readonly databaseService?: DatabaseService) {}
+  constructor(
+    @Optional() private readonly databaseService?: DatabaseService,
+    @Optional() private readonly auditService?: AuditService,
+  ) {}
 
   private readonly tenants: Tenant[] = [
     { id: 'tenant-1', name: 'Kim Jihoon', propertyId: 'property-1', unit: 'A-101', rent: '₩1,200,000', status: 'Paid' },
@@ -50,22 +55,34 @@ export class TenantsService {
     return this.tenants;
   }
 
-  async create(input: CreateTenantInput): Promise<Tenant> {
+  async create(input: CreateTenantInput, principal?: AuthenticatedPrincipal): Promise<Tenant> {
     if (!input.name || !input.propertyId || !input.unit) {
       throw new Error('Tenant name, property, unit, and a valid rent are required');
     }
     const rentWon = parseRent(input.rent);
     const database = this.databaseService?.client;
     if (database) {
-      const [row] = await database.insert(tenants).values({
-        id: `tenant-${randomUUID()}`,
-        name: input.name,
-        propertyId: input.propertyId,
-        unit: input.unit,
-        rentWon,
-        status: input.status,
-      }).returning();
-      return mapTenantRow(row);
+      return database.transaction(async (transaction) => {
+        const [row] = await transaction.insert(tenants).values({
+          id: `tenant-${randomUUID()}`,
+          name: input.name,
+          propertyId: input.propertyId,
+          unit: input.unit,
+          rentWon,
+          status: input.status,
+        }).returning();
+        if (this.auditService) {
+          await this.auditService.record(transaction, {
+            action: 'tenant.created',
+            actorSubject: principal?.subject ?? 'system',
+            actorRole: principal?.role ?? 'system',
+            entityType: 'tenant',
+            entityId: row.id,
+            metadata: { propertyId: input.propertyId, unit: input.unit },
+          });
+        }
+        return mapTenantRow(row);
+      });
     }
 
     const tenant: Tenant = { id: `tenant-${this.tenants.length + 1}`, ...input, rent: `₩${rentWon.toLocaleString('en-US')}` };

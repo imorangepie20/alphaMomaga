@@ -1,9 +1,10 @@
-import { BadRequestException, Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
 import { TenantsService } from './tenants.service.js';
 import type { CreateTenantInput } from './tenant.js';
 import { AuthGuard } from '../auth/auth.guard.js';
 import { RequirePermission } from '../auth/permissions.decorator.js';
 import { PermissionsGuard } from '../auth/permissions.guard.js';
+import type { AuthenticatedRequest } from '../auth/principal.js';
 
 @Controller('tenants')
 export class TenantsController {
@@ -17,9 +18,9 @@ export class TenantsController {
   @Post()
   @UseGuards(AuthGuard, PermissionsGuard)
   @RequirePermission('tenant:manage')
-  async create(@Body() input: CreateTenantInput) {
+  async create(@Body() input: CreateTenantInput, @Req() request: AuthenticatedRequest) {
     try {
-      return await this.tenantsService.create(input);
+      return await this.tenantsService.create(input, request.user);
     } catch (error) {
       throw new BadRequestException(error instanceof Error ? error.message : 'Invalid tenant input');
     }
