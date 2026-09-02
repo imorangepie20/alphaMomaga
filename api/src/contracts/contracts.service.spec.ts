@@ -1,6 +1,6 @@
 import type { Contract } from './contract.js';
 import { validateContract } from './contract.js';
-import { ContractsService } from './contracts.service.js';
+import { ContractsService, mapContractRow } from './contracts.service.js';
 
 const referenceDate = new Date('2026-09-02T12:00:00.000Z');
 
@@ -11,8 +11,19 @@ const contract = (overrides: Partial<Contract> = {}): Contract => ({
 });
 
 describe('ContractsService', () => {
-  it('returns valid lease records', () => {
-    expect(new ContractsService().findAll()).toHaveLength(4);
+  it('returns valid lease records', async () => {
+    expect(await new ContractsService().findAll()).toHaveLength(4);
+  });
+
+  it('maps database rent and nullable termination values to the public contract', () => {
+    const mapped = mapContractRow({
+      id: 'contract-db', propertyId: 'property-1', tenantId: 'tenant-1', unit: 'A-101',
+      monthlyRentWon: 1200000, startDate: '2026-01-01', endDate: '2027-01-01', status: 'Active',
+      terminatedAt: null, createdAt: new Date('2026-01-01T00:00:00.000Z'),
+    });
+
+    expect(mapped).toEqual(expect.objectContaining({ monthlyRent: '₩1,200,000' }));
+    expect(mapped).not.toHaveProperty('terminatedAt');
   });
 });
 

@@ -26,6 +26,7 @@ describe('Contracts API (e2e)', () => {
       tenantId: expect.any(String),
       startDate: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),
       endDate: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),
+      monthlyRent: expect.stringMatching(/^₩[\d,]+$/),
       status: 'Active',
     }));
   });
