@@ -1,9 +1,13 @@
-import { MaintenanceService } from './maintenance.service.js';
+import { MaintenanceService, mapMaintenanceRow } from './maintenance.service.js';
 import { validateMaintenance } from './maintenance.js';
 
 describe('MaintenanceService', () => {
-  it('returns validated work orders', () => {
-    expect(new MaintenanceService().findAll()).toHaveLength(4);
+  it('returns validated work orders', async () => {
+    expect(await new MaintenanceService().findAll()).toHaveLength(4);
+  });
+
+  it('maps a database work order row to the API contract', () => {
+    expect(mapMaintenanceRow({ id: 'maintenance-db', propertyId: 'property-1', task: '누수 보수', dueDate: '2026-09-10', status: 'Pending', createdAt: new Date() })).toEqual({ id: 'maintenance-db', propertyId: 'property-1', task: '누수 보수', dueDate: '2026-09-10', status: 'Pending' });
   });
 
   it('rejects missing fields and invalid dates', () => {
