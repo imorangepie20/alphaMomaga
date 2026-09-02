@@ -1,5 +1,6 @@
-import { Controller, Delete, Get, Param, Req, UseGuards } from '@nestjs/common';
+import { Controller, Delete, Get, Post, Param, Body, Req, UseGuards, BadRequestException } from '@nestjs/common';
 import { PropertiesService } from './properties.service.js';
+import type { CreatePropertyInput } from './property.js';
 import { AuthGuard } from '../auth/auth.guard.js';
 import { RequirePermission } from '../auth/permissions.decorator.js';
 import { PermissionsGuard } from '../auth/permissions.guard.js';
@@ -12,6 +13,16 @@ export class PropertiesController {
   @Get()
   findAll() {
     return this.propertiesService.findAll();
+  }
+
+  @Post()
+  @UseGuards(AuthGuard, PermissionsGuard)
+  @RequirePermission('property:manage')
+  async create(@Body() input: CreatePropertyInput, @Req() request: AuthenticatedRequest) {
+    if (!input.name || !input.location || !input.type) {
+      throw new BadRequestException('부동산 이름, 위치, 유형은 필수입니다');
+    }
+    return this.propertiesService.create(input, request.user);
   }
 
   @Delete(':id')

@@ -1,10 +1,12 @@
 import { Injectable, Optional } from '@nestjs/common';
-import type { Property } from './property.js';
+import type { Property, CreatePropertyInput } from './property.js';
+import { validateProperty } from './property.js';
 import { asc, eq } from 'drizzle-orm';
 import { properties } from '../database/schema.js';
 import { DatabaseService } from '../database/database.service.js';
 import { AuditService } from '../audit/audit.service.js';
 import type { AuthenticatedPrincipal } from '../auth/principal.js';
+import { randomUUID } from 'node:crypto';
 
 type PropertyRow = typeof properties.$inferSelect;
 
@@ -69,6 +71,56 @@ export class PropertiesService {
     }
 
     return this.properties;
+  }
+
+  async create(input: CreatePropertyInput, principal?: AuthenticatedPrincipal): Promise<Property> {
+    if (!input.name || !input.location || !input.type) {
+      throw new Error('Property requires name, location, and type');
+    }
+
+    const item: Property = {
+      id: 'property-temp',
+      ...input,
+      occupancy: `${input.occupancy ?? 0}%`,
+      status: input.status ?? 'Active',
+    };
+    validateProperty(item);
+
+    const database = this.databaseService?.client;
+    if (database) {
+      return database.transaction(async (transaction) => {
+        const [row] = await transaction.insert(properties).values({
+          id: `property-${randomUUID()}`,
+          name: input.name,
+          location: input.location,
+          type: input.type,
+          occupancy: input.occupancy ?? 0,
+          status: input.status ?? 'Active',
+        }).returning();
+
+        if (this.auditService) {
+          await this.auditService.record(transaction, {
+            action: 'property.created',
+            actorSubject: principal?.subject ?? 'system',
+            actorRole: principal?.role ?? 'system',
+            entityType: 'property',
+            entityId: row.id,
+            metadata: { name: input.name, location: input.location, type: input.type },
+          });
+        }
+
+        return mapPropertyRow(row);
+      });
+    }
+
+    const newProperty: Property = {
+      id: `property-${this.properties.length + 1}`,
+      ...input,
+      occupancy: `${input.occupancy ?? 0}%`,
+      status: input.status ?? 'Active',
+    };
+    this.properties.push(newProperty);
+    return newProperty;
   }
 
   async delete(id: string, principal?: AuthenticatedPrincipal): Promise<void> {
