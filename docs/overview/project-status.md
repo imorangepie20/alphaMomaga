@@ -35,6 +35,7 @@
 12. `DATABASE_URL` 설정 시 PostgreSQL을 조회하는 Properties 첫 repository 전환
 13. `DATABASE_URL` 설정 시 PostgreSQL을 사용하는 Tenant 조회·생성 repository 전환
 14. `DATABASE_URL` 설정 시 PostgreSQL을 조회하는 Contract repository 전환
+15. `DATABASE_URL` 설정 시 PostgreSQL을 조회하는 Payment repository 전환
 
 관리자 UI는 한국어 우선으로 구성되어 있습니다. 네비게이션, 대시보드 라벨, breadcrumb, 공용 셸 라벨, 운영 페이지, 관리자 역할 화면에 한국어 용어를 사용합니다.
 
@@ -74,6 +75,7 @@ Cloudflare 호스트명은 로컬 서비스에 대한 스테이징 접속 지점
 - Properties repository: DB 설정 시 `properties` 테이블 조회, 미설정 시 명시적 메모리 fixture 사용
 - Tenant repository: DB 설정 시 조회·생성 수행, 원화 문자열과 `rent_won` 정수 변환, 미설정 시 메모리 fixture 사용
 - Contract repository: DB 설정 시 조회 수행, `monthly_rent_won` 정수와 API 원화 문자열 변환, 미설정 시 메모리 fixture 사용
+- Payment repository: DB 설정 시 조회 수행, `amount_won` 정수와 API 원화 문자열 변환, 미설정 시 메모리 fixture 사용
 
 ## 규칙
 

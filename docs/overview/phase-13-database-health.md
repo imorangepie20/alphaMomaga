@@ -22,10 +22,12 @@ PostgreSQL 연결을 애플리케이션에서 관찰할 수 있는 경계를 만
 - PostgreSQL 생성 ID에 `randomUUID()`를 사용해 동시 요청 충돌을 방지합니다.
 - `ContractsService` 조회도 `DATABASE_URL` 설정 시 PostgreSQL을 사용하도록 전환했습니다.
 - 계약의 `monthly_rent_won` 정수를 API 원화 문자열로 변환하고 nullable `terminated_at`은 선택 필드로 유지합니다.
+- `PaymentsService` 조회도 `DATABASE_URL` 설정 시 PostgreSQL을 사용하도록 전환했습니다.
+- 결제의 `amount_won` 정수를 API 원화 문자열로 변환하고 nullable `paid_at`은 선택 필드로 유지합니다.
 
 ## 현재 범위
 
-Properties, Tenant, Contract 조회는 DB가 설정된 경우 PostgreSQL을 사용하고, 나머지 도메인 서비스는 아직 메모리 모델을 사용합니다. 따라서 이 단계는 연결 상태, 종료 lifecycle, 세 도메인의 조회/생성 전환을 담당합니다. 실제 연결 테스트는 PostgreSQL 서버가 준비된 후 수행합니다. `DATABASE_URL`이 없으면 seed가 명확한 오류로 중단되며 기본 데이터베이스에 임의로 연결하지 않습니다.
+Properties, Tenant, Contract, Payment 조회는 DB가 설정된 경우 PostgreSQL을 사용하고, 나머지 도메인 서비스는 아직 메모리 모델을 사용합니다. 따라서 이 단계는 연결 상태, 종료 lifecycle, 네 도메인의 조회/생성 전환을 담당합니다. 실제 연결 테스트는 PostgreSQL 서버가 준비된 후 수행합니다. `DATABASE_URL`이 없으면 seed가 명확한 오류로 중단되며 기본 데이터베이스에 임의로 연결하지 않습니다.
 
 ## 검증
 
@@ -38,5 +40,6 @@ Properties, Tenant, Contract 조회는 DB가 설정된 경우 PostgreSQL을 사�
 - Properties 매핑 테스트: DB 정수 점유율을 API 퍼센트 문자열로 변환
 - Tenant 금액 테스트: 원화 문자열을 정수로 저장하고 API 형식으로 복원
 - Contract 매핑 테스트: 월 임대료 정수 변환과 nullable 종료일 처리
+- Payment 매핑 테스트: 결제 금액 정수 변환과 nullable 납부일 처리
 
 다음 단계: PostgreSQL 실행 환경에서 migration과 seed를 적용하고 Properties repository부터 데이터베이스 조회로 교체합니다.
