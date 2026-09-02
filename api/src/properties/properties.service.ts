@@ -1,8 +1,26 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Optional } from '@nestjs/common';
 import type { Property } from './property.js';
+import { asc } from 'drizzle-orm';
+import { properties } from '../database/schema.js';
+import { DatabaseService } from '../database/database.service.js';
+
+type PropertyRow = typeof properties.$inferSelect;
+
+export function mapPropertyRow(row: PropertyRow): Property {
+  return {
+    id: row.id,
+    name: row.name,
+    location: row.location,
+    type: row.type,
+    occupancy: `${row.occupancy}%`,
+    status: row.status,
+  };
+}
 
 @Injectable()
 export class PropertiesService {
+  constructor(@Optional() private readonly databaseService?: DatabaseService) {}
+
   private readonly properties: Property[] = [
     {
       id: 'property-1',
@@ -38,7 +56,13 @@ export class PropertiesService {
     },
   ];
 
-  findAll(): Property[] {
+  async findAll(): Promise<Property[]> {
+    const database = this.databaseService?.client;
+    if (database) {
+      const rows = await database.select().from(properties).orderBy(asc(properties.id));
+      return rows.map(mapPropertyRow);
+    }
+
     return this.properties;
   }
 }
