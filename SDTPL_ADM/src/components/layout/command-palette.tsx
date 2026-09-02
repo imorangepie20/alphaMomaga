@@ -44,7 +44,7 @@ export function CommandPalette() {
         onClick={() => setOpen(true)}
       >
         <Search className="size-4" />
-        <span className="ml-2">Search…</span>
+        <span className="ml-2">검색…</span>
         <kbd className="pointer-events-none absolute right-2 top-2 hidden h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 text-[10px] font-medium sm:flex">
           ⌘K
         </kbd>
@@ -55,13 +55,13 @@ export function CommandPalette() {
           showCloseButton={false}
         >
           <DialogHeader className="sr-only">
-            <DialogTitle>Command Palette</DialogTitle>
-            <DialogDescription>Search for a page to navigate to.</DialogDescription>
+            <DialogTitle>페이지 검색</DialogTitle>
+            <DialogDescription>이동할 페이지를 검색합니다.</DialogDescription>
           </DialogHeader>
           <Command>
-            <CommandInput placeholder="Type a page name…" />
+            <CommandInput placeholder="페이지 이름을 입력하세요…" />
             <CommandList>
-              <CommandEmpty>No results found.</CommandEmpty>
+              <CommandEmpty>검색 결과가 없습니다.</CommandEmpty>
               {navGroups.map((group) => (
                 <CommandGroup key={group.label} heading={group.label}>
                   {group.items.map((item) => (

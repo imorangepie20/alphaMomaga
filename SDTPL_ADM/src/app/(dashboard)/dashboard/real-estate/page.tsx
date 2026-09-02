@@ -12,7 +12,7 @@ import {
 export default function RealEstatePage() {
   return (
     <div className="flex flex-col gap-4">
-      <h1 className="text-2xl font-semibold tracking-tight">Property Manager Dashboard</h1>
+      <h1 className="text-2xl font-semibold tracking-tight">부동산 관리 대시보드</h1>
 
       {/* KPI Row */}
       <RealEstateKpis />

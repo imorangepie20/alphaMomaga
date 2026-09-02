@@ -12,6 +12,22 @@ import {
 } from "@/components/ui/breadcrumb";
 
 function label(segment: string) {
+  const labels: Record<string, string> = {
+    dashboard: "대시보드",
+    "real-estate": "부동산 관리",
+    properties: "매물",
+    tenants: "임차인",
+    contracts: "계약",
+    payments: "수납",
+    maintenance: "유지보수",
+    inspections: "점검",
+    admin: "관리자",
+    users: "사용자",
+    roles: "역할",
+    reports: "보고서",
+    settings: "설정",
+  };
+  if (labels[segment]) return labels[segment];
   return segment.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 }
 

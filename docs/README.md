@@ -13,6 +13,12 @@ This directory contains the structured project documentation for the real estate
 - docs/architecture/property-management-domain.md
 - docs/overview/phase-2-navigation-and-workflow.md
 - docs/overview/phase-3-property-api.md
+- docs/overview/phase-4-tenant-workflow.md
+- docs/overview/phase-5-contract-workflow.md
+- docs/overview/phase-6-payment-workflow.md
+- docs/overview/phase-7-operations-workflow.md
+- docs/overview/phase-8-rbac-foundation.md
+- docs/overview/phase-9-cloudflare-staging.md
 
 ## Purpose
 

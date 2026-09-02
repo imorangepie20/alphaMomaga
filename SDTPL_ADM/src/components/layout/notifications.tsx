@@ -18,7 +18,7 @@ export function Notifications() {
     <DropdownMenu>
       <DropdownMenuTrigger
         render={
-          <Button variant="ghost" size="icon" className="relative" aria-label="Notifications">
+          <Button variant="ghost" size="icon" className="relative" aria-label="알림">
             <Bell className="size-5" />
             {unread > 0 && (
               <Badge className="absolute -right-0.5 -top-0.5 size-4 justify-center rounded-full p-0 text-[10px]">
@@ -29,7 +29,7 @@ export function Notifications() {
         }
       />
       <DropdownMenuContent align="end" className="w-80">
-        <DropdownMenuLabel>Notifications</DropdownMenuLabel>
+        <DropdownMenuLabel>알림</DropdownMenuLabel>
         <DropdownMenuSeparator />
         {notifications.map((n) => (
           <div key={n.id} className="flex flex-col gap-0.5 px-2 py-2">

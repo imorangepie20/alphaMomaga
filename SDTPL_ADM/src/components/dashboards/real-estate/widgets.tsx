@@ -34,7 +34,7 @@ export function FeaturedPropertyCard() {
   return (
     <Card className="h-full">
       <CardHeader>
-        <CardTitle>Featured Property</CardTitle>
+        <CardTitle>주요 관리 자산</CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
         {/* Banner placeholder */}
@@ -50,22 +50,22 @@ export function FeaturedPropertyCard() {
         <div className="grid grid-cols-3 gap-2 text-center">
           <div className="flex flex-col gap-0.5">
             <span className="text-lg font-bold tabular-nums">175</span>
-            <span className="text-xs text-muted-foreground">Sold</span>
+            <span className="text-xs text-muted-foreground">매각</span>
           </div>
           <div className="flex flex-col gap-0.5">
             <span className="text-lg font-bold tabular-nums">125</span>
-            <span className="text-xs text-muted-foreground">Rented</span>
+            <span className="text-xs text-muted-foreground">임대</span>
           </div>
           <div className="flex flex-col gap-0.5">
             <span className="text-lg font-bold tabular-nums">2K+</span>
-            <span className="text-xs text-muted-foreground">Views</span>
+            <span className="text-xs text-muted-foreground">조회 수</span>
           </div>
         </div>
 
         {/* Footer */}
         <div className="flex flex-col gap-1 border-t pt-3 text-sm text-muted-foreground">
-          <span>Recommended to <strong className="text-foreground">14 Leads</strong></span>
-          <span><strong className="text-foreground">42 Closed Deals</strong></span>
+          <span><strong className="text-foreground">14명</strong>에게 추천됨</span>
+          <span><strong className="text-foreground">42건</strong> 계약 완료</span>
         </div>
       </CardContent>
     </Card>
@@ -78,11 +78,11 @@ export function OnProgressDealsCard() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>On Progress</CardTitle>
+        <CardTitle>계약 현황</CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col items-center justify-center py-6">
         <span className="text-5xl font-bold tabular-nums">132</span>
-        <span className="mt-1 text-sm text-muted-foreground">Deals</span>
+        <span className="mt-1 text-sm text-muted-foreground">활성 계약</span>
       </CardContent>
     </Card>
   );
@@ -94,7 +94,7 @@ export function RemindersCard() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Reminders</CardTitle>
+        <CardTitle>운영 알림</CardTitle>
       </CardHeader>
       <CardContent>
         <ul className="flex flex-col divide-y">
@@ -123,7 +123,7 @@ export function LeadsContactCard() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Leads Contact</CardTitle>
+        <CardTitle>담당 매니저</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="flex flex-col gap-4">
@@ -166,19 +166,19 @@ export function ActiveListingCard() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Active Listing</CardTitle>
+        <CardTitle>관리 자산 목록</CardTitle>
       </CardHeader>
       <CardContent className="px-0">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="pl-(--card-spacing)">Property</TableHead>
-              <TableHead>Location</TableHead>
-              <TableHead>Type</TableHead>
-              <TableHead>Cost</TableHead>
-              <TableHead>Active Leads</TableHead>
-              <TableHead>Views</TableHead>
-              <TableHead className="pr-(--card-spacing)">Status</TableHead>
+              <TableHead className="pl-(--card-spacing)">자산명</TableHead>
+              <TableHead>위치</TableHead>
+              <TableHead>유형</TableHead>
+              <TableHead>가치</TableHead>
+              <TableHead>관심 고객</TableHead>
+              <TableHead>조회 수</TableHead>
+              <TableHead className="pr-(--card-spacing)">상태</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -233,7 +233,7 @@ export function CalendarCard() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Calendar</CardTitle>
+        <CardTitle>일정</CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
         <Calendar

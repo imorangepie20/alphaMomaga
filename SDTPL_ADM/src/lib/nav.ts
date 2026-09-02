@@ -14,32 +14,32 @@ export type NavGroup = { label: string; items: NavItem[] };
 
 export const navGroups: NavGroup[] = [
   {
-    label: "Overview",
+    label: "개요",
     items: [
-      { title: "Dashboard", href: "/dashboard/real-estate", icon: LayoutDashboard },
-      { title: "Portfolio", href: "/dashboard/portfolio", icon: Building2 },
-      { title: "Occupancy", href: "/dashboard/occupancy", icon: TrendingUp },
-      { title: "Revenue", href: "/dashboard/revenue", icon: Wallet },
+      { title: "대시보드", href: "/dashboard/real-estate", icon: LayoutDashboard },
+      { title: "자산 현황", href: "/dashboard/portfolio", icon: Building2 },
+      { title: "점유율", href: "/dashboard/occupancy", icon: TrendingUp },
+      { title: "수익 현황", href: "/dashboard/revenue", icon: Wallet },
     ],
   },
   {
-    label: "Operations",
+    label: "운영",
     items: [
-      { title: "Properties", href: "/properties", icon: Building2 },
-      { title: "Tenants", href: "/tenants", icon: Users },
-      { title: "Contracts", href: "/contracts", icon: FileText },
-      { title: "Payments", href: "/payments", icon: CreditCard },
-      { title: "Maintenance", href: "/maintenance", icon: Settings },
-      { title: "Inspections", href: "/inspections", icon: ClipboardCheck },
+      { title: "매물", href: "/properties", icon: Building2 },
+      { title: "임차인", href: "/tenants", icon: Users },
+      { title: "계약", href: "/contracts", icon: FileText },
+      { title: "수납", href: "/payments", icon: CreditCard },
+      { title: "유지보수", href: "/maintenance", icon: Settings },
+      { title: "점검", href: "/inspections", icon: ClipboardCheck },
     ],
   },
   {
-    label: "Admin",
+    label: "관리자",
     items: [
-      { title: "Users", href: "/admin/users", icon: Users },
-      { title: "Roles", href: "/admin/roles", icon: ShieldCheck },
-      { title: "Reports", href: "/admin/reports", icon: BarChart3 },
-      { title: "Settings", href: "/settings", icon: Settings },
+      { title: "사용자", href: "/admin/users", icon: Users },
+      { title: "역할", href: "/admin/roles", icon: ShieldCheck },
+      { title: "보고서", href: "/admin/reports", icon: BarChart3 },
+      { title: "설정", href: "/settings", icon: Settings },
     ],
   },
 ];

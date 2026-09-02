@@ -15,9 +15,29 @@ The foundation is in place for a real-estate management application with:
 - a backend API shell,
 - and a reusable admin design system.
 
-## Immediate next goal
+## Current implementation status
 
-Convert the admin template into a real-estate management product by mapping domain-specific workflows onto the existing UI structure.
+The admin template has been converted into a Korean property-management application under `SDTPL_ADM`, backed by a NestJS API under `api`.
+
+Completed workflow slices:
+
+1. Property portfolio reads and occupancy metrics.
+2. Tenant records and payment-status metrics.
+3. Contract reads with ISO date and lifecycle validation.
+4. Payment reads with amount, due-date, and status validation.
+5. Maintenance work orders and inspection records with operational status validation.
+6. Server-owned role and permission policy definitions.
+
+The management UI is Korean-first. Navigation, dashboard labels, breadcrumbs, shared shell labels, operations pages, and administrator role screens use Korean terminology.
+
+## Runtime endpoints
+
+- Local admin UI: `http://localhost:3001`
+- Local API: `http://localhost:3100`
+- Cloudflare admin UI: `https://mnre.approid.team/`
+- Cloudflare API: `https://api.approid.team/`
+
+The Cloudflare hostnames are staging access points to the local services, not a production deployment. The API origin must remain running for the tunnel routes to respond.
 
 ## Core workstreams
 
@@ -28,6 +48,17 @@ Convert the admin template into a real-estate management product by mapping doma
 5. Admin and manager workflows
 6. Verification and bug fixing before expanding scope
 
+## Verification status
+
+- API unit tests: `23 passed`.
+- API end-to-end tests: `6 passed`.
+- API build: passed.
+- Admin frontend lint: passed.
+- Browser verification: dashboard, properties, tenants, contracts, payments, maintenance, inspections, and roles rendered successfully.
+- Browser hydration warnings: none after making calendar date formatting deterministic.
+- Public API smoke test: `https://api.approid.team/properties` returned HTTP `200` with four property records.
+- Public admin hostname recovered after restarting the API origin; the earlier Cloudflare `502` was caused by the stopped local API service.
+
 ## Rules
 
 - Document every meaningful change.
@@ -35,13 +66,6 @@ Convert the admin template into a real-estate management product by mapping doma
 - Understand the overall flow before editing isolated parts.
 - Validate each step before proceeding to the next.
 
-## Verified property workflow
-
-- `GET /properties` is served by the NestJS API.
-- The Properties screen reads the API contract and falls back predictably when the API is unavailable.
-- Property summary metrics are calculated from returned records.
-- Browser verification confirms the dashboard loads without the calendar hydration warning.
-
 ## Next implementation slice
 
-Add the tenant workflow with an explicit API contract, focused service tests, and a frontend list backed by the API.
+Add authentication, apply the role policy through a server-side guard, and then introduce database persistence before adding write operations.

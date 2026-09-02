@@ -25,7 +25,7 @@ export function AppSidebar() {
           <div className="flex size-8 items-center justify-center rounded-md bg-primary text-primary-foreground">
             <Command className="size-4" />
           </div>
-          <span className="font-semibold group-data-[collapsible=icon]:hidden">Shadcn UI Kit</span>
+          <span className="font-semibold group-data-[collapsible=icon]:hidden">부동산 관리 시스템</span>
         </div>
       </SidebarHeader>
       <SidebarContent>

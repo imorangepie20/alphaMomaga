@@ -37,8 +37,8 @@ import {
 // ─── Revenue / Visit ──────────────────────────────────────────────────────────
 
 const revenueChartConfig = {
-  revenue: { label: "Revenue", color: "var(--chart-1)" },
-  visits:  { label: "Visits",  color: "var(--chart-2)" },
+  revenue: { label: "수납액", color: "var(--chart-1)" },
+  visits:  { label: "조회 수",  color: "var(--chart-2)" },
 } satisfies ChartConfig;
 
 type RevPeriod = "W" | "M" | "Y";
@@ -57,7 +57,7 @@ export function RevenueVisitCard() {
     <Card className="h-full">
       <CardHeader>
         <div className="flex items-start justify-between gap-4">
-          <CardTitle>Revenue / Visit</CardTitle>
+          <CardTitle>임대료 수납 현황</CardTitle>
           <Tabs value={period} onValueChange={(v) => { if (v != null) setPeriod(v as RevPeriod); }}>
             <TabsList>
               {(["W", "M", "Y"] as RevPeriod[]).map((p) => (
@@ -141,17 +141,17 @@ export function RevenueVisitCard() {
 // ─── Sales Analytics ─────────────────────────────────────────────────────────
 
 const salesChartConfig = {
-  online:    { label: "Online",    color: "var(--chart-1)" },
-  offline:   { label: "Offline",   color: "var(--chart-2)" },
-  agent:     { label: "Agent",     color: "var(--chart-3)" },
-  marketing: { label: "Marketing", color: "var(--chart-4)" },
+  online:    { label: "온라인 수납", color: "var(--chart-1)" },
+  offline:   { label: "오프라인 수납", color: "var(--chart-2)" },
+  agent:     { label: "담당자 수납", color: "var(--chart-3)" },
+  marketing: { label: "홍보 유입", color: "var(--chart-4)" },
 } satisfies ChartConfig;
 
 export function SalesAnalyticsCard() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Sales Analytics</CardTitle>
+        <CardTitle>수납 성과 분석</CardTitle>
       </CardHeader>
       <CardContent>
         <ChartContainer config={salesChartConfig} className="h-56 w-full">
@@ -199,15 +199,15 @@ export function SalesAnalyticsCard() {
 const totalProperties = 1323;
 
 const propertyChartConfig = {
-  Listed: { label: "Listed", color: "var(--chart-1)" },
-  Sold:   { label: "Sold",   color: "var(--chart-2)" },
+  Listed: { label: "관리 중", color: "var(--chart-1)" },
+  Sold:   { label: "종료",   color: "var(--chart-2)" },
 } satisfies ChartConfig;
 
 export function PropertyOverviewCard() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Property Overview</CardTitle>
+        <CardTitle>자산 구성</CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col items-center gap-4">
         <div className="relative">
@@ -233,7 +233,7 @@ export function PropertyOverviewCard() {
             <span className="text-2xl font-bold tabular-nums">
               {totalProperties.toLocaleString()}
             </span>
-            <span className="text-xs text-muted-foreground">Properties</span>
+            <span className="text-xs text-muted-foreground">관리 자산</span>
           </div>
         </div>
 
