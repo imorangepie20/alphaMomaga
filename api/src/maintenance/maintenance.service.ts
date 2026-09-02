@@ -98,6 +98,10 @@ export class MaintenanceService {
   }
 
   async update(id: string, input: UpdateMaintenanceInput, principal?: AuthenticatedPrincipal): Promise<Maintenance> {
+    if (Object.keys(input).length === 0) {
+      throw new Error('At least one field is required to update');
+    }
+
     const database = this.databaseService?.client;
     if (database) {
       return database.transaction(async (transaction) => {
@@ -137,10 +141,14 @@ export class MaintenanceService {
       throw new Error(`Maintenance ${id} not found`);
     }
 
-    if (input.status !== undefined) item.status = input.status;
-    if (input.dueDate !== undefined) item.dueDate = input.dueDate;
+    const updated: Maintenance = {
+      ...item,
+      ...(input.status !== undefined && { status: input.status }),
+      ...(input.dueDate !== undefined && { dueDate: input.dueDate }),
+    };
+    validateMaintenance(updated);
 
-    validateMaintenance(item);
-    return item;
+    this.maintenance[this.maintenance.indexOf(item)] = updated;
+    return updated;
   }
 }
