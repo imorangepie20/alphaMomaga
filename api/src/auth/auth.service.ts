@@ -1,39 +1,70 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, Logger } from '@nestjs/common';
 import { createRemoteJWKSet, jwtVerify } from 'jose';
 import type { AuthenticatedPrincipal } from './principal.js';
 import type { RoleName } from '../roles/role.js';
+import { AuthConfigService } from './auth-config.service.js';
 
 const roleNames: RoleName[] = ['Admin', 'PropertyManager', 'Finance', 'Inspector'];
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+  private jwksCache: ReturnType<typeof createRemoteJWKSet> | null = null;
+
+  constructor(private authConfigService: AuthConfigService) {
+    this.initializeJwks();
+  }
+
+  private initializeJwks(): void {
+    const jwksUrl = this.authConfigService.getJwksUrl();
+    if (jwksUrl) {
+      try {
+        this.jwksCache = createRemoteJWKSet(new URL(jwksUrl));
+        this.logger.log(`JWKS initialized for provider: ${this.authConfigService.getProvider()}`);
+      } catch (error) {
+        this.logger.error('Failed to initialize JWKS', error);
+      }
+    }
+  }
+
   async verifyBearerToken(header: string | undefined): Promise<AuthenticatedPrincipal> {
     if (!header?.startsWith('Bearer ')) {
       throw new UnauthorizedException('A Bearer token is required');
     }
 
-    const jwksUrl = process.env.AUTH_JWKS_URL;
-    const issuer = process.env.AUTH_ISSUER;
-    const audience = process.env.AUTH_AUDIENCE;
-    if (!jwksUrl || !issuer || !audience) {
+    const config = this.authConfigService.getConfig();
+    if (!config) {
       throw new UnauthorizedException('JWT authentication is not configured');
     }
 
     try {
-      const jwks = createRemoteJWKSet(new URL(jwksUrl));
-      const { payload } = await jwtVerify(header.slice('Bearer '.length), jwks, {
+      if (!this.jwksCache) {
+        throw new Error('JWKS is not initialized');
+      }
+
+      const { payload } = await jwtVerify(header.slice('Bearer '.length), this.jwksCache, {
         algorithms: ['RS256'],
-        issuer,
-        audience,
+        issuer: config.issuer,
+        audience: config.audience,
       });
+
       const role = typeof payload.role === 'string' ? payload.role : undefined;
       if (typeof payload.sub !== 'string' || !role || !roleNames.includes(role as RoleName)) {
         throw new UnauthorizedException('The token principal is invalid');
       }
-      return { role, subject: payload.sub };
+      return { role: role as RoleName, subject: payload.sub };
     } catch (error) {
       if (error instanceof UnauthorizedException) throw error;
+      this.logger.debug('Bearer token verification failed', error);
       throw new UnauthorizedException('The Bearer token is invalid');
     }
+  }
+
+  getAuthProvider(): string {
+    return this.authConfigService.getProvider() ?? 'unconfigured';
+  }
+
+  getEnvironment(): string {
+    return this.authConfigService.getEnvironment();
   }
 }

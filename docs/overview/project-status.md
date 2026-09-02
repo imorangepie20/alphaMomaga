@@ -45,6 +45,7 @@
 22. 외래키 검증: Contract는 propertyId/tenantId, Payment는 contractId, Maintenance/Inspection은 propertyId 확인
 23. 감시 로그 조회 엔드포인트(`GET /admin/audit-logs`)와 필터링/페이지네이션 지원
 24. Properties POST 엔드포인트로 부동산 생성 기능 추가
+25. 프로덕션 인증 제공자 설정(Auth0, Keycloak, Google 등)과 AuthConfigService
 
 관리자 UI는 한국어 우선으로 구성되어 있습니다. 네비게이션, 대시보드 라벨, breadcrumb, 공용 셸 라벨, 운영 페이지, 관리자 역할 화면에 한국어 용어를 사용합니다.
 
