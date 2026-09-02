@@ -30,6 +30,7 @@
 7. 명시적으로 선택 가능한 로컬 demo fallback을 포함한 서명 Bearer JWT 인증 경계
 8. `401`, `403`, `400`을 구분하는 RBAC 보호 임차인 생성
 9. PostgreSQL Drizzle 스키마와 6개 핵심 운영 테이블 migration 생성
+10. 선택적 PostgreSQL 연결과 `GET /health/database` 상태 확인 endpoint
 
 관리자 UI는 한국어 우선으로 구성되어 있습니다. 네비게이션, 대시보드 라벨, breadcrumb, 공용 셸 라벨, 운영 페이지, 관리자 역할 화면에 한국어 용어를 사용합니다.
 
@@ -64,6 +65,7 @@ Cloudflare 호스트명은 로컬 서비스에 대한 스테이징 접속 지점
 - 인증 경계 테스트: 유효 역할 주체, 역할 누락 거부, 서명 JWT 설정 경로를 단위/e2e 테스트로 검증
 - 보호된 변경 테스트: Property Manager는 임차인 생성 가능, Finance는 `403` 거부, 잘못된 입력은 `400` 반환
 - 영속화 스키마: Drizzle migration 생성 및 6개 테이블과 외래키 확인. 적용은 PostgreSQL 서버 준비 후 진행
+- 데이터베이스 health: `DATABASE_URL`이 없을 때 `unconfigured` 응답, 설정된 경우 연결 검사와 pool 종료 lifecycle 제공
 
 ## 규칙
 
@@ -74,4 +76,4 @@ Cloudflare 호스트명은 로컬 서비스에 대한 스테이징 접속 지점
 
 ## 다음 구현 단위
 
-서명 JWT 경계를 선택한 identity provider에 연결하고, 데이터베이스 영속화와 감사 기록을 도입한 뒤 보호된 쓰기 작업을 확장합니다.
+PostgreSQL migration과 seed를 적용하고 도메인 repository를 데이터베이스 조회로 교체한 뒤 감사 기록과 보호된 쓰기 작업을 확장합니다.

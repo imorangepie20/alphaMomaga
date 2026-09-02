@@ -22,6 +22,7 @@
 - docs/overview/phase-10-auth-boundary.md
 - docs/overview/phase-11-protected-tenant-mutation.md
 - docs/overview/phase-12-persistence-schema.md
+- docs/overview/phase-13-database-health.md
 
 관리자 템플릿의 설계 사양과 구현 계획은 `SDTPL_ADM/docs/superpowers/` 아래에 보관합니다. 해당 문서도 설명, 제목, 작업 항목은 한국어로 작성하며 다음 항목은 실행 호환성을 위해 원문을 유지합니다.
 

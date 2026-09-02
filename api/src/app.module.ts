@@ -13,6 +13,7 @@ import { MaintenanceController } from './maintenance/maintenance.controller.js';
 import { MaintenanceService } from './maintenance/maintenance.service.js';
 import { InspectionsController } from './inspections/inspections.controller.js';
 import { InspectionsService } from './inspections/inspections.service.js';
+import { DatabaseModule } from './database/database.module.js';
 import { RolesController } from './roles/roles.controller.js';
 import { RolesService } from './roles/roles.service.js';
 import { AuthController } from './auth/auth.controller.js';
@@ -21,7 +22,7 @@ import { AuthService } from './auth/auth.service.js';
 import { PermissionsGuard } from './auth/permissions.guard.js';
 
 @Module({
-  imports: [],
+  imports: [DatabaseModule],
   controllers: [AppController, PropertiesController, TenantsController, ContractsController, PaymentsController, MaintenanceController, InspectionsController, RolesController, AuthController],
   providers: [AppService, PropertiesService, TenantsService, ContractsService, PaymentsService, MaintenanceService, InspectionsService, RolesService, AuthGuard, AuthService, PermissionsGuard],
 })
