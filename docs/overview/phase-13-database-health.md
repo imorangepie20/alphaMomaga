@@ -12,10 +12,12 @@ PostgreSQL 연결을 애플리케이션에서 관찰할 수 있는 경계를 만
 - 애플리케이션 종료 시 PostgreSQL pool을 정리합니다.
 - `GET /health/database` endpoint를 추가했습니다.
 - Drizzle client와 기존 schema를 DatabaseService 경계에 연결했습니다.
+- 6개 도메인 테이블을 기존 fixture와 동일한 ID로 채우는 idempotent `db:seed` 명령을 추가했습니다.
+- seed는 자산부터 점검까지 외래키 순서로 실행하고, 금액은 원 단위 정수로 저장합니다.
 
 ## 현재 범위
 
-기존 도메인 서비스는 아직 메모리 모델을 사용합니다. 따라서 이 단계는 연결 상태와 종료 lifecycle만 담당하며, 데이터 조회와 임차인 생성은 아직 PostgreSQL에 저장되지 않습니다. 실제 연결 테스트는 PostgreSQL 서버가 준비된 후 수행합니다.
+기존 도메인 서비스는 아직 메모리 모델을 사용합니다. 따라서 이 단계는 연결 상태와 종료 lifecycle만 담당하며, 데이터 조회와 임차인 생성은 아직 PostgreSQL에 저장되지 않습니다. 실제 연결 테스트는 PostgreSQL 서버가 준비된 후 수행합니다. `DATABASE_URL`이 없으면 seed가 명확한 오류로 중단되며 기본 데이터베이스에 임의로 연결하지 않습니다.
 
 ## 검증
 
@@ -24,5 +26,6 @@ PostgreSQL 연결을 애플리케이션에서 관찰할 수 있는 경계를 만
 - API end-to-end 테스트: `11 passed`
 - API build: 통과
 - `DATABASE_URL`이 없을 때 `/health/database`가 `{ "status": "unconfigured" }` 반환
+- `db:seed` 안전성 확인: `DATABASE_URL` 미설정 시 연결 없이 실패
 
 다음 단계: PostgreSQL 실행 환경에서 migration과 seed를 적용하고 Properties repository부터 데이터베이스 조회로 교체합니다.

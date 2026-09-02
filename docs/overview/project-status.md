@@ -31,6 +31,7 @@
 8. `401`, `403`, `400`을 구분하는 RBAC 보호 임차인 생성
 9. PostgreSQL Drizzle 스키마와 6개 핵심 운영 테이블 migration 생성
 10. 선택적 PostgreSQL 연결과 `GET /health/database` 상태 확인 endpoint
+11. 6개 도메인 테이블을 채우는 idempotent `db:seed` 명령
 
 관리자 UI는 한국어 우선으로 구성되어 있습니다. 네비게이션, 대시보드 라벨, breadcrumb, 공용 셸 라벨, 운영 페이지, 관리자 역할 화면에 한국어 용어를 사용합니다.
 
@@ -66,6 +67,7 @@ Cloudflare 호스트명은 로컬 서비스에 대한 스테이징 접속 지점
 - 보호된 변경 테스트: Property Manager는 임차인 생성 가능, Finance는 `403` 거부, 잘못된 입력은 `400` 반환
 - 영속화 스키마: Drizzle migration 생성 및 6개 테이블과 외래키 확인. 적용은 PostgreSQL 서버 준비 후 진행
 - 데이터베이스 health: `DATABASE_URL`이 없을 때 `unconfigured` 응답, 설정된 경우 연결 검사와 pool 종료 lifecycle 제공
+- 데이터베이스 seed: 기존 fixture를 외래키 순서로 반복 적용하며, `DATABASE_URL`이 없으면 실행하지 않음
 
 ## 규칙
 
