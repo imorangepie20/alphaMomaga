@@ -1,6 +1,6 @@
-import { BadRequestException, Body, Controller, Delete, Get, Param, Post, Req, UseGuards } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, Param, Post, Put, Req, UseGuards } from '@nestjs/common';
 import { TenantsService } from './tenants.service.js';
-import type { CreateTenantInput } from './tenant.js';
+import type { CreateTenantInput, UpdateTenantInput } from './tenant.js';
 import { AuthGuard } from '../auth/auth.guard.js';
 import { RequirePermission } from '../auth/permissions.decorator.js';
 import { PermissionsGuard } from '../auth/permissions.guard.js';
@@ -23,6 +23,20 @@ export class TenantsController {
       return await this.tenantsService.create(input, request.user);
     } catch (error) {
       throw new BadRequestException(error instanceof Error ? error.message : 'Invalid tenant input');
+    }
+  }
+
+  @Put(':id')
+  @UseGuards(AuthGuard, PermissionsGuard)
+  @RequirePermission('tenant:manage')
+  async update(@Param('id') id: string, @Body() input: UpdateTenantInput, @Req() request: AuthenticatedRequest) {
+    if (Object.keys(input).length === 0) {
+      throw new BadRequestException('업데이트할 필드가 최소 하나 필요합니다');
+    }
+    try {
+      return await this.tenantsService.update(id, input, request.user);
+    } catch (error) {
+      throw new BadRequestException(error instanceof Error ? error.message : 'Invalid tenant update');
     }
   }
 

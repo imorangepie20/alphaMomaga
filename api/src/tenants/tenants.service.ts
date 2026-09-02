@@ -2,6 +2,7 @@ import { Injectable, Optional } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
 import { asc, and, eq } from 'drizzle-orm';
 import type { CreateTenantInput, Tenant } from './tenant.js';
+import type { UpdateTenantInput } from './tenant.js';
 import { tenants } from '../database/schema.js';
 import { DatabaseService } from '../database/database.service.js';
 import { AuditService } from '../audit/audit.service.js';
@@ -132,4 +133,98 @@ export class TenantsService {
       this.tenants.splice(index, 1);
     }
   }
+
+    async update(id: string, input: UpdateTenantInput, principal?: AuthenticatedPrincipal): Promise<Tenant> {
+      if (Object.keys(input).length === 0) {
+        throw new Error('At least one field is required to update');
+      }
+
+      if (input.rent !== undefined) {
+        parseRent(`₩${input.rent.toLocaleString('en-US')}`);
+      }
+
+      if (input.status !== undefined && !['Paid', 'Overdue', 'Pending'].includes(input.status)) {
+        throw new Error('Invalid status value');
+      }
+
+      const database = this.databaseService?.client;
+      if (database) {
+        return database.transaction(async (transaction) => {
+          const existing = await transaction.select().from(tenants).where(eq(tenants.id, id));
+          if (existing.length === 0) {
+            throw new Error(`Tenant ${id}을(를) 찾을 수 없습니다`);
+          }
+
+          // 임차인이 다른 unit으로 옮기는 경우 중복 검증
+          if (input.unit !== undefined && input.unit !== existing[0].unit) {
+            const duplicateCheck = await transaction
+              .select()
+              .from(tenants)
+              .where(
+                and(
+                  eq(tenants.propertyId, existing[0].propertyId),
+                  eq(tenants.unit, input.unit),
+                ),
+              )
+              .limit(1);
+            if (duplicateCheck.length > 0) {
+              throw new Error(`같은 부동산의 ${input.unit}에 이미 임차인이 있습니다`);
+            }
+          }
+
+          const updateData: Record<string, unknown> = {};
+          if (input.name !== undefined) updateData.name = input.name;
+          if (input.unit !== undefined) updateData.unit = input.unit;
+          if (input.rent !== undefined) updateData.rentWon = input.rent;
+          if (input.status !== undefined) updateData.status = input.status;
+
+          const [row] = await transaction.update(tenants)
+            .set(updateData)
+            .where(eq(tenants.id, id))
+            .returning();
+
+          if (this.auditService) {
+            await this.auditService.record(transaction, {
+              action: 'tenant.updated',
+              actorSubject: principal?.subject ?? 'system',
+              actorRole: principal?.role ?? 'system',
+              entityType: 'tenant',
+              entityId: id,
+              metadata: { changes: updateData },
+            });
+          }
+
+          return mapTenantRow(row);
+        });
+      }
+
+      // 인-메모리 업데이트
+      const index = this.tenants.findIndex((t) => t.id === id);
+      if (index === -1) {
+        throw new Error(`Tenant ${id}을(를) 찾을 수 없습니다`);
+      }
+
+      const existing = this.tenants[index];
+
+      // 임차인이 다른 unit으로 옮기는 경우 중복 검증
+      if (input.unit !== undefined && input.unit !== existing.unit) {
+        const duplicate = this.tenants.find((t) => t.propertyId === existing.propertyId && t.unit === input.unit);
+        if (duplicate) {
+          throw new Error(`같은 부동산의 ${input.unit}에 이미 임차인이 있습니다`);
+        }
+      }
+
+      const rentWon = input.rent !== undefined ? input.rent : parseRent(existing.rent);
+      const updated: Tenant = {
+        id,
+        name: input.name ?? existing.name,
+        propertyId: existing.propertyId,
+        unit: input.unit ?? existing.unit,
+        rent: `₩${rentWon.toLocaleString('en-US')}`,
+        status: input.status ?? existing.status,
+      };
+
+      this.tenants[index] = updated;
+      return updated;
+    }
 }

@@ -10,3 +10,10 @@ export type Tenant = {
 };
 
 export type CreateTenantInput = Omit<Tenant, 'id'>;
+
+export type UpdateTenantInput = {
+  name?: string;
+  unit?: string;
+  rent?: number;
+  status?: TenantPaymentStatus;
+};

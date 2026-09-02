@@ -47,6 +47,7 @@
 24. Properties POST 엔드포인트로 부동산 생성 기능 추가
 25. 프로덕션 인증 제공자 설정(Auth0, Keycloak, Google 등)과 AuthConfigService
 26. Properties PUT 엔드포인트로 부동산 정보 수정 기능(이름, 위치, 상태, 입주율)
+27. Tenants PUT 엔드포인트로 임차인 정보 수정 기능(이름, 호실, 임차료, 지불상태)
 
 관리자 UI는 한국어 우선으로 구성되어 있습니다. 네비게이션, 대시보드 라벨, breadcrumb, 공용 셸 라벨, 운영 페이지, 관리자 역할 화면에 한국어 용어를 사용합니다.
 
