@@ -17,9 +17,9 @@ export class TenantsController {
   @Post()
   @UseGuards(AuthGuard, PermissionsGuard)
   @RequirePermission('tenant:manage')
-  create(@Body() input: CreateTenantInput) {
+  async create(@Body() input: CreateTenantInput) {
     try {
-      return this.tenantsService.create(input);
+      return await this.tenantsService.create(input);
     } catch (error) {
       throw new BadRequestException(error instanceof Error ? error.message : 'Invalid tenant input');
     }

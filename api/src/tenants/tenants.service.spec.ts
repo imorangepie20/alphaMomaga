@@ -1,8 +1,8 @@
-import { TenantsService } from './tenants.service.js';
+import { parseRent, TenantsService } from './tenants.service.js';
 
 describe('TenantsService', () => {
-  it('returns tenant records with payment status', () => {
-    const tenants = new TenantsService().findAll();
+  it('returns tenant records with payment status', async () => {
+    const tenants = await new TenantsService().findAll();
 
     expect(tenants).toHaveLength(4);
     expect(tenants[1]).toEqual({
@@ -13,5 +13,17 @@ describe('TenantsService', () => {
       rent: '₩980,000',
       status: 'Overdue',
     });
+  });
+
+  it('creates a memory tenant with a normalized won amount', async () => {
+    const tenantsService = new TenantsService();
+    const tenant = await tenantsService.create({ name: 'Jung Sora', propertyId: 'property-1', unit: 'A-202', rent: '₩1,100,000', status: 'Pending' });
+
+    expect(tenant.rent).toBe('₩1,100,000');
+    expect((await tenantsService.findAll())).toHaveLength(5);
+  });
+
+  it.each(['₩1,,000', '₩1000', '₩0', '1000000'])('rejects malformed rent %s', (rent) => {
+    expect(() => parseRent(rent)).toThrow();
   });
 });
