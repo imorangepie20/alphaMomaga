@@ -1,8 +1,10 @@
 import { Injectable, Optional } from '@nestjs/common';
 import type { Property } from './property.js';
-import { asc } from 'drizzle-orm';
+import { asc, eq } from 'drizzle-orm';
 import { properties } from '../database/schema.js';
 import { DatabaseService } from '../database/database.service.js';
+import { AuditService } from '../audit/audit.service.js';
+import type { AuthenticatedPrincipal } from '../auth/principal.js';
 
 type PropertyRow = typeof properties.$inferSelect;
 
@@ -19,7 +21,10 @@ export function mapPropertyRow(row: PropertyRow): Property {
 
 @Injectable()
 export class PropertiesService {
-  constructor(@Optional() private readonly databaseService?: DatabaseService) {}
+  constructor(
+    @Optional() private readonly databaseService?: DatabaseService,
+    @Optional() private readonly auditService?: AuditService,
+  ) {}
 
   private readonly properties: Property[] = [
     {
@@ -64,5 +69,31 @@ export class PropertiesService {
     }
 
     return this.properties;
+  }
+
+  async delete(id: string, principal?: AuthenticatedPrincipal): Promise<void> {
+    const database = this.databaseService?.client;
+    if (database) {
+      await database.transaction(async (transaction) => {
+        await transaction.delete(properties).where(eq(properties.id, id));
+
+        if (this.auditService) {
+          await this.auditService.record(transaction, {
+            action: 'property.deleted',
+            actorSubject: principal?.subject ?? 'system',
+            actorRole: principal?.role ?? 'system',
+            entityType: 'property',
+            entityId: id,
+            metadata: {},
+          });
+        }
+      });
+      return;
+    }
+
+    const index = this.properties.findIndex((p) => p.id === id);
+    if (index !== -1) {
+      this.properties.splice(index, 1);
+    }
   }
 }

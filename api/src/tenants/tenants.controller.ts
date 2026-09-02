@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, Param, Post, Req, UseGuards } from '@nestjs/common';
 import { TenantsService } from './tenants.service.js';
 import type { CreateTenantInput } from './tenant.js';
 import { AuthGuard } from '../auth/auth.guard.js';
@@ -24,5 +24,13 @@ export class TenantsController {
     } catch (error) {
       throw new BadRequestException(error instanceof Error ? error.message : 'Invalid tenant input');
     }
+  }
+
+  @Delete(':id')
+  @UseGuards(AuthGuard, PermissionsGuard)
+  @RequirePermission('tenant:manage')
+  async delete(@Param('id') id: string, @Req() request: AuthenticatedRequest) {
+    await this.tenantsService.delete(id, request.user);
+    return { message: '임차인이 삭제되었습니다' };
   }
 }

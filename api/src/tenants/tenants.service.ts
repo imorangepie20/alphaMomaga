@@ -1,6 +1,6 @@
 import { Injectable, Optional } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
-import { asc } from 'drizzle-orm';
+import { asc, and, eq } from 'drizzle-orm';
 import type { CreateTenantInput, Tenant } from './tenant.js';
 import { tenants } from '../database/schema.js';
 import { DatabaseService } from '../database/database.service.js';
@@ -63,6 +63,17 @@ export class TenantsService {
     const database = this.databaseService?.client;
     if (database) {
       return database.transaction(async (transaction) => {
+        // 중복 검증: 같은 propertyId와 unit으로 이미 있는 임차인 확인
+        const existing = await transaction
+          .select()
+          .from(tenants)
+          .where(and(eq(tenants.propertyId, input.propertyId), eq(tenants.unit, input.unit)))
+          .limit(1);
+
+        if (existing.length > 0) {
+          throw new Error(`같은 부동산의 ${input.unit}에 이미 임차인이 있습니다`);
+        }
+
         const [row] = await transaction.insert(tenants).values({
           id: `tenant-${randomUUID()}`,
           name: input.name,
@@ -85,8 +96,40 @@ export class TenantsService {
       });
     }
 
+    // 인-메모리 중복 검증
+    const existing = this.tenants.find((t) => t.propertyId === input.propertyId && t.unit === input.unit);
+    if (existing) {
+      throw new Error(`같은 부동산의 ${input.unit}에 이미 임차인이 있습니다`);
+    }
+
     const tenant: Tenant = { id: `tenant-${this.tenants.length + 1}`, ...input, rent: `₩${rentWon.toLocaleString('en-US')}` };
     this.tenants.push(tenant);
     return tenant;
+  }
+
+  async delete(id: string, principal?: AuthenticatedPrincipal): Promise<void> {
+    const database = this.databaseService?.client;
+    if (database) {
+      await database.transaction(async (transaction) => {
+        await transaction.delete(tenants).where(eq(tenants.id, id));
+
+        if (this.auditService) {
+          await this.auditService.record(transaction, {
+            action: 'tenant.deleted',
+            actorSubject: principal?.subject ?? 'system',
+            actorRole: principal?.role ?? 'system',
+            entityType: 'tenant',
+            entityId: id,
+            metadata: {},
+          });
+        }
+      });
+      return;
+    }
+
+    const index = this.tenants.findIndex((t) => t.id === id);
+    if (index !== -1) {
+      this.tenants.splice(index, 1);
+    }
   }
 }
