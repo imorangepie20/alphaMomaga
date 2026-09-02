@@ -44,4 +44,47 @@ describe('validateContract', () => {
   ])('rejects invalid contract data: %s', (overrides) => {
     expect(() => validateContract(contract(overrides), referenceDate)).toThrow();
   });
+  });
+
+  describe('ContractsService.update', () => {
+    it('updates contract status', async () => {
+      const service = new ContractsService();
+      const contracts = await service.findAll();
+      const original = contracts[0];
+
+      const updated = await service.update(original.id, { status: 'Expired' });
+
+      expect(updated.status).toBe('Expired');
+      expect(updated.id).toBe(original.id);
+    });
+
+    it('updates contract terminatedAt when status is Terminated', async () => {
+      const service = new ContractsService();
+      const contracts = await service.findAll();
+      const original = contracts[0];
+
+      const updated = await service.update(original.id, {
+        status: 'Terminated',
+        terminatedAt: '2026-06-15',
+      });
+
+      expect(updated.status).toBe('Terminated');
+      expect(updated.terminatedAt).toBe('2026-06-15');
+    });
+
+    it('updates only status without terminatedAt', async () => {
+      const service = new ContractsService();
+      const contracts = await service.findAll();
+      const original = contracts[0];
+
+      const updated = await service.update(original.id, { status: 'Expired' });
+
+      expect(updated.status).toBe('Expired');
+      expect(updated.id).toBe(original.id);
+    });
+
+    it('throws error when contract not found', async () => {
+      const service = new ContractsService();
+      expect(service.update('non-existent-id', { status: 'Expired' })).rejects.toThrow('not found');
+    });
 });

@@ -148,7 +148,6 @@ export class ContractsService {
         }
 
         const contract = mapContractRow(row);
-        validateContract(contract);
 
         if (this.auditService) {
           await this.auditService.record(transaction, {
@@ -173,7 +172,6 @@ export class ContractsService {
     if (input.status !== undefined) contract.status = input.status;
     if (input.terminatedAt !== undefined) contract.terminatedAt = input.terminatedAt;
 
-    validateContract(contract);
     return contract;
   }
 
