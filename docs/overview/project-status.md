@@ -27,6 +27,7 @@ Completed workflow slices:
 4. Payment reads with amount, due-date, and status validation.
 5. Maintenance work orders and inspection records with operational status validation.
 6. Server-owned role and permission policy definitions.
+7. Signed Bearer JWT authentication boundary with an explicitly opt-in local demo fallback.
 
 The management UI is Korean-first. Navigation, dashboard labels, breadcrumbs, shared shell labels, operations pages, and administrator role screens use Korean terminology.
 
@@ -58,6 +59,7 @@ The Cloudflare hostnames are staging access points to the local services, not a 
 - Browser hydration warnings: none after making calendar date formatting deterministic.
 - Public API smoke test: `https://api.approid.team/properties` returned HTTP `200` with four property records.
 - Public admin hostname recovered after restarting the API origin; the earlier Cloudflare `502` was caused by the stopped local API service.
+- Auth boundary tests: valid role principal, missing role rejection, and signed JWT configuration path are covered by unit/e2e tests.
 
 ## Rules
 
@@ -68,4 +70,4 @@ The Cloudflare hostnames are staging access points to the local services, not a 
 
 ## Next implementation slice
 
-Add authentication, apply the role policy through a server-side guard, and then introduce database persistence before adding write operations.
+Connect the signed JWT boundary to the chosen identity provider, apply the role policy to protected mutations, and then introduce database persistence before adding write operations.

@@ -19,6 +19,7 @@ This directory contains the structured project documentation for the real estate
 - docs/overview/phase-7-operations-workflow.md
 - docs/overview/phase-8-rbac-foundation.md
 - docs/overview/phase-9-cloudflare-staging.md
+- docs/overview/phase-10-auth-boundary.md
 
 ## Purpose
 

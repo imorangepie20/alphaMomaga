@@ -15,10 +15,13 @@ import { InspectionsController } from './inspections/inspections.controller.js';
 import { InspectionsService } from './inspections/inspections.service.js';
 import { RolesController } from './roles/roles.controller.js';
 import { RolesService } from './roles/roles.service.js';
+import { AuthController } from './auth/auth.controller.js';
+import { AuthGuard } from './auth/auth.guard.js';
+import { AuthService } from './auth/auth.service.js';
 
 @Module({
   imports: [],
-  controllers: [AppController, PropertiesController, TenantsController, ContractsController, PaymentsController, MaintenanceController, InspectionsController, RolesController],
-  providers: [AppService, PropertiesService, TenantsService, ContractsService, PaymentsService, MaintenanceService, InspectionsService, RolesService],
+  controllers: [AppController, PropertiesController, TenantsController, ContractsController, PaymentsController, MaintenanceController, InspectionsController, RolesController, AuthController],
+  providers: [AppService, PropertiesService, TenantsService, ContractsService, PaymentsService, MaintenanceService, InspectionsService, RolesService, AuthGuard, AuthService],
 })
 export class AppModule {}
