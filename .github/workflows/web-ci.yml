@@ -32,3 +32,7 @@ jobs:
         run: npm run lint
       - name: 빌드
         run: npm run build
+      - name: Chromium 설치
+        run: npx playwright install --with-deps chromium
+      - name: 운영 페이지 브라우저 테스트
+        run: npx playwright test e2e/properties-dashboard.spec.ts e2e/operational-pages.spec.ts --workers=1

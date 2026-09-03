@@ -18,8 +18,9 @@
 - `npm ci`
 - `npm run lint`
 - `npm run build`
+- Chromium 설치 후 Properties 및 운영 페이지 브라우저 테스트
 
-기존 `web/e2e`에는 테마 컴포넌트 상호작용 테스트가 포함되어 있고 전체 실행에서 실패가 확인되어, 현재 CI 필수 단계에서는 제외했습니다. 브라우저 테스트는 기능별로 안정화한 뒤 별도 단계로 다시 편입합니다.
+기존 `web/e2e`에는 테마 컴포넌트 상호작용 테스트가 포함되어 있어 전체 실행은 CI 필수 단계에서 제외했습니다. 실제 업무 화면 테스트인 `properties-dashboard.spec.ts`와 `operational-pages.spec.ts`는 안정화되어 CI에서 실행합니다.
 
 ## 포트
 
