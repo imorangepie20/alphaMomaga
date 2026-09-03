@@ -25,8 +25,11 @@ Cloudflare 호스트명은 스테이징 접속 지점입니다. 두 origin 프�
 ```powershell
 $env:Path = 'C:\Program Files\nodejs;' + $env:Path
 cd C:\Users\jowoo\alpahMomega\api
+$env:PORT = '3100'
 npm.cmd run start:dev
 ```
+
+`api/src/main.ts`의 기본 포트는 `3000`이지만 Cloudflare API tunnel origin은 `3100`입니다. 따라서 `PORT=3100` 없이 실행하면 로컬 API는 정상이어도 tunnel은 `502 Bad Gateway`를 반환합니다.
 
 2. 관리자 UI origin을 반드시 `3001` 포트로 실행합니다.
 
