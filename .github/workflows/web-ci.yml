@@ -32,7 +32,26 @@ jobs:
         run: npm run lint
       - name: 빌드
         run: npm run build
+      - name: API 의존성 설치
+        working-directory: api
+        run: npm ci
+      - name: API 빌드
+        working-directory: api
+        run: npm run build
+      - name: API 기동
+        working-directory: api
+        run: npm run start > /tmp/alpha-momega-api.log 2>&1 &
+      - name: API 준비 확인
+        run: |
+          for attempt in {1..30}; do
+            if curl --fail --silent http://localhost:3100/properties > /dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          cat /tmp/alpha-momega-api.log
+          exit 1
       - name: Chromium 설치
         run: npx playwright install --with-deps chromium
       - name: 운영 페이지 브라우저 테스트
-        run: npx playwright test e2e/properties-dashboard.spec.ts e2e/operational-pages.spec.ts --workers=1
+        run: npx playwright test e2e/properties-dashboard.spec.ts e2e/properties-api.spec.ts e2e/operations-api.spec.ts --workers=1
