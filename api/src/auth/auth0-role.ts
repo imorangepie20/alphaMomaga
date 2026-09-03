@@ -7,7 +7,9 @@ const allowedRoles: RoleName[] = ['Admin', 'PropertyManager', 'Finance', 'Inspec
 export function getAuth0Role(payload: JWTPayload): RoleName | null {
   const roles = payload[claimName];
   if (!Array.isArray(roles)) return null;
-  return roles.find((value): value is RoleName =>
+  const allowedRolesInClaim = roles.filter((value): value is RoleName =>
     typeof value === 'string' && allowedRoles.includes(value as RoleName),
-  ) ?? null;
+  );
+  const distinctRoles = [...new Set(allowedRolesInClaim)];
+  return distinctRoles.length === 1 ? distinctRoles[0] : null;
 }

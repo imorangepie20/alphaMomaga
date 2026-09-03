@@ -6,7 +6,7 @@ Auth0가 access token에 역할을 기본 `role` claim으로 넣지 않으므로
 
 ## 변경 내용
 
-- API는 `https://alpha-momega.app/role` namespaced claim에서 `Admin`, `PropertyManager`, `Finance`, `Inspector` 중 첫 번째 허용 역할만 선택합니다.
+- `AuthenticatedPrincipal`은 현재 단일 역할만 나타내므로 API는 `https://alpha-momega.app/role` namespaced claim에서 `Admin`, `PropertyManager`, `Finance`, `Inspector` 중 정확히 하나의 서로 다른 허용 역할만 수락합니다. 같은 허용 역할의 중복은 수락하지만 서로 다른 허용 역할이 둘 이상이면 token을 거부합니다.
 - claim이 없거나 배열이 아니거나 허용되지 않은 역할만 있으면 기존 `UnauthorizedException('The token principal is invalid')` 동작을 유지합니다.
 - `api/.env.example`은 Auth0 domain과 API identifier를 위한 비밀값 없는 placeholder를 제공합니다.
 
@@ -22,6 +22,8 @@ exports.onExecutePostLogin = async (event, api) => {
 ```
 
 배포 환경에는 `AUTH_JWKS_URL`, `AUTH_ISSUER`, `AUTH_AUDIENCE`를 실제 Auth0 tenant 및 API 설정으로 지정하고 `AUTH_ALLOW_DEMO_ROLE=false`를 유지합니다. `YOUR_AUTH0_DOMAIN`은 `dev-u1feezhev3peemey.us.auth0.com`처럼 `.auth0.com`을 포함한 완전한 Auth0 host 이름이어야 합니다. 따라서 JWKS URL은 `https://<AUTH0_DOMAIN>/.well-known/jwks.json`, issuer는 `https://<AUTH0_DOMAIN>/` 형식을 사용합니다.
+
+여러 역할을 가진 사용자를 지원하려면 향후 `AuthenticatedPrincipal`을 role-set으로 확장하고 권한 검사를 그 계약에 맞게 변경해야 합니다. 그 전까지 Auth0 역할 할당은 허용 역할 하나만 포함해야 합니다.
 
 ## 검증
 
