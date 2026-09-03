@@ -32,6 +32,11 @@ jobs:
         run: npm run lint
       - name: 빌드
         run: npm run build
+      - name: API 경로 진단
+        run: |
+          pwd
+          ls -la ..
+          ls -la ../api/package-lock.json
       - name: API 의존성 설치
         run: npm --prefix ../api ci
       - name: API 빌드
@@ -52,3 +57,4 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: 운영 페이지 브라우저 테스트
         run: npx playwright test e2e/properties-dashboard.spec.ts e2e/properties-api.spec.ts e2e/operations-api.spec.ts --workers=1
+
