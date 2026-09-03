@@ -23,6 +23,7 @@ export function isProtectedResource(resource: string): resource is ProtectedReso
 export async function forwardProtectedMutation(
   resource: ProtectedResource,
   request: Request,
+  id?: string,
 ): Promise<Response> {
   if (!allowedMethods.has(request.method)) {
     return new Response(null, { status: 405, headers: { allow: "POST, PUT, DELETE" } });
@@ -47,7 +48,8 @@ export async function forwardProtectedMutation(
   }
 
   try {
-    const response = await fetch(new URL(resource, `${apiUrl.replace(/\/$/, "")}/`), {
+    const path = id ? `${resource}/${encodeURIComponent(id)}` : resource;
+    const response = await fetch(new URL(path, `${apiUrl.replace(/\/$/, "")}/`), {
       method: request.method,
       headers,
       body: request.method === "DELETE" ? undefined : await request.arrayBuffer(),

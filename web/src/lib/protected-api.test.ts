@@ -81,4 +81,19 @@ describe("forwardProtectedMutation", () => {
     expect(isProtectedResource("properties")).toBe(true);
     expect(isProtectedResource("admin")).toBe(false);
   });
+
+  it("forwards an item mutation to the API item endpoint", async () => {
+    mockGetAccessToken.mockResolvedValue({ token: "access-token", expiresAt: 0 });
+    mockFetch.mockResolvedValue(new Response(null, { status: 204 }));
+
+    const response = await forwardProtectedMutation(
+      "properties",
+      new Request("https://web.test/api/proxy/properties/property-1", { method: "DELETE" }),
+      "property-1",
+    );
+
+    const [url] = mockFetch.mock.calls[0] as [URL];
+    expect(url.toString()).toBe("https://api.approid.team/properties/property-1");
+    expect(response.status).toBe(204);
+  });
 });
