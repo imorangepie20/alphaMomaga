@@ -9,6 +9,8 @@ Auth0가 access token에 역할을 기본 `role` claim으로 넣지 않으므로
 - `AuthenticatedPrincipal`은 현재 단일 역할만 나타내므로 API는 `https://alpha-momega.app/role` namespaced claim에서 `Admin`, `PropertyManager`, `Finance`, `Inspector` 중 정확히 하나의 서로 다른 허용 역할만 수락합니다. 같은 허용 역할의 중복은 수락하지만 서로 다른 허용 역할이 둘 이상이면 token을 거부합니다.
 - claim이 없거나 배열이 아니거나 허용되지 않은 역할만 있으면 기존 `UnauthorizedException('The token principal is invalid')` 동작을 유지합니다.
 - `api/.env.example`은 Auth0 domain과 API identifier를 위한 비밀값 없는 placeholder를 제공합니다.
+- `web/`은 `@auth0/nextjs-auth0` 서버 SDK와 `src/proxy.ts`로 `/auth/login`, `/auth/callback`, `/auth/logout`을 처리합니다. dashboard layout은 서버에서만 session을 확인하고, header에는 사용자 표시 정보만 전달합니다.
+- `web/src/app/api/proxy/[resource]/route.ts`는 `properties`, `tenants`, `contracts`, `payments`, `maintenance`, `inspections`의 `POST`, `PUT`, `DELETE`만 전달합니다. 수신된 cookie와 Authorization header는 전달하지 않으며, 서버 session에서 얻은 Access Token과 `content-type`만 새 요청에 구성합니다.
 
 ## Auth0 배포 계약
 
@@ -28,3 +30,15 @@ exports.onExecutePostLogin = async (event, api) => {
 ## 검증
 
 `npm.cmd --prefix api run test -- src/auth/auth0-role.spec.ts src/auth/auth.service.spec.ts`로 namespaced role 선택과 기존 bearer-token 거부 동작을 검증합니다.
+
+2026-09-03 검증 결과:
+
+- `npm.cmd --prefix api run test`: 130 tests passed.
+- `npm.cmd --prefix web run test -- src/lib/protected-api.test.ts`: 5 tests passed. 서버-side Bearer token 전달, session 부재 `401`, 허용되지 않은 method `405`, API origin 부재 `503`, resource allowlist를 확인했습니다.
+- `web/node_modules/.bin/tsc.cmd --noEmit --project web/tsconfig.json`: passed.
+- `npm.cmd --prefix web run build`: passed. Next.js production build에서 Proxy가 등록되었습니다.
+- `npm.cmd --prefix web run lint`: exit 0. 변경 범위 밖 기존 warning 59개가 남아 있습니다.
+
+## 운영 확인
+
+`web/.env.local`의 `APP_BASE_URL`, `AUTH0_DOMAIN`, `AUTH0_CLIENT_ID`, `AUTH0_CLIENT_SECRET`, `AUTH0_SECRET`, `AUTH0_AUDIENCE`를 설정한 뒤, Auth0 Dashboard의 Allowed Callback URLs와 Allowed Logout URLs에 `http://localhost:3001` 및 `https://mnre.approid.team` 경로를 유지합니다. Access Token, Client Secret, session secret은 문서, source, browser response에 기록하지 않습니다.
