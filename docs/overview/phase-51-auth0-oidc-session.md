@@ -34,10 +34,13 @@ exports.onExecutePostLogin = async (event, api) => {
 2026-09-03 검증 결과:
 
 - `npm.cmd --prefix api run test`: 130 tests passed.
-- `npm.cmd --prefix web run test -- src/lib/protected-api.test.ts`: 5 tests passed. 서버-side Bearer token 전달, session 부재 `401`, 허용되지 않은 method `405`, API origin 부재 `503`, resource allowlist를 확인했습니다.
+- `npm.cmd --prefix web run test -- src/lib/protected-api.test.ts`: 6 tests passed. 서버-side Bearer token 전달, session 부재 `401`, 허용되지 않은 method `405`, API origin 부재 `503`, resource allowlist, item endpoint 전달을 확인했습니다.
 - `web/node_modules/.bin/tsc.cmd --noEmit --project web/tsconfig.json`: passed.
 - `npm.cmd --prefix web run build`: passed. Next.js production build에서 Proxy가 등록되었습니다.
 - `npm.cmd --prefix web run lint`: exit 0. 변경 범위 밖 기존 warning 59개가 남아 있습니다.
+- `npm.cmd --prefix web run test:e2e -- e2e/auth-session.spec.ts`: Chromium에서 unauthenticated `/properties` 접근이 `/login`으로 redirect되는 것을 확인했습니다.
+
+현재 설치된 `@auth0/nextjs-auth0` `4.28.0`은 signed test session을 생성하는 공개 `./testing` export를 제공하지 않습니다. 따라서 authenticated Playwright suite는 SDK가 해당 공개 API를 제공하는 버전으로 올린 후 추가합니다. SDK의 비공개 cookie 암호화 구현을 복사하거나 인증 우회 endpoint를 만드는 방식은 사용하지 않습니다. 미인증 dashboard redirect는 `web/e2e/auth-session.spec.ts`로 검증합니다.
 
 ## 운영 확인
 
