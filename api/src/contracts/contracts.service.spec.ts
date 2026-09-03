@@ -31,6 +31,24 @@ describe('ContractsService', () => {
     );
   });
 
+  it('synchronizes a past upcoming contract directly to expired', async () => {
+    const service = new ContractsService();
+    (service as unknown as { contracts: Contract[] }).contracts.push(
+      contract({
+        id: 'contract-past-upcoming',
+        startDate: '2026-01-01',
+        endDate: '2026-02-01',
+        status: 'Upcoming',
+      }),
+    );
+
+    const records = await service.findAll(new Date('2026-09-02T00:00:00.000Z'));
+
+    expect(
+      records.find((item) => item.id === 'contract-past-upcoming')?.status,
+    ).toBe('Expired');
+  });
+
   it('creates an upcoming successor using source identity fields', async () => {
     const service = new ContractsService();
 

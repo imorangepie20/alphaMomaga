@@ -1,5 +1,5 @@
 import { Injectable, Optional } from '@nestjs/common';
-import { asc, eq } from 'drizzle-orm';
+import { asc, eq, sql } from 'drizzle-orm';
 import type {
   Contract,
   ContractStatus,
@@ -46,13 +46,14 @@ function synchronizedStatus(
   referenceDate: Date,
 ): ContractStatus {
   const today = utcCalendarDay(referenceDate);
-  if (contract.status === 'Upcoming' && contract.startDate <= today) {
-    return 'Active';
+  let status = contract.status;
+  if (status === 'Upcoming' && contract.startDate <= today) {
+    status = 'Active';
   }
-  if (contract.status === 'Active' && contract.endDate < today) {
-    return 'Expired';
+  if (status === 'Active' && contract.endDate < today) {
+    status = 'Expired';
   }
-  return contract.status;
+  return status;
 }
 
 @Injectable()
@@ -128,6 +129,7 @@ export class ContractsService {
 
     if (database) {
       return database.transaction(async (transaction) => {
+        await this.lockContractInterval(transaction, contractToCreate);
         const currentContracts = await this.synchronizeDatabaseContracts(
           transaction,
           referenceDate,
@@ -247,6 +249,15 @@ export class ContractsService {
     const database = this.databaseService?.client;
     if (database) {
       return database.transaction(async (transaction) => {
+        const [sourceRow] = await transaction
+          .select()
+          .from(contracts)
+          .where(eq(contracts.id, id))
+          .limit(1);
+        if (!sourceRow) {
+          throw new Error(`Contract ${id} not found`);
+        }
+        await this.lockContractInterval(transaction, mapContractRow(sourceRow));
         const currentContracts = await this.synchronizeDatabaseContracts(
           transaction,
           referenceDate,
@@ -305,6 +316,15 @@ export class ContractsService {
     }
 
     return synchronized;
+  }
+
+  private async lockContractInterval(
+    database: any,
+    contract: Pick<Contract, 'propertyId' | 'tenantId' | 'unit'>,
+  ): Promise<void> {
+    await database.execute(
+      sql`SELECT pg_advisory_xact_lock(hashtext(${contract.propertyId} || ':' || ${contract.tenantId} || ':' || ${contract.unit}))`,
+    );
   }
 
   private synchronizeInMemoryContracts(referenceDate: Date): void {
