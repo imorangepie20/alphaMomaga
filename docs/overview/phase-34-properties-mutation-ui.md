@@ -5,7 +5,7 @@
 
 ## 변경 사항
 
-- `SDTPL_ADM/src/components/properties/property-mutations.tsx` 추가
+- `web/src/components/properties/property-mutations.tsx` 추가
 - Properties 페이지에 생성 폼과 행별 수정 버튼 추가
 - 이름, 위치, 유형, 점유율, 상태 입력 지원
 - 생성은 `POST /properties`, 수정은 `PUT /properties/:id` 사용

@@ -16,7 +16,7 @@ Cloudflare 관리자 UI의 운영 페이지들이 공개 API 응답을 실제로
 ## 실행
 
 ```powershell
-cd C:\Users\jowoo\alpahMomega\SDTPL_ADM
+cd C:\Users\jowoo\alpahMomega\web
 $env:PLAYWRIGHT_BASE_URL = 'https://mnre.approid.team'
 $env:API_URL = 'https://api.approid.team'
 npm.cmd run test:e2e -- e2e/operations-api.spec.ts

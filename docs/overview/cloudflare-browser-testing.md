@@ -7,7 +7,7 @@
 - 관리자 UI: https://mnre.approid.team/
 - API: https://api.approid.team/
 
-`http://localhost:3000`은 터널 테스트 주소가 아닙니다. 로컬 Next.js 개발 서버를 직접 확인할 때만 사용합니다.
+`http://localhost:3000`은 사용하지 않습니다. 로컬 관리자 앱은 `http://localhost:3001`에서 확인합니다.
 
 ## 터널 연결 구조
 

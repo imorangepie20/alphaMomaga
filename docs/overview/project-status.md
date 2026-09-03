@@ -71,7 +71,7 @@
 - Cloudflare admin UI: `https://mnre.approid.team/`
 - Cloudflare API: `https://api.approid.team/`
 
-브라우저 테스트는 `docs/overview/cloudflare-browser-testing.md`의 Cloudflare 주소를 기준으로 진행합니다. 현재 Tunnel origin을 `web`으로 전환하는 작업이 필요하며, `localhost:3000`은 터널 테스트 주소가 아닙니다.
+브라우저 테스트는 `docs/overview/cloudflare-browser-testing.md`의 Cloudflare 주소를 기준으로 진행합니다. 현재 Tunnel origin을 `web`의 `3001` 포트로 전환하는 작업이 필요하며, `localhost:3000`은 사용하지 않습니다.
 
 Cloudflare 호스트명은 로컬 서비스에 대한 스테이징 접속 지점이며 운영 배포가 아닙니다. tunnel route가 응답하려면 API origin이 계속 실행 중이어야 합니다.
 

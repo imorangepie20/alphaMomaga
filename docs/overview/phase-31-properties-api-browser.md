@@ -5,14 +5,14 @@ Cloudflare 관리자 UI의 운영 페이지가 공개 API에서 반환한 매물
 
 ## 변경 사항
 
-- `SDTPL_ADM/playwright.config.ts`의 `PLAYWRIGHT_BASE_URL`로 Cloudflare UI를 직접 테스트합니다.
-- `SDTPL_ADM/e2e/properties-api.spec.ts`를 추가했습니다.
+- `web/playwright.config.ts`의 `PLAYWRIGHT_BASE_URL`로 Cloudflare UI를 직접 테스트합니다.
+- `web/e2e/properties-api.spec.ts`를 추가했습니다.
 - 테스트는 API의 `/properties` 응답을 읽고, UI의 `/properties` 페이지에서 자산 수와 모든 매물명이 표시되는지 확인합니다.
 
 ## 실행
 
 ```powershell
-cd C:\Users\jowoo\alpahMomega\SDTPL_ADM
+cd C:\Users\jowoo\alpahMomega\web
 $env:PLAYWRIGHT_BASE_URL = 'https://mnre.approid.team'
 $env:API_URL = 'https://api.approid.team'
 npm.cmd run test:e2e -- e2e/properties-api.spec.ts
