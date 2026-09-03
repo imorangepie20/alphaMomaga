@@ -4,8 +4,16 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { getProperties } from "@/lib/properties";
-import { PropertyMutations } from "@/components/properties/property-mutations";
+import { Badge } from "@/components/ui/badge";
 
 export const dynamic = "force-dynamic";
 
@@ -47,10 +55,39 @@ export default async function PropertiesPage() {
         </Card>
       </div>
 
-      <PropertyMutations
-        initialProperties={properties}
-        apiUrl={process.env.NEXT_PUBLIC_API_URL ?? process.env.API_URL ?? "https://api.approid.team"}
-      />
+      <Card>
+        <CardHeader>
+          <CardTitle>자산 목록</CardTitle>
+        </CardHeader>
+        <CardContent className="px-0">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="pl-6">자산명</TableHead>
+                <TableHead>위치</TableHead>
+                <TableHead>유형</TableHead>
+                <TableHead>점유율</TableHead>
+                <TableHead>상태</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {properties.map((property) => (
+                <TableRow key={property.id}>
+                  <TableCell className="pl-6 font-medium">{property.name}</TableCell>
+                  <TableCell>{property.location}</TableCell>
+                  <TableCell>{property.type}</TableCell>
+                  <TableCell>{property.occupancy}</TableCell>
+                  <TableCell>
+                    <Badge variant="outline" className={property.status === "Occupied" ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300" : "border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300"}>
+                      {property.status === "Occupied" ? "점유" : property.status === "Active" ? "운영 중" : "검토 중"}
+                    </Badge>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
     </div>
   );
 }
