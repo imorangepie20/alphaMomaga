@@ -63,6 +63,7 @@
 ## Project-specific guidance: real estate management app
 
 - `SDTPL_ADM/` is a theme/reference directory only. Do not add application features, tests, deployment configuration, or production changes there unless the user explicitly requests a theme update.
+- `web/` is the application frontend. Add frontend routes, components, API clients, and browser tests there.
 
 - Treat this as a real business application, not a demo app. Prioritize correctness, data integrity, and operational usability.
 - Model the core domains explicitly: properties, tenants, contracts, payments, maintenance, users, and admin operations.

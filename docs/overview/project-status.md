@@ -4,7 +4,8 @@
 
 - 저장소 루트에 `web` 아래의 Next.js 앱이 있는 작업 공간이 구성되어 있습니다.
 - `api` 아래에 NestJS API 앱이 있습니다.
-- `SDTPL_ADM`에 UI 기반으로 사용할 수 있는 사전 제작 관리자 템플릿이 있습니다.
+- `SDTPL_ADM`에 UI 기반으로 사용할 수 있는 사전 제작 관리자 테마가 있습니다. 이 폴더는 참고용 원본이며 애플리케이션 코드의 대상이 아닙니다.
+- `web`에 테마를 바탕으로 구성한 실제 부동산 관리 관리자 프론트엔드가 있습니다.
 - 이 템플릿은 레이아웃, 네비게이션, 차트 위젯을 제공하는 shadcn 스타일 관리자 대시보드 시스템입니다.
 
 ## 의미
@@ -17,7 +18,7 @@
 
 ## 현재 구현 상태
 
-관리자 템플릿을 `SDTPL_ADM` 아래의 한국어 부동산 관리 애플리케이션으로 전환했으며, `api` 아래의 NestJS API가 이를 지원합니다.
+`web` 아래의 한국어 부동산 관리 프론트엔드와 `api` 아래의 NestJS API가 애플리케이션을 구성합니다. `SDTPL_ADM`은 테마 참고용으로 보존합니다.
 
 완료된 업무 흐름 단위:
 
@@ -59,17 +60,18 @@
 36. Tenants/Contracts/Payments/Maintenance/Inspections API 데이터 연동 브라우저 검증
 37. Properties 생성·수정·삭제 API의 인증/권한 e2e 통합 검증
 38. Properties 관리자 화면의 생성·수정 UI와 Bearer 토큰 전송 연결
+39. 실제 프론트엔드를 `web`으로 분리하고 `SDTPL_ADM`을 테마 참고 원본으로 고정
 
 관리자 UI는 한국어 우선으로 구성되어 있습니다. 네비게이션, 대시보드 라벨, breadcrumb, 공용 셸 라벨, 운영 페이지, 관리자 역할 화면에 한국어 용어를 사용합니다.
 
 ## 실행 endpoint
 
-- Local admin UI: `http://localhost:3001`
+- Local admin UI: `http://localhost:3001` (`web` 디렉터리)
 - Local API: `http://localhost:3100`
 - Cloudflare admin UI: `https://mnre.approid.team/`
 - Cloudflare API: `https://api.approid.team/`
 
-브라우저 테스트는 `docs/overview/cloudflare-browser-testing.md`의 Cloudflare 주소를 기준으로 진행합니다. `localhost:3000`은 터널 테스트 주소가 아닙니다.
+브라우저 테스트는 `docs/overview/cloudflare-browser-testing.md`의 Cloudflare 주소를 기준으로 진행합니다. 현재 Tunnel origin을 `web`으로 전환하는 작업이 필요하며, `localhost:3000`은 터널 테스트 주소가 아닙니다.
 
 Cloudflare 호스트명은 로컬 서비스에 대한 스테이징 접속 지점이며 운영 배포가 아닙니다. tunnel route가 응답하려면 API origin이 계속 실행 중이어야 합니다.
 

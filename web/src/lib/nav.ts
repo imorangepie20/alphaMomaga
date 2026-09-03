@@ -1,0 +1,57 @@
+import type { LucideIcon } from "lucide-react";
+import {
+  LayoutDashboard, ShoppingCart, CreditCard, Hotel, KanbanSquare,
+  Building2, TrendingUp, Users, BarChart3, FolderOpen, Bitcoin,
+  GraduationCap, Stethoscope, Wallet, StickyNote, MessageSquare,
+  Share2, Mail, ListTodo, CheckSquare, Calendar, KeyRound, Store,
+  BookOpen, Bot, Image as ImageIcon, AudioLines, UserCircle, Rocket,
+  Layers, Settings, Tag, ShieldCheck, Bell, TriangleAlert, Boxes,
+  Component, Blocks, FlaskConical, Globe, FileText, ClipboardCheck,
+} from "lucide-react";
+
+export type NavItem = { title: string; href: string; icon?: LucideIcon };
+export type NavGroup = { label: string; items: NavItem[] };
+
+export const navGroups: NavGroup[] = [
+  {
+    label: "개요",
+    items: [
+      { title: "대시보드", href: "/dashboard/real-estate", icon: LayoutDashboard },
+      { title: "자산 현황", href: "/dashboard/portfolio", icon: Building2 },
+      { title: "점유율", href: "/dashboard/occupancy", icon: TrendingUp },
+      { title: "수익 현황", href: "/dashboard/revenue", icon: Wallet },
+    ],
+  },
+  {
+    label: "운영",
+    items: [
+      { title: "매물", href: "/properties", icon: Building2 },
+      { title: "임차인", href: "/tenants", icon: Users },
+      { title: "계약", href: "/contracts", icon: FileText },
+      { title: "수납", href: "/payments", icon: CreditCard },
+      { title: "유지보수", href: "/maintenance", icon: Settings },
+      { title: "점검", href: "/inspections", icon: ClipboardCheck },
+    ],
+  },
+  {
+    label: "관리자",
+    items: [
+      { title: "사용자", href: "/admin/users", icon: Users },
+      { title: "역할", href: "/admin/roles", icon: ShieldCheck },
+      { title: "보고서", href: "/admin/reports", icon: BarChart3 },
+      { title: "설정", href: "/settings", icon: Settings },
+    ],
+  },
+];
+
+// Auth routes live outside the dashboard shell (the (auth) group).
+export const authRoutes: NavItem[] = [
+  { title: "Login", href: "/login" },
+  { title: "Register", href: "/register" },
+  { title: "Forgot Password", href: "/forgot-password" },
+  { title: "Reset Password", href: "/reset-password" },
+  { title: "Verify Email", href: "/verify" },
+];
+
+// Flat list of every dashboard-shell route (used by ⌘K and stub generation).
+export const allNavItems: NavItem[] = navGroups.flatMap((g) => g.items);

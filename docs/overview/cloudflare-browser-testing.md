@@ -13,7 +13,7 @@
 
 | 용도 | 공개 주소 | 로컬 origin |
 |---|---|---|
-| 관리자 UI | `https://mnre.approid.team/` | `http://localhost:3001` |
+| 관리자 UI | `https://mnre.approid.team/` | `http://localhost:3001` (`web/`) |
 | API | `https://api.approid.team/` | `http://localhost:3100` |
 
 Cloudflare 호스트명은 스테이징 접속 지점입니다. 두 origin 프로세스가 모두 실행 중이어야 하며, origin이 중지되면 `502 Bad Gateway`가 발생할 수 있습니다.
@@ -32,7 +32,7 @@ npm.cmd run start:dev
 
 ```powershell
 $env:Path = 'C:\Program Files\nodejs;' + $env:Path
-cd C:\Users\jowoo\alpahMomega\SDTPL_ADM
+cd C:\Users\jowoo\alpahMomega\web
 npm.cmd run dev -- -p 3001
 ```
 
@@ -55,11 +55,11 @@ Invoke-WebRequest https://api.approid.team/properties -UseBasicParsing
 
 ## Playwright로 Cloudflare 테스트
 
-`PLAYWRIGHT_BASE_URL`을 지정하면 Playwright가 로컬 Next.js 서버를 별도로 시작하지 않고 Cloudflare 관리자 UI를 직접 테스트합니다.
+`web/`의 Playwright 설정에서 `PLAYWRIGHT_BASE_URL`을 지정하면 로컬 Next.js 서버를 별도로 시작하지 않고 Cloudflare 관리자 UI를 직접 테스트합니다. Tunnel origin이 `web`의 3001 포트를 가리키도록 전환된 뒤 사용합니다.
 
 ```powershell
 $env:PLAYWRIGHT_BASE_URL = 'https://mnre.approid.team'
-cd C:\Users\jowoo\alpahMomega\SDTPL_ADM
+cd C:\Users\jowoo\alpahMomega\web
 npm.cmd run test:e2e -- e2e/dashboards-ops.spec.ts
 ```
 

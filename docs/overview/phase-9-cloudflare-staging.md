@@ -13,7 +13,7 @@
 
 ## 운영 조건
 
-Cloudflare Tunnel은 포트 `3001`의 로컬 Next.js 관리자 서버와 포트 `3100`의 NestJS API로 전달합니다. 두 origin 프로세스가 모두 실행 중이어야 하며, 어느 하나라도 중단되면 Cloudflare `502 Bad gateway` 응답이 발생할 수 있습니다.
+Cloudflare Tunnel은 포트 `3001`의 `web` Next.js 관리자 서버와 포트 `3100`의 NestJS API로 전달해야 합니다. 현재 Tunnel 설정이 이전 테마 경로를 사용하고 있다면 `web` origin으로 전환해야 하며, 두 origin 프로세스가 모두 실행 중이어야 합니다.
 
 ## 검증
 
