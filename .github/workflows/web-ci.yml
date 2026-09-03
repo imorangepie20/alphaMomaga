@@ -33,14 +33,11 @@ jobs:
       - name: 빌드
         run: npm run build
       - name: API 의존성 설치
-        working-directory: api
-        run: npm ci
+        run: npm --prefix ../api ci
       - name: API 빌드
-        working-directory: api
-        run: npm run build
+        run: npm --prefix ../api run build
       - name: API 기동
-        working-directory: api
-        run: npm run start > /tmp/alpha-momega-api.log 2>&1 &
+        run: npm --prefix ../api run start > /tmp/alpha-momega-api.log 2>&1 &
       - name: API 준비 확인
         run: |
           for attempt in {1..30}; do
