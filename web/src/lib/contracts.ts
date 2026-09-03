@@ -1,3 +1,5 @@
+import { getApiUrl } from "@/lib/api-url";
+
 export type ContractStatus = "Upcoming" | "Active" | "Expired" | "Terminated";
 
 export type Contract = {
@@ -20,7 +22,7 @@ const fallbackContracts: Contract[] = [
 ];
 
 export async function getContracts(): Promise<Contract[]> {
-  const apiUrl = process.env.API_URL;
+  const apiUrl = getApiUrl();
   if (!apiUrl) return fallbackContracts;
 
   try {

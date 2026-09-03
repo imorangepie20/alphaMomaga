@@ -26,3 +26,7 @@ npm run test:e2e  # Playwright browser tests
 The API is provided by the sibling `api/` NestJS application. Configure `API_URL` or
 `NEXT_PUBLIC_API_URL` for a deployed environment. The original theme reference remains in
 the sibling `SDTPL_ADM/` directory and is not an application source directory.
+
+`API_URL` is preferred for server-side data fetching. Copy `.env.example` to `.env.local`
+for local development and set the API origin to `http://localhost:3100` when the local API
+is running.

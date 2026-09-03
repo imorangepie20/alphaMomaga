@@ -36,6 +36,8 @@ cd C:\Users\jowoo\alpahMomega\web
 npm.cmd run dev -- -p 3001
 ```
 
+`web/.env.local` 또는 origin 프로세스 환경 변수에 `API_URL=https://api.approid.team`을 설정합니다. 설정하지 않으면 서버 페이지가 로컬 fallback fixture를 사용할 수 있습니다.
+
 3. 공개 주소 응답을 확인합니다.
 
 ```powershell

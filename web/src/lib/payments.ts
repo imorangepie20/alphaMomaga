@@ -1,3 +1,5 @@
+import { getApiUrl } from "@/lib/api-url";
+
 export type PaymentStatus = "Paid" | "Pending" | "Overdue" | "Cancelled";
 
 export type Payment = {
@@ -18,7 +20,7 @@ const fallbackPayments: Payment[] = [
 ];
 
 export async function getPayments(): Promise<Payment[]> {
-  const apiUrl = process.env.API_URL;
+  const apiUrl = getApiUrl();
   if (!apiUrl) return fallbackPayments;
 
   try {

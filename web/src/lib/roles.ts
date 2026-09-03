@@ -1,3 +1,5 @@
+import { getApiUrl } from "@/lib/api-url";
+
 export type RoleName = "Admin" | "PropertyManager" | "Finance" | "Inspector";
 export type Permission = "portfolio:read" | "tenant:manage" | "contract:manage" | "payment:manage" | "maintenance:manage" | "inspection:manage" | "user:manage" | "report:read";
 export type RoleDefinition = { name: RoleName; permissions: Permission[] };
@@ -10,7 +12,7 @@ const fallbackRoles: RoleDefinition[] = [
 ];
 
 export async function getRoles(): Promise<RoleDefinition[]> {
-  const apiUrl = process.env.API_URL;
+  const apiUrl = getApiUrl();
   if (!apiUrl) return fallbackRoles;
   try {
     const response = await fetch(`${apiUrl}/admin/roles`, { cache: "no-store" });

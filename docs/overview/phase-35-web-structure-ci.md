@@ -9,6 +9,8 @@
 - `web/`: 실제 부동산 관리 프론트엔드
 - `SDTPL_ADM/`: 수정하지 않는 테마 참고 원본
 
+`web/.env.example`에 API origin 설정을 제공합니다. 배포 origin은 `API_URL=https://api.approid.team`을 사용해야 합니다.
+
 ## CI
 
 `.github/workflows/web-ci.yml`은 `web/**` 변경 시 다음을 실행합니다.

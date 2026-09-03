@@ -1,3 +1,5 @@
+import { getApiUrl } from "@/lib/api-url";
+
 export type MaintenanceStatus = "Pending" | "Scheduled" | "InProgress" | "Completed";
 export type Maintenance = { id: string; propertyId: string; task: string; dueDate: string; status: MaintenanceStatus };
 
@@ -9,7 +11,7 @@ const fallbackMaintenance: Maintenance[] = [
 ];
 
 export async function getMaintenance(): Promise<Maintenance[]> {
-  const apiUrl = process.env.API_URL;
+  const apiUrl = getApiUrl();
   if (!apiUrl) return fallbackMaintenance;
   try {
     const response = await fetch(`${apiUrl}/maintenance`, { cache: "no-store" });

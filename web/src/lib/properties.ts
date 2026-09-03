@@ -1,3 +1,5 @@
+import { getApiUrl } from "@/lib/api-url";
+
 export type PropertyStatus = "Occupied" | "Active" | "Pending";
 
 export type Property = {
@@ -17,7 +19,7 @@ const fallbackProperties: Property[] = [
 ];
 
 export async function getProperties(): Promise<Property[]> {
-  const apiUrl = process.env.API_URL;
+  const apiUrl = getApiUrl();
 
   if (!apiUrl) {
     return fallbackProperties;

@@ -1,3 +1,5 @@
+import { getApiUrl } from "@/lib/api-url";
+
 export type TenantPaymentStatus = "Paid" | "Overdue" | "Pending";
 
 export type Tenant = {
@@ -17,7 +19,7 @@ const fallbackTenants: Tenant[] = [
 ];
 
 export async function getTenants(): Promise<Tenant[]> {
-  const apiUrl = process.env.API_URL;
+  const apiUrl = getApiUrl();
 
   if (!apiUrl) return fallbackTenants;
 

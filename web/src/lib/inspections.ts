@@ -1,3 +1,5 @@
+import { getApiUrl } from "@/lib/api-url";
+
 export type InspectionStatus = "Pending" | "Scheduled" | "InReview" | "Completed";
 export type Inspection = { id: string; propertyId: string; type: string; scheduledDate: string; status: InspectionStatus; priority: "Routine" | "Urgent"; completedAt?: string };
 
@@ -9,7 +11,7 @@ const fallbackInspections: Inspection[] = [
 ];
 
 export async function getInspections(): Promise<Inspection[]> {
-  const apiUrl = process.env.API_URL;
+  const apiUrl = getApiUrl();
   if (!apiUrl) return fallbackInspections;
   try {
     const response = await fetch(`${apiUrl}/inspections`, { cache: "no-store" });
