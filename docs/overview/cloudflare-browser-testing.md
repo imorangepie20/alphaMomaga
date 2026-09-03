@@ -53,6 +53,22 @@ Invoke-WebRequest https://api.approid.team/properties -UseBasicParsing
 4. API 요청이 `localhost:3000` 또는 잘못된 로컬 포트로 나가면 프론트엔드 환경 설정을 먼저 확인합니다.
 5. 쓰기 작업은 인증 토큰과 권한이 준비된 환경에서만 실행합니다.
 
+## Playwright로 Cloudflare 테스트
+
+`PLAYWRIGHT_BASE_URL`을 지정하면 Playwright가 로컬 Next.js 서버를 별도로 시작하지 않고 Cloudflare 관리자 UI를 직접 테스트합니다.
+
+```powershell
+$env:PLAYWRIGHT_BASE_URL = 'https://mnre.approid.team'
+cd C:\Users\jowoo\alpahMomega\SDTPL_ADM
+npm.cmd run test:e2e -- e2e/dashboards-ops.spec.ts
+```
+
+로컬 테스트로 되돌릴 때는 환경 변수를 제거합니다.
+
+```powershell
+Remove-Item Env:PLAYWRIGHT_BASE_URL -ErrorAction SilentlyContinue
+```
+
 ## 오류 대응
 
 ### `502 Bad Gateway`
