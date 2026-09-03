@@ -1,10 +1,8 @@
 import { Injectable, UnauthorizedException, Logger } from '@nestjs/common';
 import { createRemoteJWKSet, jwtVerify } from 'jose';
 import type { AuthenticatedPrincipal } from './principal.js';
-import type { RoleName } from '../roles/role.js';
 import { AuthConfigService } from './auth-config.service.js';
-
-const roleNames: RoleName[] = ['Admin', 'PropertyManager', 'Finance', 'Inspector'];
+import { getAuth0Role } from './auth0-role.js';
 
 @Injectable()
 export class AuthService {
@@ -48,11 +46,11 @@ export class AuthService {
         audience: config.audience,
       });
 
-      const role = typeof payload.role === 'string' ? payload.role : undefined;
-      if (typeof payload.sub !== 'string' || !role || !roleNames.includes(role as RoleName)) {
+      const role = getAuth0Role(payload);
+      if (typeof payload.sub !== 'string' || !role) {
         throw new UnauthorizedException('The token principal is invalid');
       }
-      return { role: role as RoleName, subject: payload.sub };
+      return { role, subject: payload.sub };
     } catch (error) {
       if (error instanceof UnauthorizedException) throw error;
       this.logger.debug('Bearer token verification failed', error);

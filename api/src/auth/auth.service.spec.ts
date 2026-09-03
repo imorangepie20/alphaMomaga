@@ -1,7 +1,13 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { UnauthorizedException } from '@nestjs/common';
+import { jwtVerify } from 'jose';
 import { AuthService } from './auth.service.js';
 import { AuthConfigService } from './auth-config.service.js';
+
+vi.mock('jose', () => ({
+  createRemoteJWKSet: vi.fn(() => vi.fn()),
+  jwtVerify: vi.fn(),
+}));
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -21,6 +27,20 @@ describe('AuthService', () => {
   });
 
   describe('verifyBearerToken', () => {
+    it('maps a verified Auth0 namespaced role to an authenticated principal', async () => {
+      vi.mocked(jwtVerify).mockResolvedValueOnce({
+        payload: {
+          sub: 'auth0|user-123',
+          'https://alpha-momega.app/role': ['PropertyManager'],
+        },
+      } as Awaited<ReturnType<typeof jwtVerify>>);
+
+      await expect(service.verifyBearerToken('Bearer signed.jwt.token')).resolves.toEqual({
+        subject: 'auth0|user-123',
+        role: 'PropertyManager',
+      });
+    });
+
     it('should throw UnauthorizedException when no Bearer token', async () => {
       expect(async () => {
         await service.verifyBearerToken(undefined);
