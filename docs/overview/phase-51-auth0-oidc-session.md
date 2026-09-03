@@ -21,7 +21,7 @@ exports.onExecutePostLogin = async (event, api) => {
 };
 ```
 
-배포 환경에는 `AUTH_JWKS_URL`, `AUTH_ISSUER`, `AUTH_AUDIENCE`를 실제 Auth0 tenant 및 API 설정으로 지정하고 `AUTH_ALLOW_DEMO_ROLE=false`를 유지합니다.
+배포 환경에는 `AUTH_JWKS_URL`, `AUTH_ISSUER`, `AUTH_AUDIENCE`를 실제 Auth0 tenant 및 API 설정으로 지정하고 `AUTH_ALLOW_DEMO_ROLE=false`를 유지합니다. `YOUR_AUTH0_DOMAIN`은 `dev-u1feezhev3peemey.us.auth0.com`처럼 `.auth0.com`을 포함한 완전한 Auth0 host 이름이어야 합니다. 따라서 JWKS URL은 `https://<AUTH0_DOMAIN>/.well-known/jwks.json`, issuer는 `https://<AUTH0_DOMAIN>/` 형식을 사용합니다.
 
 ## 검증
 
