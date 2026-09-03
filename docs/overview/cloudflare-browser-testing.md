@@ -29,7 +29,7 @@ $env:PORT = '3100'
 npm.cmd run start:dev
 ```
 
-`api/src/main.ts`의 기본 포트는 `3000`이지만 Cloudflare API tunnel origin은 `3100`입니다. 따라서 `PORT=3100` 없이 실행하면 로컬 API는 정상이어도 tunnel은 `502 Bad Gateway`를 반환합니다.
+`api/src/main.ts`의 기본 포트는 Cloudflare API tunnel origin과 같은 `3100`입니다. 배포 환경에서 `PORT`를 명시하면 그 값이 우선하며, Cloudflare 개발 환경에서는 별도 포트 설정 없이 tunnel 계약을 유지합니다.
 
 2. 관리자 UI origin을 반드시 `3001` 포트로 실행합니다.
 
