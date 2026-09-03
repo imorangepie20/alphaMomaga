@@ -42,7 +42,7 @@ jobs:
       - name: API 빌드
         run: npm --prefix ../api run build
       - name: API 기동
-        run: npm --prefix ../api run start > /tmp/alpha-momega-api.log 2>&1 &
+        run: PORT=3100 npm --prefix ../api run start > /tmp/alpha-momega-api.log 2>&1 &
       - name: API 준비 확인
         run: |
           for attempt in {1..30}; do
