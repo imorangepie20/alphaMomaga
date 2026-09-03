@@ -23,4 +23,42 @@ describe('InspectionsService', () => {
     expect(() => validateInspection(inspection({ status: 'Completed', completedAt: '2026-09-02' }), referenceDate)).not.toThrow();
     expect(() => validateInspection(inspection({ scheduledDate: '2026-02-30' }), referenceDate)).toThrow();
   });
+
+  it('updates an inspection status with a valid completion date', async () => {
+    const service = new InspectionsService();
+
+    const updated = await service.update('inspection-2', {
+      status: 'Completed',
+      completedAt: '2026-08-10',
+    });
+
+    expect(updated).toMatchObject({
+      id: 'inspection-2',
+      status: 'Completed',
+      completedAt: '2026-08-10',
+    });
+  });
+
+  it('does not mutate an inspection when completion validation fails', async () => {
+    const service = new InspectionsService();
+
+    await expect(service.update('inspection-1', { status: 'Completed' })).rejects.toThrow();
+    const inspections = await service.findAll();
+
+    expect(inspections.find((item) => item.id === 'inspection-1')).toMatchObject({
+      status: 'Scheduled',
+    });
+  });
+
+  it('throws when no fields are provided', async () => {
+    const service = new InspectionsService();
+
+    await expect(service.update('inspection-1', {})).rejects.toThrow('At least one field is required');
+  });
+
+  it('throws when the inspection does not exist', async () => {
+    const service = new InspectionsService();
+
+    await expect(service.update('non-existent-id', { status: 'Completed' })).rejects.toThrow('not found');
+  });
 });

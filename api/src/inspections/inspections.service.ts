@@ -108,6 +108,10 @@ export class InspectionsService {
   }
 
   async update(id: string, input: UpdateInspectionInput, principal?: AuthenticatedPrincipal): Promise<Inspection> {
+    if (Object.keys(input).length === 0) {
+      throw new Error('At least one field is required to update');
+    }
+
     const database = this.databaseService?.client;
     if (database) {
       return database.transaction(async (transaction) => {
@@ -147,10 +151,14 @@ export class InspectionsService {
       throw new Error(`Inspection ${id} not found`);
     }
 
-    if (input.status !== undefined) item.status = input.status;
-    if (input.completedAt !== undefined) item.completedAt = input.completedAt;
+    const updated: Inspection = {
+      ...item,
+      ...(input.status !== undefined && { status: input.status }),
+      ...(input.completedAt !== undefined && { completedAt: input.completedAt }),
+    };
+    validateInspection(updated);
 
-    validateInspection(item);
-    return item;
+    this.inspections[this.inspections.indexOf(item)] = updated;
+    return updated;
   }
 }
