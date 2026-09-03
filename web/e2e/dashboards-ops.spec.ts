@@ -11,7 +11,7 @@ const dashboards = [
   },
   {
     href: "/dashboard/real-estate",
-    marks: ["The Somerset", "Sales Analytics", "Property Overview"],
+    marks: ["The Somerset", "수납 성과 분석", "자산 구성"],
   },
 ];
 
