@@ -58,6 +58,7 @@
 35. Cloudflare 관리자 UI와 공개 Properties API 데이터 연동 브라우저 검증
 36. Tenants/Contracts/Payments/Maintenance/Inspections API 데이터 연동 브라우저 검증
 37. Properties 생성·수정·삭제 API의 인증/권한 e2e 통합 검증
+38. Properties 관리자 화면의 생성·수정 UI와 Bearer 토큰 전송 연결
 
 관리자 UI는 한국어 우선으로 구성되어 있습니다. 네비게이션, 대시보드 라벨, breadcrumb, 공용 셸 라벨, 운영 페이지, 관리자 역할 화면에 한국어 용어를 사용합니다.
 
