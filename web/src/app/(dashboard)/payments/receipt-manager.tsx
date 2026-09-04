@@ -47,7 +47,7 @@ export function ReceiptManager({ charges, tenantNames }: { charges: MonthlyCharg
   }
 
   return <><Button onClick={openDialog} disabled={eligible.length === 0}><PlusIcon data-icon="inline-start" />수납 등록</Button>
-    <Dialog open={open} onOpenChange={setOpen}><DialogContent className="sm:max-w-xl"><DialogHeader><DialogTitle>수납 등록</DialogTitle><DialogDescription>한 임차인의 여러 청구에 실제 입금액을 배분합니다. 영수증 총액은 아래 배분 금액의 합으로 저장됩니다.</DialogDescription></DialogHeader>
+    <Dialog open={open} onOpenChange={setOpen}><DialogContent className="max-h-[calc(100dvh-2rem)] overflow-y-auto sm:max-w-xl"><DialogHeader><DialogTitle>수납 등록</DialogTitle><DialogDescription>한 임차인의 여러 청구에 실제 입금액을 배분합니다. 영수증 총액은 아래 배분 금액의 합으로 저장됩니다.</DialogDescription></DialogHeader>
       <form className="space-y-5" onSubmit={submit}>
         <FormField label="임차인" htmlFor="receipt-tenant"><NativeSelect id="receipt-tenant" value={tenantId} onChange={(event) => selectTenant(event.target.value)}><NativeSelectOption value="">임차인 선택</NativeSelectOption>{tenantIds.map((id) => <NativeSelectOption key={id} value={id}>{tenantNames[id] ?? id}</NativeSelectOption>)}</NativeSelect></FormField>
         <div className="space-y-2 rounded-lg border p-3"><p className="text-sm font-medium">청구별 배분</p>{tenantCharges.map((charge) => <div key={charge.id} className="grid grid-cols-[1fr_9rem] items-center gap-3 text-sm"><span>{charge.billingMonth} · 납기 {charge.dueDate} · 미수 {formatWon(charge.outstandingWon)}</span><Input aria-label={`${charge.id} 배분 금액`} type="number" min="0" max={charge.outstandingWon} placeholder="0" value={allocationAmounts[charge.id] ?? ""} onChange={(event) => setAllocationAmounts({ ...allocationAmounts, [charge.id]: event.target.value })} /></div>)}</div>
