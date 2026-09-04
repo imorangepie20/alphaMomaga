@@ -49,6 +49,14 @@ function nextCalendarDay(value: string) {
   return date.toISOString().slice(0, 10);
 }
 
+function canRenewContract(contract: Contract) {
+  if (contract.status === "Active") return true;
+  return (
+    contract.status === "Expired" &&
+    nextCalendarDay(contract.endDate) >= new Date().toISOString().slice(0, 10)
+  );
+}
+
 function statusClass(status: ContractStatus) {
   if (status === "Active") {
     return "border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300";
@@ -269,8 +277,7 @@ export function ContractManager({
                 </td>
                 <td className="p-4 pr-6 text-right">
                   <div className="flex justify-end gap-1">
-                    {(contract.status === "Active" ||
-                      contract.status === "Expired") && (
+                    {canRenewContract(contract) && (
                       <Button
                         variant="ghost"
                         size="sm"
