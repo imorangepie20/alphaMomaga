@@ -230,7 +230,7 @@ export function StatsMetricVariant() {
       </CardHeader>
       <CardContent className="flex flex-col gap-1">
         <p className="text-3xl font-bold tracking-tight">$15,231.89</p>
-        <p className="text-sm text-emerald-600 dark:text-emerald-400">
+        <p className="text-sm text-emerald-600 ">
           +20.1% from last month
         </p>
       </CardContent>

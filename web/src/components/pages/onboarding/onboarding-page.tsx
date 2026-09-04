@@ -280,7 +280,7 @@ function StepDone() {
   return (
     <div className="flex flex-col items-center gap-6 py-4 text-center">
       <div className="flex size-20 items-center justify-center rounded-full bg-emerald-500/10 ring-1 ring-emerald-500/20">
-        <Check className="size-9 text-emerald-600 dark:text-emerald-400" />
+        <Check className="size-9 text-emerald-600 " />
       </div>
       <div className="space-y-2">
         <h2 className="text-xl font-semibold">You&apos;re all set!</h2>

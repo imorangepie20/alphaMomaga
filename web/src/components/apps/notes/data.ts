@@ -39,13 +39,13 @@ export const CATEGORY_COLORS: Record<Category, string> = {
 }
 
 export const CATEGORY_BADGE_CLASSES: Record<Category, string> = {
-  Family: "bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300",
-  Tasks: "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300",
-  Personal: "bg-violet-100 text-violet-700 dark:bg-violet-900/40 dark:text-violet-300",
-  Meetings: "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300",
-  Shopping: "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300",
-  Planning: "bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300",
-  Travel: "bg-cyan-100 text-cyan-700 dark:bg-cyan-900/40 dark:text-cyan-300",
+  Family: "bg-rose-100 text-rose-700  ",
+  Tasks: "bg-blue-100 text-blue-700  ",
+  Personal: "bg-violet-100 text-violet-700  ",
+  Meetings: "bg-amber-100 text-amber-700  ",
+  Shopping: "bg-green-100 text-green-700  ",
+  Planning: "bg-orange-100 text-orange-700  ",
+  Travel: "bg-cyan-100 text-cyan-700  ",
 }
 
 export const INITIAL_NOTES: Note[] = [

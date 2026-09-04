@@ -47,10 +47,10 @@ export const CATEGORIES: MailCategory[] = [
 ]
 
 export const LABEL_COLORS: Record<MailLabel, string> = {
-  work: "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300",
-  important: "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300",
-  personal: "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300",
-  budget: "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300",
+  work: "bg-blue-100 text-blue-700  ",
+  important: "bg-red-100 text-red-700  ",
+  personal: "bg-green-100 text-green-700  ",
+  budget: "bg-amber-100 text-amber-700  ",
 }
 
 export const INITIAL_MAILS: Mail[] = [

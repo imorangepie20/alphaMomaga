@@ -64,7 +64,7 @@ function statusVariant(status: ApiKey["status"]) {
 function StatusBadge({ status }: { status: ApiKey["status"] }) {
   if (status === "active") {
     return (
-      <Badge className="bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400 border-transparent capitalize">
+      <Badge className="bg-emerald-100 text-emerald-700   border-transparent capitalize">
         {status}
       </Badge>
     );

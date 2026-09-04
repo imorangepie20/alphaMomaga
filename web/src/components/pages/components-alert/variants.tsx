@@ -43,10 +43,10 @@ export function DestructiveVariant() {
 // ─── 3. Success ──────────────────────────────────────────────────────────────
 export function SuccessVariant() {
   return (
-    <Alert className="border-emerald-200 bg-emerald-50 text-emerald-900 dark:border-emerald-800 dark:bg-emerald-950 dark:text-emerald-100 *:[svg]:text-emerald-600 dark:*:[svg]:text-emerald-400">
+    <Alert className="border-emerald-200 bg-emerald-50 text-emerald-900    *:[svg]:text-emerald-600 ">
       <CircleCheckIcon />
       <AlertTitle>Payment successful</AlertTitle>
-      <AlertDescription className="text-emerald-700 dark:text-emerald-300">
+      <AlertDescription className="text-emerald-700 ">
         Your payment has been processed.
       </AlertDescription>
     </Alert>
@@ -56,10 +56,10 @@ export function SuccessVariant() {
 // ─── 4. Warning ──────────────────────────────────────────────────────────────
 export function WarningVariant() {
   return (
-    <Alert className="border-amber-200 bg-amber-50 text-amber-900 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-100 *:[svg]:text-amber-600 dark:*:[svg]:text-amber-400">
+    <Alert className="border-amber-200 bg-amber-50 text-amber-900    *:[svg]:text-amber-600 ">
       <TriangleAlertIcon />
       <AlertTitle>You are about to exceed your data limit</AlertTitle>
-      <AlertDescription className="text-amber-700 dark:text-amber-300">
+      <AlertDescription className="text-amber-700 ">
         Consider upgrading your plan.
       </AlertDescription>
     </Alert>
@@ -69,10 +69,10 @@ export function WarningVariant() {
 // ─── 5. Info ─────────────────────────────────────────────────────────────────
 export function InfoVariant() {
   return (
-    <Alert className="border-blue-200 bg-blue-50 text-blue-900 dark:border-blue-800 dark:bg-blue-950 dark:text-blue-100 *:[svg]:text-blue-600 dark:*:[svg]:text-blue-400">
+    <Alert className="border-blue-200 bg-blue-50 text-blue-900    *:[svg]:text-blue-600 ">
       <InfoIcon />
       <AlertTitle>A friend request has been sent</AlertTitle>
-      <AlertDescription className="text-blue-700 dark:text-blue-300">
+      <AlertDescription className="text-blue-700 ">
         We&apos;ll notify you when they respond.
       </AlertDescription>
     </Alert>
@@ -121,10 +121,10 @@ export function WarningFilledVariant() {
 // ─── 9. Info (left accent) ────────────────────────────────────────────────────
 export function InfoLeftAccentVariant() {
   return (
-    <Alert className="rounded-lg border border-blue-200 border-l-4 border-l-blue-500 bg-blue-50 text-blue-900 dark:border-blue-800 dark:border-l-blue-400 dark:bg-blue-950 dark:text-blue-100 *:[svg]:text-blue-600 dark:*:[svg]:text-blue-400">
+    <Alert className="rounded-lg border border-blue-200 border-l-4 border-l-blue-500 bg-blue-50 text-blue-900     *:[svg]:text-blue-600 ">
       <InfoIcon />
       <AlertTitle>A friend request has been sent</AlertTitle>
-      <AlertDescription className="text-blue-700 dark:text-blue-300">
+      <AlertDescription className="text-blue-700 ">
         We&apos;ll notify you when they respond.
       </AlertDescription>
     </Alert>
@@ -151,10 +151,10 @@ export function ValidationErrorVariant() {
 // ─── 11. With action ──────────────────────────────────────────────────────────
 export function WithActionVariant() {
   return (
-    <Alert className="border-emerald-200 bg-emerald-50 text-emerald-900 dark:border-emerald-800 dark:bg-emerald-950 dark:text-emerald-100 *:[svg]:text-emerald-600 dark:*:[svg]:text-emerald-400">
+    <Alert className="border-emerald-200 bg-emerald-50 text-emerald-900    *:[svg]:text-emerald-600 ">
       <CircleCheckIcon />
       <AlertTitle>All the files have been moved</AlertTitle>
-      <AlertDescription className="text-emerald-700 dark:text-emerald-300">
+      <AlertDescription className="text-emerald-700 ">
         Your files were transferred to the destination folder.
       </AlertDescription>
       <AlertAction>
@@ -177,10 +177,10 @@ export function DismissibleVariant() {
   }
 
   return (
-    <Alert className="border-blue-200 bg-blue-50 text-blue-900 dark:border-blue-800 dark:bg-blue-950 dark:text-blue-100 *:[svg]:text-blue-600 dark:*:[svg]:text-blue-400">
+    <Alert className="border-blue-200 bg-blue-50 text-blue-900    *:[svg]:text-blue-600 ">
       <InfoIcon />
       <AlertTitle>New features available</AlertTitle>
-      <AlertDescription className="text-blue-700 dark:text-blue-300">
+      <AlertDescription className="text-blue-700 ">
         Check out what&apos;s new in the latest release.
       </AlertDescription>
       <AlertAction>
@@ -189,7 +189,7 @@ export function DismissibleVariant() {
           onClick={() => setVisible(false)}
           className={cn(
             "inline-flex size-6 items-center justify-center rounded-md text-blue-600 transition-colors",
-            "hover:bg-blue-100 dark:text-blue-400 dark:hover:bg-blue-900",
+            "hover:bg-blue-100  ",
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50"
           )}
         >
@@ -203,10 +203,10 @@ export function DismissibleVariant() {
 // ─── 13. With link ────────────────────────────────────────────────────────────
 export function WithLinkVariant() {
   return (
-    <Alert className="border-blue-200 bg-blue-50 text-blue-900 dark:border-blue-800 dark:bg-blue-950 dark:text-blue-100 *:[svg]:text-blue-600 dark:*:[svg]:text-blue-400">
+    <Alert className="border-blue-200 bg-blue-50 text-blue-900    *:[svg]:text-blue-600 ">
       <InfoIcon />
       <AlertTitle>Your account storage is almost full</AlertTitle>
-      <AlertDescription className="text-blue-700 dark:text-blue-300">
+      <AlertDescription className="text-blue-700 ">
         You&apos;re using 95% of your available storage.{" "}
         <Link
           href="#"

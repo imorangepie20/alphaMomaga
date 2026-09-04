@@ -4,6 +4,7 @@ import * as React from "react"
 
 import {
   Field,
+  FormField,
   FieldLabel,
   FieldDescription,
   FieldError,
@@ -100,13 +101,13 @@ export function CommentsVariant() {
 // ─── 4. Username ──────────────────────────────────────────────────────────────
 export function UsernameVariant() {
   return (
-    <Field>
-      <FieldLabel htmlFor="username">Username</FieldLabel>
+    <FormField
+      label="Username"
+      htmlFor="username"
+      description="This is your public display name."
+    >
       <Input id="username" placeholder="johndoe" />
-      <FieldDescription>
-        This is your public display name.
-      </FieldDescription>
-    </Field>
+    </FormField>
   )
 }
 

@@ -41,10 +41,10 @@ const fmt = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" 
 
 function statusBadge(status: string) {
   if (status === "Paid")
-    return <Badge className="bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-0">{status}</Badge>
+    return <Badge className="bg-emerald-500/15 text-emerald-700  border-0">{status}</Badge>
   if (status === "Pending")
-    return <Badge className="bg-amber-500/15 text-amber-700 dark:text-amber-400 border-0">{status}</Badge>
-  return <Badge className="bg-rose-500/15 text-rose-700 dark:text-rose-400 border-0">{status}</Badge>
+    return <Badge className="bg-amber-500/15 text-amber-700  border-0">{status}</Badge>
+  return <Badge className="bg-rose-500/15 text-rose-700  border-0">{status}</Badge>
 }
 
 function initials(name: string) {

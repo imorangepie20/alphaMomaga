@@ -54,7 +54,7 @@ export function NoImageFallbackVariant() {
 export function RoundedVariant() {
   return (
     <Avatar className="rounded-md after:rounded-md">
-      <AvatarFallback className="rounded-md bg-violet-100 text-violet-700 dark:bg-violet-900 dark:text-violet-300">
+      <AvatarFallback className="rounded-md bg-violet-100 text-violet-700  ">
         JD
       </AvatarFallback>
     </Avatar>
@@ -75,11 +75,11 @@ export function IconVariant() {
 // ─── 4. Colorful ─────────────────────────────────────────────────────────────
 export function ColorfulVariant() {
   const avatars = [
-    { initials: "AL", bg: "bg-rose-100 dark:bg-rose-900", text: "text-rose-700 dark:text-rose-300" },
-    { initials: "MR", bg: "bg-amber-100 dark:bg-amber-900", text: "text-amber-700 dark:text-amber-300" },
-    { initials: "SK", bg: "bg-emerald-100 dark:bg-emerald-900", text: "text-emerald-700 dark:text-emerald-300" },
-    { initials: "TW", bg: "bg-blue-100 dark:bg-blue-900", text: "text-blue-700 dark:text-blue-300" },
-    { initials: "PL", bg: "bg-violet-100 dark:bg-violet-900", text: "text-violet-700 dark:text-violet-300" },
+    { initials: "AL", bg: "bg-rose-100 ", text: "text-rose-700 " },
+    { initials: "MR", bg: "bg-amber-100 ", text: "text-amber-700 " },
+    { initials: "SK", bg: "bg-emerald-100 ", text: "text-emerald-700 " },
+    { initials: "TW", bg: "bg-blue-100 ", text: "text-blue-700 " },
+    { initials: "PL", bg: "bg-violet-100 ", text: "text-violet-700 " },
   ]
   return (
     <div className="flex items-center gap-2">
@@ -96,7 +96,7 @@ export function ColorfulVariant() {
 export function StatusBadgeOnlineVariant() {
   return (
     <Avatar>
-      <AvatarFallback className="bg-slate-200 dark:bg-slate-700">KL</AvatarFallback>
+      <AvatarFallback className="bg-slate-200 ">KL</AvatarFallback>
       <AvatarBadge className="bg-emerald-500" />
     </Avatar>
   )
@@ -106,7 +106,7 @@ export function StatusBadgeOnlineVariant() {
 export function IconBadgeVariant() {
   return (
     <Avatar size="lg">
-      <AvatarFallback className="bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300">
+      <AvatarFallback className="bg-blue-100 text-blue-700  ">
         PR
       </AvatarFallback>
       <AvatarBadge className="bg-blue-600">
@@ -121,7 +121,7 @@ export function NumberBadgeVariant() {
   return (
     <div className="relative inline-flex">
       <Avatar>
-        <AvatarFallback className="bg-orange-100 text-orange-700 dark:bg-orange-900 dark:text-orange-300">
+        <AvatarFallback className="bg-orange-100 text-orange-700  ">
           NB
         </AvatarFallback>
       </Avatar>
@@ -142,7 +142,7 @@ export function WithTooltipVariant() {
         <TooltipTrigger
           render={
             <Avatar className="cursor-pointer">
-              <AvatarFallback className="bg-teal-100 text-teal-700 dark:bg-teal-900 dark:text-teal-300">
+              <AvatarFallback className="bg-teal-100 text-teal-700  ">
                 SA
               </AvatarFallback>
             </Avatar>
@@ -159,16 +159,16 @@ export function AvatarGroupVariant() {
   return (
     <AvatarGroup>
       <Avatar>
-        <AvatarFallback className="bg-rose-100 text-rose-700 dark:bg-rose-900 dark:text-rose-300">AL</AvatarFallback>
+        <AvatarFallback className="bg-rose-100 text-rose-700  ">AL</AvatarFallback>
       </Avatar>
       <Avatar>
-        <AvatarFallback className="bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300">MR</AvatarFallback>
+        <AvatarFallback className="bg-amber-100 text-amber-700  ">MR</AvatarFallback>
       </Avatar>
       <Avatar>
-        <AvatarFallback className="bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300">SK</AvatarFallback>
+        <AvatarFallback className="bg-emerald-100 text-emerald-700  ">SK</AvatarFallback>
       </Avatar>
       <Avatar>
-        <AvatarFallback className="bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300">TW</AvatarFallback>
+        <AvatarFallback className="bg-blue-100 text-blue-700  ">TW</AvatarFallback>
       </Avatar>
     </AvatarGroup>
   )
@@ -177,10 +177,10 @@ export function AvatarGroupVariant() {
 // ─── 10. Group + tooltip ──────────────────────────────────────────────────────
 export function GroupWithTooltipVariant() {
   const members = [
-    { initials: "AL", name: "Alice Lee", bg: "bg-rose-100 text-rose-700 dark:bg-rose-900 dark:text-rose-300" },
-    { initials: "BK", name: "Bob Kim", bg: "bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300" },
-    { initials: "CN", name: "Clara Ng", bg: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300" },
-    { initials: "DW", name: "Dan Wu", bg: "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300" },
+    { initials: "AL", name: "Alice Lee", bg: "bg-rose-100 text-rose-700  " },
+    { initials: "BK", name: "Bob Kim", bg: "bg-amber-100 text-amber-700  " },
+    { initials: "CN", name: "Clara Ng", bg: "bg-emerald-100 text-emerald-700  " },
+    { initials: "DW", name: "Dan Wu", bg: "bg-blue-100 text-blue-700  " },
   ]
   return (
     <TooltipProvider>
@@ -207,13 +207,13 @@ export function OverflowIndicatorVariant() {
   return (
     <AvatarGroup>
       <Avatar>
-        <AvatarFallback className="bg-rose-100 text-rose-700 dark:bg-rose-900 dark:text-rose-300">AL</AvatarFallback>
+        <AvatarFallback className="bg-rose-100 text-rose-700  ">AL</AvatarFallback>
       </Avatar>
       <Avatar>
-        <AvatarFallback className="bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300">MR</AvatarFallback>
+        <AvatarFallback className="bg-amber-100 text-amber-700  ">MR</AvatarFallback>
       </Avatar>
       <Avatar>
-        <AvatarFallback className="bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300">SK</AvatarFallback>
+        <AvatarFallback className="bg-emerald-100 text-emerald-700  ">SK</AvatarFallback>
       </Avatar>
       <AvatarGroupCount>+4</AvatarGroupCount>
     </AvatarGroup>
@@ -226,13 +226,13 @@ export function TextGroupVariant() {
     <div className="flex items-center gap-3">
       <AvatarGroup>
         <Avatar size="sm">
-          <AvatarFallback className="bg-violet-100 text-violet-700 dark:bg-violet-900 dark:text-violet-300">PL</AvatarFallback>
+          <AvatarFallback className="bg-violet-100 text-violet-700  ">PL</AvatarFallback>
         </Avatar>
         <Avatar size="sm">
-          <AvatarFallback className="bg-rose-100 text-rose-700 dark:bg-rose-900 dark:text-rose-300">AL</AvatarFallback>
+          <AvatarFallback className="bg-rose-100 text-rose-700  ">AL</AvatarFallback>
         </Avatar>
         <Avatar size="sm">
-          <AvatarFallback className="bg-teal-100 text-teal-700 dark:bg-teal-900 dark:text-teal-300">SA</AvatarFallback>
+          <AvatarFallback className="bg-teal-100 text-teal-700  ">SA</AvatarFallback>
         </Avatar>
         <AvatarGroupCount className="size-6 text-xs">+4</AvatarGroupCount>
       </AvatarGroup>
@@ -253,7 +253,7 @@ export function DropdownMenuVariant() {
             className="h-auto rounded-full p-0"
           >
             <Avatar className="cursor-pointer">
-              <AvatarFallback className="bg-indigo-100 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300">
+              <AvatarFallback className="bg-indigo-100 text-indigo-700  ">
                 JD
               </AvatarFallback>
             </Avatar>
@@ -297,7 +297,7 @@ export function WithPopoverVariant() {
             className="h-auto rounded-full p-0"
           >
             <Avatar className="cursor-pointer">
-              <AvatarFallback className="bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300">
+              <AvatarFallback className="bg-emerald-100 text-emerald-700  ">
                 EG
               </AvatarFallback>
             </Avatar>
@@ -307,7 +307,7 @@ export function WithPopoverVariant() {
       <PopoverContent className="w-64">
         <div className="flex items-center gap-3">
           <Avatar size="lg">
-            <AvatarFallback className="bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300">
+            <AvatarFallback className="bg-emerald-100 text-emerald-700  ">
               EG
             </AvatarFallback>
           </Avatar>
@@ -332,7 +332,7 @@ export function AbsoluteIconVariant() {
   return (
     <div className="relative inline-flex">
       <Avatar size="lg">
-        <AvatarFallback className="bg-slate-200 dark:bg-slate-700">RF</AvatarFallback>
+        <AvatarFallback className="bg-slate-200 ">RF</AvatarFallback>
       </Avatar>
       <button
         aria-label="Edit photo"
@@ -364,7 +364,7 @@ export function LoadingStateVariant() {
         <Skeleton className="size-8 rounded-full" />
       ) : (
         <Avatar>
-          <AvatarFallback className="bg-sky-100 text-sky-700 dark:bg-sky-900 dark:text-sky-300">
+          <AvatarFallback className="bg-sky-100 text-sky-700  ">
             LM
           </AvatarFallback>
         </Avatar>
@@ -381,17 +381,17 @@ export function RingStatusVariant() {
   return (
     <div className="flex items-center gap-4">
       <Avatar className="ring-2 ring-emerald-500 ring-offset-2 ring-offset-background">
-        <AvatarFallback className="bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300">
+        <AvatarFallback className="bg-emerald-100 text-emerald-700  ">
           ON
         </AvatarFallback>
       </Avatar>
       <Avatar className="ring-2 ring-amber-400 ring-offset-2 ring-offset-background">
-        <AvatarFallback className="bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300">
+        <AvatarFallback className="bg-amber-100 text-amber-700  ">
           AW
         </AvatarFallback>
       </Avatar>
       <Avatar className="ring-2 ring-red-500 ring-offset-2 ring-offset-background">
-        <AvatarFallback className="bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300">
+        <AvatarFallback className="bg-red-100 text-red-700  ">
           BY
         </AvatarFallback>
       </Avatar>
@@ -404,7 +404,7 @@ export function WithProfileDetailsVariant() {
   return (
     <div className="flex items-center gap-3">
       <Avatar size="lg">
-        <AvatarFallback className="bg-violet-100 text-violet-700 dark:bg-violet-900 dark:text-violet-300">
+        <AvatarFallback className="bg-violet-100 text-violet-700  ">
           AP
         </AvatarFallback>
       </Avatar>
@@ -419,9 +419,9 @@ export function WithProfileDetailsVariant() {
 // ─── 19. Collaborators view ───────────────────────────────────────────────────
 export function CollaboratorsViewVariant() {
   const team = [
-    { initials: "JL", name: "Jamie Lee", role: "Designer", bg: "bg-rose-100 text-rose-700 dark:bg-rose-900 dark:text-rose-300" },
-    { initials: "CS", name: "Chris Smith", role: "Developer", bg: "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300" },
-    { initials: "MT", name: "Maya Torres", role: "Product", bg: "bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300" },
+    { initials: "JL", name: "Jamie Lee", role: "Designer", bg: "bg-rose-100 text-rose-700  " },
+    { initials: "CS", name: "Chris Smith", role: "Developer", bg: "bg-blue-100 text-blue-700  " },
+    { initials: "MT", name: "Maya Torres", role: "Product", bg: "bg-amber-100 text-amber-700  " },
   ]
   return (
     <div className="flex flex-col gap-2">
@@ -446,35 +446,35 @@ export function MultipleStatusTypesVariant() {
     <div className="flex items-center gap-4">
       <div className="flex flex-col items-center gap-1">
         <Avatar>
-          <AvatarFallback className="bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300">ON</AvatarFallback>
+          <AvatarFallback className="bg-emerald-100 text-emerald-700  ">ON</AvatarFallback>
           <AvatarBadge className="bg-emerald-500" />
         </Avatar>
         <span className="text-[10px] text-muted-foreground">Online</span>
       </div>
       <div className="flex flex-col items-center gap-1">
         <Avatar>
-          <AvatarFallback className="bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300">AW</AvatarFallback>
+          <AvatarFallback className="bg-amber-100 text-amber-700  ">AW</AvatarFallback>
           <AvatarBadge className="bg-amber-400" />
         </Avatar>
         <span className="text-[10px] text-muted-foreground">Away</span>
       </div>
       <div className="flex flex-col items-center gap-1">
         <Avatar>
-          <AvatarFallback className="bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300">BY</AvatarFallback>
+          <AvatarFallback className="bg-red-100 text-red-700  ">BY</AvatarFallback>
           <AvatarBadge className="bg-red-500" />
         </Avatar>
         <span className="text-[10px] text-muted-foreground">Busy</span>
       </div>
       <div className="flex flex-col items-center gap-1">
         <Avatar>
-          <AvatarFallback className="bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400">OF</AvatarFallback>
+          <AvatarFallback className="bg-slate-100 text-slate-600  ">OF</AvatarFallback>
           <AvatarBadge className="bg-slate-400" />
         </Avatar>
         <span className="text-[10px] text-muted-foreground">Offline</span>
       </div>
       <div className="flex flex-col items-center gap-1">
         <Avatar>
-          <AvatarFallback className="bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300">VR</AvatarFallback>
+          <AvatarFallback className="bg-blue-100 text-blue-700  ">VR</AvatarFallback>
           <AvatarBadge className="bg-blue-500">
             <BadgeCheck className="text-white" />
           </AvatarBadge>
@@ -494,7 +494,7 @@ export function AdvancedCompositionVariant() {
           size="lg"
           className="ring-2 ring-violet-500 ring-offset-2 ring-offset-background"
         >
-          <AvatarFallback className="bg-violet-100 text-violet-700 dark:bg-violet-900 dark:text-violet-300">
+          <AvatarFallback className="bg-violet-100 text-violet-700  ">
             CL
           </AvatarFallback>
         </Avatar>

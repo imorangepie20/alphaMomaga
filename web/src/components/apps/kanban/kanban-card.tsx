@@ -17,11 +17,11 @@ function PriorityBadge({ priority }: { priority: Card["priority"] }) {
     <Badge
       className={cn(
         priority === "High" &&
-          "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
+          "bg-red-100 text-red-700  ",
         priority === "Medium" &&
-          "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400",
+          "bg-amber-100 text-amber-700  ",
         priority === "Low" &&
-          "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"
+          "bg-blue-100 text-blue-700  "
       )}
     >
       {priority}

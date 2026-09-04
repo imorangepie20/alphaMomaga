@@ -51,9 +51,9 @@ function formatDue(dateStr: string | null): string | null {
 }
 
 const PRIORITY_CLASSES: Record<Task["priority"], string> = {
-  High: "bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300",
-  Medium: "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300",
-  Low: "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300",
+  High: "bg-rose-100 text-rose-700  ",
+  Medium: "bg-amber-100 text-amber-700  ",
+  Low: "bg-blue-100 text-blue-700  ",
 }
 
 let taskCounter = 200

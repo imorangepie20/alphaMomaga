@@ -192,7 +192,7 @@ export function POSApp() {
             </div>
             <div className="flex justify-between">
               <span className="text-muted-foreground">Discount</span>
-              <span className="text-green-600 dark:text-green-400">
+              <span className="text-green-600 ">
                 {DISCOUNT > 0 ? `-${fmt.format(DISCOUNT)}` : fmt.format(0)}
               </span>
             </div>

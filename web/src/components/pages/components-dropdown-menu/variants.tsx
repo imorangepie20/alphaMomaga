@@ -282,7 +282,7 @@ export function AccountMenuVariant() {
             aria-label="Open account menu"
           >
             <Avatar>
-              <AvatarFallback className="bg-indigo-100 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300">
+              <AvatarFallback className="bg-indigo-100 text-indigo-700  ">
                 SC
               </AvatarFallback>
             </Avatar>
@@ -415,7 +415,7 @@ export function RichMenuVariant() {
       <DropdownMenuContent className="w-64">
         <div className="flex items-center gap-3 px-2 py-2">
           <Avatar>
-            <AvatarFallback className="bg-violet-100 text-violet-700 dark:bg-violet-900 dark:text-violet-300">
+            <AvatarFallback className="bg-violet-100 text-violet-700  ">
               JD
             </AvatarFallback>
           </Avatar>

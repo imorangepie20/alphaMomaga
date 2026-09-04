@@ -271,7 +271,7 @@ export function InteractiveUploadVariant() {
       <div className="flex items-center justify-between">
         <p className="text-sm font-medium">File upload</p>
         {done && (
-          <span className="flex items-center gap-1 text-xs font-medium text-emerald-600 dark:text-emerald-400">
+          <span className="flex items-center gap-1 text-xs font-medium text-emerald-600 ">
             <Check className="size-3.5" />
             Completed
           </span>

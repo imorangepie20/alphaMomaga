@@ -45,10 +45,10 @@ function OverviewTab() {
       {/* Highlight stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {[
-          { label: "Total Posts", value: profile.posts, color: "text-blue-600 dark:text-blue-400", bg: "bg-blue-50 dark:bg-blue-950/40" },
-          { label: "Followers", value: profile.followers.toLocaleString(), color: "text-violet-600 dark:text-violet-400", bg: "bg-violet-50 dark:bg-violet-950/40" },
-          { label: "Following", value: profile.following, color: "text-emerald-600 dark:text-emerald-400", bg: "bg-emerald-50 dark:bg-emerald-950/40" },
-          { label: "Projects", value: projects.length, color: "text-amber-600 dark:text-amber-400", bg: "bg-amber-50 dark:bg-amber-950/40" },
+          { label: "Total Posts", value: profile.posts, color: "text-blue-600 ", bg: "bg-blue-50 " },
+          { label: "Followers", value: profile.followers.toLocaleString(), color: "text-violet-600 ", bg: "bg-violet-50 " },
+          { label: "Following", value: profile.following, color: "text-emerald-600 ", bg: "bg-emerald-50 " },
+          { label: "Projects", value: projects.length, color: "text-amber-600 ", bg: "bg-amber-50 " },
         ].map((item) => (
           <div
             key={item.label}
@@ -76,11 +76,11 @@ const activityIcon: Record<string, React.ReactNode> = {
 };
 
 const activityColor: Record<string, string> = {
-  post: "bg-blue-100 text-blue-600 dark:bg-blue-950 dark:text-blue-400",
-  comment: "bg-violet-100 text-violet-600 dark:bg-violet-950 dark:text-violet-400",
-  like: "bg-rose-100 text-rose-600 dark:bg-rose-950 dark:text-rose-400",
-  project: "bg-emerald-100 text-emerald-600 dark:bg-emerald-950 dark:text-emerald-400",
-  follow: "bg-amber-100 text-amber-600 dark:bg-amber-950 dark:text-amber-400",
+  post: "bg-blue-100 text-blue-600  ",
+  comment: "bg-violet-100 text-violet-600  ",
+  like: "bg-rose-100 text-rose-600  ",
+  project: "bg-emerald-100 text-emerald-600  ",
+  follow: "bg-amber-100 text-amber-600  ",
 };
 
 function ActivityTab() {
@@ -115,7 +115,7 @@ function ActivityTab() {
 function ProjectStatusBadge({ status }: { status: string }) {
   if (status === "active")
     return (
-      <Badge className="bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400 border-transparent capitalize text-[10px] h-4">
+      <Badge className="bg-emerald-100 text-emerald-700   border-transparent capitalize text-[10px] h-4">
         Active
       </Badge>
     );

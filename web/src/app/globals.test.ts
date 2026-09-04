@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync, statSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
@@ -46,6 +46,32 @@ const taskSevenFiles = [
   resolve(__dirname, "not-found.tsx"),
   resolve(__dirname, "../components/dashboards/shared/kpi-card.tsx"),
 ];
+const taskEightRoots = [
+  resolve(__dirname, "../components/apps"),
+  resolve(__dirname, "../components/pages"),
+  resolve(__dirname, "(dashboard)/apps"),
+  resolve(__dirname, "(dashboard)/components"),
+  resolve(__dirname, "(dashboard)/blocks"),
+  resolve(__dirname, "(dashboard)/templates"),
+  resolve(__dirname, "(dashboard)/widgets"),
+  resolve(__dirname, "(dashboard)/examples/page.tsx"),
+] as const;
+const taskEightFormDemo = resolve(
+  __dirname,
+  "../components/pages/components-field/variants.tsx"
+);
+
+function collectTaskEightFiles(path: string): string[] {
+  if (statSync(path).isFile()) {
+    return [path];
+  }
+
+  return readdirSync(path, { withFileTypes: true }).flatMap((entry) =>
+    collectTaskEightFiles(resolve(path, entry.name))
+  );
+}
+
+const taskEightFiles = taskEightRoots.flatMap(collectTaskEightFiles);
 
 describe("global form styles", () => {
   it("declares a light color scheme for browser-native controls", () => {
@@ -90,5 +116,15 @@ describe("global form styles", () => {
     for (const file of taskSevenFiles) {
       expect(readFileSync(file, "utf8")).not.toContain("dark:");
     }
+  });
+
+  it("keeps the bounded app and demo surfaces light-only", () => {
+    for (const file of taskEightFiles) {
+      expect(readFileSync(file, "utf8")).not.toContain("dark:");
+    }
+  });
+
+  it("uses FormField in the catalog form example", () => {
+    expect(readFileSync(taskEightFormDemo, "utf8")).toContain("<FormField");
   });
 });

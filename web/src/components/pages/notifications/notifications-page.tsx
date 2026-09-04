@@ -137,11 +137,11 @@ function NotificationIcon({ type }: { type: NotificationType }) {
     NotificationType,
     { icon: React.ComponentType<{ className?: string }>; bg: string; color: string }
   > = {
-    like: { icon: Heart, bg: "bg-rose-100 dark:bg-rose-950", color: "text-rose-600 dark:text-rose-400" },
-    comment: { icon: MessageSquare, bg: "bg-blue-100 dark:bg-blue-950", color: "text-blue-600 dark:text-blue-400" },
-    follow: { icon: UserPlus, bg: "bg-emerald-100 dark:bg-emerald-950", color: "text-emerald-600 dark:text-emerald-400" },
-    mention: { icon: Bell, bg: "bg-violet-100 dark:bg-violet-950", color: "text-violet-600 dark:text-violet-400" },
-    system: { icon: AlertTriangle, bg: "bg-amber-100 dark:bg-amber-950", color: "text-amber-600 dark:text-amber-400" },
+    like: { icon: Heart, bg: "bg-rose-100 ", color: "text-rose-600 " },
+    comment: { icon: MessageSquare, bg: "bg-blue-100 ", color: "text-blue-600 " },
+    follow: { icon: UserPlus, bg: "bg-emerald-100 ", color: "text-emerald-600 " },
+    mention: { icon: Bell, bg: "bg-violet-100 ", color: "text-violet-600 " },
+    system: { icon: AlertTriangle, bg: "bg-amber-100 ", color: "text-amber-600 " },
   };
   const { icon: Icon, bg, color } = map[type];
   return (

@@ -107,13 +107,13 @@ export function WithDotVariant() {
 export function ColoredVariant() {
   return (
     <div className="flex flex-wrap items-center justify-center gap-2">
-      <Badge className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-0">
+      <Badge className="bg-emerald-500/10 text-emerald-600  border-0">
         Success
       </Badge>
-      <Badge className="bg-amber-500/10 text-amber-600 dark:text-amber-400 border-0">
+      <Badge className="bg-amber-500/10 text-amber-600  border-0">
         Warning
       </Badge>
-      <Badge className="bg-blue-500/10 text-blue-600 dark:text-blue-400 border-0">
+      <Badge className="bg-blue-500/10 text-blue-600  border-0">
         Info
       </Badge>
     </div>
@@ -176,13 +176,13 @@ export function SoftVariant() {
   return (
     <div className="flex flex-wrap items-center justify-center gap-2">
       <Badge className="bg-primary/10 text-primary border-0">Primary</Badge>
-      <Badge className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-0">
+      <Badge className="bg-emerald-500/10 text-emerald-600  border-0">
         Emerald
       </Badge>
-      <Badge className="bg-violet-500/10 text-violet-600 dark:text-violet-400 border-0">
+      <Badge className="bg-violet-500/10 text-violet-600  border-0">
         Violet
       </Badge>
-      <Badge className="bg-rose-500/10 text-rose-600 dark:text-rose-400 border-0">
+      <Badge className="bg-rose-500/10 text-rose-600  border-0">
         Rose
       </Badge>
     </div>

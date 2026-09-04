@@ -80,8 +80,8 @@ export function WithIconVariant() {
       <AlertDialogTrigger render={<Button variant="outline">Open</Button>} />
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogMedia className="bg-amber-100 dark:bg-amber-900/30">
-            <TriangleAlertIcon className="size-5 text-amber-600 dark:text-amber-400" />
+          <AlertDialogMedia className="bg-amber-100 ">
+            <TriangleAlertIcon className="size-5 text-amber-600 " />
           </AlertDialogMedia>
           <AlertDialogTitle>Unsaved changes</AlertDialogTitle>
           <AlertDialogDescription>

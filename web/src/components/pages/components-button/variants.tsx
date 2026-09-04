@@ -388,10 +388,10 @@ export function SoftVariant() {
       <Button className="bg-primary/10 text-primary hover:bg-primary/20 border-0">
         Primary
       </Button>
-      <Button className="bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/20 border-0 dark:text-emerald-400">
+      <Button className="bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/20 border-0 ">
         Success
       </Button>
-      <Button className="bg-amber-500/10 text-amber-600 hover:bg-amber-500/20 border-0 dark:text-amber-400">
+      <Button className="bg-amber-500/10 text-amber-600 hover:bg-amber-500/20 border-0 ">
         Warning
       </Button>
     </div>

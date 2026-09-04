@@ -226,9 +226,9 @@ export function SimpleTodoVariant() {
 
 // ─── 8. Fancy todo ────────────────────────────────────────────────────────────
 const FANCY_TODOS = [
-  { id: "fancy-1", label: "Design new onboarding flow", priority: "High", color: "bg-red-500/15 text-red-600 dark:text-red-400" },
-  { id: "fancy-2", label: "Integrate payment gateway", priority: "Medium", color: "bg-amber-500/15 text-amber-600 dark:text-amber-400" },
-  { id: "fancy-3", label: "Write unit tests", priority: "Low", color: "bg-blue-500/15 text-blue-600 dark:text-blue-400" },
+  { id: "fancy-1", label: "Design new onboarding flow", priority: "High", color: "bg-red-500/15 text-red-600 " },
+  { id: "fancy-2", label: "Integrate payment gateway", priority: "Medium", color: "bg-amber-500/15 text-amber-600 " },
+  { id: "fancy-3", label: "Write unit tests", priority: "Low", color: "bg-blue-500/15 text-blue-600 " },
 ]
 
 export function FancyTodoVariant() {
