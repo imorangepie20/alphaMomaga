@@ -6,7 +6,7 @@ import { ContractsService } from '../contracts/contracts.service.js';
 import type { Contract } from '../contracts/contract.js';
 import { DatabaseService } from '../database/database.service.js';
 import { monthlyCharges, paymentAllocations, paymentReceipts } from '../database/schema.js';
-import { billingMonthBounds, calculateDueDate, type BillingSummary, type MonthlyCharge, type PaymentReceipt, type PaymentReceiptInput } from './billing.js';
+import { billingMonthBounds, calculateDueDate, deriveChargeStatus, type BillingSummary, type MonthlyCharge, type PaymentReceipt, type PaymentReceiptInput } from './billing.js';
 
 function parseWon(value: string): number {
   const digits = value.replaceAll(/[^0-9]/g, '');
@@ -233,7 +233,7 @@ export class BillingService {
     return charge;
   }
 
-  async findCharges(filters: { billingMonth?: string; propertyId?: string; tenantId?: string } = {}): Promise<MonthlyCharge[]> {
+  async findCharges(filters: { billingMonth?: string; propertyId?: string; tenantId?: string } = {}, referenceDate = new Date()): Promise<MonthlyCharge[]> {
     const database = this.databaseService?.client;
     if (database) {
       const conditions = [];
@@ -244,7 +244,8 @@ export class BillingService {
       const rows = conditions.length > 0
         ? await query.where(and(...conditions)).orderBy(asc(monthlyCharges.dueDate), asc(monthlyCharges.id))
         : await query.orderBy(asc(monthlyCharges.dueDate), asc(monthlyCharges.id));
-      return rows.map((row) => ({
+      return rows.map((row) => {
+        const charge: MonthlyCharge = {
         id: row.id,
         propertyId: row.propertyId,
         tenantId: row.tenantId,
@@ -257,14 +258,16 @@ export class BillingService {
         receivedWon: row.receivedWon,
         outstandingWon: row.outstandingWon,
         status: row.status,
-      }));
+        };
+        return { ...charge, status: deriveChargeStatus(charge, referenceDate) };
+      });
     }
 
     return this.charges.filter((charge) =>
       (!filters.billingMonth || charge.billingMonth === filters.billingMonth)
       && (!filters.propertyId || charge.propertyId === filters.propertyId)
       && (!filters.tenantId || charge.tenantId === filters.tenantId),
-    );
+    ).map((charge) => ({ ...charge, status: deriveChargeStatus(charge, referenceDate) }));
   }
 
   async getSummary(billingMonth: string): Promise<BillingSummary> {

@@ -55,6 +55,18 @@ export type PaymentReceipt = Omit<PaymentReceiptInput, 'allocations'> & {
   voidReason?: string;
 };
 
+export function deriveChargeStatus(charge: MonthlyCharge, referenceDate: Date): MonthlyChargeStatus {
+  if (charge.status === 'Cancelled') return 'Cancelled';
+  if (charge.outstandingWon === 0) return 'Paid';
+  const parts = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Seoul', year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(referenceDate);
+  const year = parts.find((part) => part.type === 'year')?.value;
+  const month = parts.find((part) => part.type === 'month')?.value;
+  const day = parts.find((part) => part.type === 'day')?.value;
+  const asOfDate = year && month && day ? `${year}-${month}-${day}` : '';
+  if (asOfDate > charge.dueDate) return 'Overdue';
+  return charge.receivedWon > 0 ? 'PartiallyPaid' : charge.status === 'Draft' ? 'Draft' : 'Approved';
+}
+
 export function parseBillingMonth(value: string): { year: number; month: number } {
   const match = billingMonthPattern.exec(value);
   if (!match) {

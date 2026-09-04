@@ -1,4 +1,4 @@
-import { calculateDueDate, getBillingMonth } from './billing.js';
+import { calculateDueDate, deriveChargeStatus, getBillingMonth } from './billing.js';
 import { BillingService } from './billing.service.js';
 import { ContractsService } from '../contracts/contracts.service.js';
 import { AuditService } from '../audit/audit.service.js';
@@ -13,6 +13,14 @@ describe('billing calendar rules', () => {
 
   it('derives a billing month from the Seoul calendar date', () => {
     expect(getBillingMonth(new Date('2026-09-04T00:00:00.000Z'))).toBe('2026-09');
+  });
+
+  it('derives overdue only from the server reference date after unpaid and cancelled rules', () => {
+    const charge = { id: 'charge-1', propertyId: 'property-1', tenantId: 'tenant-1', contractId: 'contract-1', billingMonth: '2026-09', dueDate: '2026-09-05', baseRentWon: 100, adjustmentWon: 0, billedWon: 100, receivedWon: 0, outstandingWon: 100, status: 'Approved' as const };
+    expect(deriveChargeStatus(charge, new Date('2026-09-05T00:00:00.000Z'))).toBe('Approved');
+    expect(deriveChargeStatus(charge, new Date('2026-09-06T00:00:00.000Z'))).toBe('Overdue');
+    expect(deriveChargeStatus({ ...charge, receivedWon: 100, outstandingWon: 0 }, new Date('2026-09-06T00:00:00.000Z'))).toBe('Paid');
+    expect(deriveChargeStatus({ ...charge, status: 'Cancelled' }, new Date('2026-09-06T00:00:00.000Z'))).toBe('Cancelled');
   });
 });
 
