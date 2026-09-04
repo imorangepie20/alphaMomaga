@@ -2,6 +2,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { BillingApiError, getBillingSummary, getMonthlyCharges, type MonthlyChargeStatus } from "@/lib/billing";
+import { ReceiptManager } from "./receipt-manager";
 
 export const dynamic = "force-dynamic";
 
@@ -34,7 +35,7 @@ export default async function PaymentsPage({ searchParams }: { searchParams: Pro
         <Card><CardHeader><CardTitle>수납 금액</CardTitle></CardHeader><CardContent className="text-3xl font-semibold tabular-nums">{formatWon(summary.receivedWon)}</CardContent></Card>
         <Card><CardHeader><CardTitle>미수 금액</CardTitle></CardHeader><CardContent className="text-3xl font-semibold tabular-nums">{formatWon(summary.outstandingWon)}</CardContent></Card>
       </div>
-      <Card><CardHeader><CardTitle>월별 청구 원장</CardTitle></CardHeader><CardContent className="px-0"><Table>
+      <Card><CardHeader className="flex-row items-center justify-between"><CardTitle>월별 청구 원장</CardTitle><ReceiptManager charges={charges} /></CardHeader><CardContent className="px-0"><Table>
         <TableHeader><TableRow><TableHead className="pl-6">청구월</TableHead><TableHead>납부 기한</TableHead><TableHead>청구</TableHead><TableHead>수납</TableHead><TableHead>미수</TableHead><TableHead>상태</TableHead></TableRow></TableHeader>
         <TableBody>
           {charges.map((charge) => <TableRow key={charge.id}><TableCell className="pl-6 font-medium">{charge.billingMonth}</TableCell><TableCell>{charge.dueDate}</TableCell><TableCell>{formatWon(charge.billedWon)}</TableCell><TableCell>{formatWon(charge.receivedWon)}</TableCell><TableCell>{formatWon(charge.outstandingWon)}</TableCell><TableCell><Badge variant="outline" className={statusClass(charge.status)}>{statusLabel(charge.status)}</Badge></TableCell></TableRow>)}
