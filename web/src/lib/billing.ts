@@ -33,6 +33,17 @@ export type BillingSummary = {
   cancelledCount: number;
 };
 
+export type PaymentReceipt = {
+  id: string;
+  propertyId: string;
+  tenantId: string;
+  receivedDate: string;
+  amountWon: number;
+  method: "BankTransfer" | "Cash" | "Card" | "Other";
+  voidedAt?: string;
+  voidReason?: string;
+};
+
 export class BillingApiError extends Error {
   constructor(readonly status: number) {
     super(`Billing API request failed with status ${status}`);
@@ -69,4 +80,8 @@ export function getMonthlyCharges(billingMonth: string): Promise<MonthlyCharge[]
 
 export function getBillingSummary(billingMonth: string): Promise<BillingSummary> {
   return getBilling<BillingSummary>(`billing-summary?billingMonth=${encodeURIComponent(billingMonth)}`);
+}
+
+export function getPaymentReceipts(): Promise<PaymentReceipt[]> {
+  return getBilling<PaymentReceipt[]>("payment-receipts");
 }

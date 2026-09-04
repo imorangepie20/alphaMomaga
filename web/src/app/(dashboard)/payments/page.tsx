@@ -1,9 +1,10 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { BillingApiError, getBillingSummary, getMonthlyCharges, type MonthlyChargeStatus } from "@/lib/billing";
+import { BillingApiError, getBillingSummary, getMonthlyCharges, getPaymentReceipts, type MonthlyChargeStatus } from "@/lib/billing";
 import { ReceiptManager } from "./receipt-manager";
 import { ChargeActions } from "./charge-actions";
+import { ReceiptHistory } from "./receipt-history";
 
 export const dynamic = "force-dynamic";
 
@@ -28,7 +29,7 @@ function statusClass(status: MonthlyChargeStatus): string {
 export default async function PaymentsPage({ searchParams }: { searchParams: Promise<{ billingMonth?: string }> }) {
   const billingMonth = (await searchParams).billingMonth ?? currentBillingMonth();
   try {
-    const [summary, charges] = await Promise.all([getBillingSummary(billingMonth), getMonthlyCharges(billingMonth)]);
+    const [summary, charges, receipts] = await Promise.all([getBillingSummary(billingMonth), getMonthlyCharges(billingMonth), getPaymentReceipts()]);
     return <div className="space-y-6">
       <div><h1 className="text-2xl font-semibold tracking-tight">수납 원장</h1><p className="text-sm text-muted-foreground">{billingMonth} 청구월 기준 수납과 미수 현황입니다.</p></div>
       <div className="grid gap-4 sm:grid-cols-3">
@@ -43,6 +44,7 @@ export default async function PaymentsPage({ searchParams }: { searchParams: Pro
           {charges.length === 0 && <TableRow><TableCell colSpan={7} className="h-28 text-center text-muted-foreground">선택한 청구월에 생성된 청구가 없습니다.</TableCell></TableRow>}
         </TableBody>
       </Table></CardContent></Card>
+      <Card><CardContent className="pt-6"><ReceiptHistory receipts={receipts} /></CardContent></Card>
     </div>;
   } catch (error) {
     const message = error instanceof BillingApiError && error.status === 401 ? "로그인이 만료되었습니다. 다시 로그인한 뒤 수납 원장을 확인해 주세요." : "수납 원장을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.";
