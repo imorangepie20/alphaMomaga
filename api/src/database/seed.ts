@@ -7,8 +7,15 @@ if (!connectionString) {
 
 const pool = new Pool({ connectionString });
 
+function getSeoulBillingMonth() {
+  return new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Seoul', year: 'numeric', month: '2-digit' }).format(new Date()).slice(0, 7);
+}
+
 async function seed() {
   const client = await pool.connect();
+  const billingMonth = getSeoulBillingMonth();
+  const dueDate = `${billingMonth}-01`;
+  const receiptDate = `${billingMonth}-02`;
   try {
     await client.query('begin');
 
@@ -76,6 +83,56 @@ async function seed() {
     `);
 
     await client.query(`
+      insert into monthly_charges (id, property_id, tenant_id, contract_id, billing_month, due_date, base_rent_won, adjustment_won, billed_won, received_won, outstanding_won, status, approved_at, approved_by)
+      values
+        ('seed-charge-1', 'property-1', 'tenant-1', 'contract-1', $1, $2, 1200000, 0, 1200000, 1200000, 0, 'Paid', now(), 'seed'),
+        ('seed-charge-2', 'property-2', 'tenant-2', 'contract-2', $1, $2, 980000, 0, 980000, 0, 980000, 'Overdue', now(), 'seed'),
+        ('seed-charge-3', 'property-3', 'tenant-3', 'contract-3', $1, $2, 1540000, 0, 1540000, 500000, 1040000, 'PartiallyPaid', now(), 'seed'),
+        ('seed-charge-4', 'property-4', 'tenant-4', 'contract-4', $1, $2, 1020000, 0, 1020000, 0, 1020000, 'Draft', null, null)
+      on conflict (contract_id, billing_month) do update set
+        due_date = excluded.due_date,
+        base_rent_won = excluded.base_rent_won,
+        adjustment_won = excluded.adjustment_won,
+        billed_won = excluded.billed_won,
+        received_won = excluded.received_won,
+        outstanding_won = excluded.outstanding_won,
+        status = excluded.status,
+        approved_at = excluded.approved_at,
+        approved_by = excluded.approved_by,
+        cancelled_at = null,
+        cancelled_by = null,
+        cancellation_reason = null,
+        updated_at = now()
+    `, [billingMonth, dueDate]);
+
+    await client.query(`
+      insert into payment_receipts (id, property_id, tenant_id, received_date, amount_won, method, reference, memo, recorded_by)
+      values
+        ('seed-receipt-1', 'property-1', 'tenant-1', $1, 1200000, 'BankTransfer', 'seed-full', 'Seeded full payment', 'seed'),
+        ('seed-receipt-3', 'property-3', 'tenant-3', $1, 500000, 'BankTransfer', 'seed-partial', 'Seeded partial payment', 'seed')
+      on conflict (id) do update set
+        received_date = excluded.received_date,
+        amount_won = excluded.amount_won,
+        method = excluded.method,
+        reference = excluded.reference,
+        memo = excluded.memo,
+        voided_at = null,
+        voided_by = null,
+        void_reason = null
+    `, [receiptDate]);
+
+    await client.query(`
+      insert into payment_allocations (id, receipt_id, charge_id, amount_won)
+      values
+        ('seed-allocation-1', 'seed-receipt-1', 'seed-charge-1', 1200000),
+        ('seed-allocation-3', 'seed-receipt-3', 'seed-charge-3', 500000)
+      on conflict (id) do update set
+        receipt_id = excluded.receipt_id,
+        charge_id = excluded.charge_id,
+        amount_won = excluded.amount_won
+    `);
+
+    await client.query(`
       insert into maintenance (id, property_id, task, due_date, status)
       values
         ('maintenance-1', 'property-1', '승강기 정기 점검', '2026-09-07', 'Scheduled'),
@@ -106,7 +163,7 @@ async function seed() {
     `);
 
     await client.query('commit');
-    console.log('Database seed completed for six domain tables');
+    console.log(`Database seed completed with ${billingMonth} billing ledger fixtures`);
   } catch (error) {
     await client.query('rollback');
     throw error;
