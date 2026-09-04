@@ -5,6 +5,7 @@ import { BillingApiError, getBillingSummary, getMonthlyCharges, getPaymentReceip
 import { ReceiptManager } from "./receipt-manager";
 import { ChargeActions } from "./charge-actions";
 import { ReceiptHistory } from "./receipt-history";
+import { BillingMonthSelector } from "./billing-month-selector";
 
 export const dynamic = "force-dynamic";
 
@@ -31,7 +32,7 @@ export default async function PaymentsPage({ searchParams }: { searchParams: Pro
   try {
     const [summary, charges, receipts] = await Promise.all([getBillingSummary(billingMonth), getMonthlyCharges(billingMonth), getPaymentReceipts(billingMonth)]);
     return <div className="space-y-6">
-      <div><h1 className="text-2xl font-semibold tracking-tight">수납 원장</h1><p className="text-sm text-muted-foreground">{billingMonth} 청구월 기준 수납과 미수 현황입니다.</p></div>
+      <div className="flex flex-wrap items-end justify-between gap-3"><div><h1 className="text-2xl font-semibold tracking-tight">수납 원장</h1><p className="text-sm text-muted-foreground">{billingMonth} 청구월 기준 수납과 미수 현황입니다.</p></div><BillingMonthSelector billingMonth={billingMonth} /></div>
       <div className="grid gap-4 sm:grid-cols-3">
         <Card><CardHeader><CardTitle>청구 금액</CardTitle></CardHeader><CardContent className="text-3xl font-semibold tabular-nums">{formatWon(summary.billedWon)}</CardContent></Card>
         <Card><CardHeader><CardTitle>수납 금액</CardTitle></CardHeader><CardContent className="text-3xl font-semibold tabular-nums">{formatWon(summary.receivedWon)}</CardContent></Card>
