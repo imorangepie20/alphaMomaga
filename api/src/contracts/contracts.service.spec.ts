@@ -97,7 +97,7 @@ describe('ContractsService', () => {
       service.create(
         {
           propertyId: 'property-1',
-          tenantId: 'tenant-1',
+          tenantId: 'tenant-2',
           unit: 'A-101',
           monthlyRent: '₩1,300,000',
           startDate: '2027-06-01',

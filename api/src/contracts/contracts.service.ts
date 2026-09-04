@@ -320,10 +320,10 @@ export class ContractsService {
 
   private async lockContractInterval(
     database: any,
-    contract: Pick<Contract, 'propertyId' | 'tenantId' | 'unit'>,
+    contract: Pick<Contract, 'propertyId' | 'unit'>,
   ): Promise<void> {
     await database.execute(
-      sql`SELECT pg_advisory_xact_lock(hashtext(${contract.propertyId} || ':' || ${contract.tenantId} || ':' || ${contract.unit}))`,
+      sql`SELECT pg_advisory_xact_lock(hashtext(${contract.propertyId} || ':' || ${contract.unit}))`,
     );
   }
 
