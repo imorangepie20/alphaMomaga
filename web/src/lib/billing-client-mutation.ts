@@ -20,3 +20,26 @@ export async function recordReceipt(input: ReceiptInput): Promise<void> {
   const response = await fetch("/api/billing/payment-receipts", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(input) });
   if (!response.ok) throw new BillingMutationError(response.status);
 }
+
+async function post(path: string, body?: unknown): Promise<void> {
+  const response = await fetch(path, {
+    method: "POST",
+    headers: body === undefined ? undefined : { "content-type": "application/json" },
+    body: body === undefined ? undefined : JSON.stringify(body),
+  });
+  if (!response.ok) throw new BillingMutationError(response.status);
+}
+
+export function approveCharge(id: string): Promise<void> {
+  return post(`/api/billing/monthly-charges/${encodeURIComponent(id)}/approve`);
+}
+
+export function cancelCharge(id: string, reason: string): Promise<void> {
+  if (!reason.trim()) throw new Error("Cancellation reason is required");
+  return post(`/api/billing/monthly-charges/${encodeURIComponent(id)}/cancel`, { reason: reason.trim() });
+}
+
+export function voidReceipt(id: string, reason: string): Promise<void> {
+  if (!reason.trim()) throw new Error("Void reason is required");
+  return post(`/api/billing/payment-receipts/${encodeURIComponent(id)}/void`, { reason: reason.trim() });
+}
