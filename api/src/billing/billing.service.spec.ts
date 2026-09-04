@@ -190,6 +190,19 @@ describe('BillingService.findReceipts', () => {
 
     await expect(service.findReceipts({ tenantId: draft.tenantId })).resolves.toEqual([expect.objectContaining({ id: receipt.id, voidReason: 'duplicate entry' })]);
   });
+
+  it('limits receipt history to receipts allocated to the selected billing month', async () => {
+    const service = new BillingService(new ContractsService());
+    const [septemberCharge] = await service.generateMonth('2026-09', new Date('2026-09-04T00:00:00.000Z'));
+    const [octoberCharge] = await service.generateMonth('2026-10', new Date('2026-09-04T00:00:00.000Z'));
+    await service.approveCharge(septemberCharge.id);
+    await service.approveCharge(octoberCharge.id);
+
+    const septemberReceipt = await service.recordReceipt({ propertyId: septemberCharge.propertyId, tenantId: septemberCharge.tenantId, receivedDate: '2026-09-04', amountWon: 400000, method: 'BankTransfer', allocations: [{ chargeId: septemberCharge.id, amountWon: 400000 }] });
+    await service.recordReceipt({ propertyId: octoberCharge.propertyId, tenantId: octoberCharge.tenantId, receivedDate: '2026-10-04', amountWon: 300000, method: 'BankTransfer', allocations: [{ chargeId: octoberCharge.id, amountWon: 300000 }] });
+
+    await expect(service.findReceipts({ billingMonth: '2026-09' })).resolves.toEqual([expect.objectContaining({ id: septemberReceipt.id })]);
+  });
 });
 
 describe('BillingService.recordReceipt', () => {

@@ -29,7 +29,7 @@ function statusClass(status: MonthlyChargeStatus): string {
 export default async function PaymentsPage({ searchParams }: { searchParams: Promise<{ billingMonth?: string }> }) {
   const billingMonth = (await searchParams).billingMonth ?? currentBillingMonth();
   try {
-    const [summary, charges, receipts] = await Promise.all([getBillingSummary(billingMonth), getMonthlyCharges(billingMonth), getPaymentReceipts()]);
+    const [summary, charges, receipts] = await Promise.all([getBillingSummary(billingMonth), getMonthlyCharges(billingMonth), getPaymentReceipts(billingMonth)]);
     return <div className="space-y-6">
       <div><h1 className="text-2xl font-semibold tracking-tight">수납 원장</h1><p className="text-sm text-muted-foreground">{billingMonth} 청구월 기준 수납과 미수 현황입니다.</p></div>
       <div className="grid gap-4 sm:grid-cols-3">

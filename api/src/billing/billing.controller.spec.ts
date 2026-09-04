@@ -63,7 +63,7 @@ describe('BillingController', () => {
     const findReceipts = vi.fn().mockResolvedValue([{ id: 'receipt-1' }]);
     const controller = new BillingController({ findReceipts } as unknown as BillingService);
 
-    await expect(controller.findReceipts('property-1', 'tenant-1')).resolves.toEqual([{ id: 'receipt-1' }]);
-    expect(findReceipts).toHaveBeenCalledWith({ propertyId: 'property-1', tenantId: 'tenant-1' });
+    await expect(controller.findReceipts('2026-09', 'property-1', 'tenant-1')).resolves.toEqual([{ id: 'receipt-1' }]);
+    expect(findReceipts).toHaveBeenCalledWith({ billingMonth: '2026-09', propertyId: 'property-1', tenantId: 'tenant-1' });
   });
 });

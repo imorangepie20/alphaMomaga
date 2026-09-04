@@ -82,6 +82,6 @@ export function getBillingSummary(billingMonth: string): Promise<BillingSummary>
   return getBilling<BillingSummary>(`billing-summary?billingMonth=${encodeURIComponent(billingMonth)}`);
 }
 
-export function getPaymentReceipts(): Promise<PaymentReceipt[]> {
-  return getBilling<PaymentReceipt[]>("payment-receipts");
+export function getPaymentReceipts(billingMonth: string): Promise<PaymentReceipt[]> {
+  return getBilling<PaymentReceipt[]>(`payment-receipts?billingMonth=${encodeURIComponent(billingMonth)}`);
 }

@@ -32,8 +32,8 @@ export class BillingController {
   @Get('payment-receipts')
   @UseGuards(AuthGuard, PermissionsGuard)
   @RequirePermission('portfolio:read')
-  findReceipts(@Query('propertyId') propertyId?: string, @Query('tenantId') tenantId?: string) {
-    return this.billingService.findReceipts({ propertyId, tenantId });
+  findReceipts(@Query('billingMonth') billingMonth?: string, @Query('propertyId') propertyId?: string, @Query('tenantId') tenantId?: string) {
+    return this.billingService.findReceipts({ billingMonth, propertyId, tenantId });
   }
 
   @Post('billing-runs/:billingMonth')

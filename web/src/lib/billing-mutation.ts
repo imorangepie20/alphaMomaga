@@ -4,7 +4,10 @@ import { auth0 } from "./auth0";
 import { getApiUrl } from "./api-url";
 
 function isAllowedPath(path: string): boolean {
-  return path === "payment-receipts" || path.startsWith("monthly-charges/") || path.startsWith("payment-receipts/") || path.startsWith("billing-runs/");
+  return path === "payment-receipts"
+    || /^monthly-charges\/[^/]+\/(approve|cancel)$/.test(path)
+    || /^payment-receipts\/[^/]+\/void$/.test(path)
+    || /^billing-runs\/\d{4}-\d{2}$/.test(path);
 }
 
 export async function forwardBillingMutation(path: string, request: Request): Promise<Response> {

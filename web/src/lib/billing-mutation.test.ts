@@ -30,6 +30,10 @@ describe("forwardBillingMutation", () => {
   it("rejects arbitrary API paths", async () => {
     await expect(forwardBillingMutation("users", new Request("https://web.test", { method: "POST" }))).resolves.toMatchObject({ status: 404 });
   });
+
+  it("rejects paths that are not an explicit billing command", async () => {
+    await expect(forwardBillingMutation("monthly-charges/charge-1/delete", new Request("https://web.test", { method: "POST" }))).resolves.toMatchObject({ status: 404 });
+  });
 });
 
 describe("recordReceipt", () => {

@@ -297,7 +297,7 @@ export class BillingService {
     });
   }
 
-  async findReceipts(filters: { propertyId?: string; tenantId?: string } = {}): Promise<PaymentReceipt[]> {
+  async findReceipts(filters: { billingMonth?: string; propertyId?: string; tenantId?: string } = {}): Promise<PaymentReceipt[]> {
     const database = this.databaseService?.client;
     if (database) {
       const conditions = [];
@@ -308,13 +308,26 @@ export class BillingService {
       const allocations = rows.length === 0
         ? []
         : await database.select().from(paymentAllocations).where(inArray(paymentAllocations.receiptId, rows.map((row) => row.id)));
+      let receiptIdsForBillingMonth: Set<string> | undefined;
+      if (filters.billingMonth) {
+        const chargeIds = [...new Set(allocations.map((allocation) => allocation.chargeId))];
+        if (chargeIds.length === 0) return [];
+        const matchingCharges = await database.select({ id: monthlyCharges.id }).from(monthlyCharges).where(and(
+          inArray(monthlyCharges.id, chargeIds),
+          eq(monthlyCharges.billingMonth, filters.billingMonth),
+        ));
+        const matchingChargeIds = new Set(matchingCharges.map((charge) => charge.id));
+        receiptIdsForBillingMonth = new Set(allocations
+          .filter((allocation) => matchingChargeIds.has(allocation.chargeId))
+          .map((allocation) => allocation.receiptId));
+      }
       const allocationsByReceiptId = new Map<string, { chargeId: string; amountWon: number }[]>();
       for (const allocation of allocations) {
         const items = allocationsByReceiptId.get(allocation.receiptId) ?? [];
         items.push({ chargeId: allocation.chargeId, amountWon: allocation.amountWon });
         allocationsByReceiptId.set(allocation.receiptId, items);
       }
-      return rows.map((row) => ({
+      return rows.filter((row) => !receiptIdsForBillingMonth || receiptIdsForBillingMonth.has(row.id)).map((row) => ({
         id: row.id, propertyId: row.propertyId, tenantId: row.tenantId, receivedDate: row.receivedDate,
         amountWon: row.amountWon, method: row.method, reference: row.reference ?? undefined, memo: row.memo ?? undefined,
         allocations: allocationsByReceiptId.get(row.id) ?? [], voidedAt: row.voidedAt?.toISOString(), voidReason: row.voidReason ?? undefined,
@@ -322,7 +335,10 @@ export class BillingService {
     }
     return this.receipts.filter((receipt) =>
       (!filters.propertyId || receipt.propertyId === filters.propertyId)
-      && (!filters.tenantId || receipt.tenantId === filters.tenantId),
+      && (!filters.tenantId || receipt.tenantId === filters.tenantId)
+      && (!filters.billingMonth || receipt.allocations.some((allocation) =>
+        this.charges.some((charge) => charge.id === allocation.chargeId && charge.billingMonth === filters.billingMonth),
+      )),
     );
   }
 
