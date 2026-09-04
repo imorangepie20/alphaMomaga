@@ -85,6 +85,33 @@ function Field({
   )
 }
 
+type FormFieldProps = {
+  label: React.ReactNode
+  htmlFor: string
+  description?: React.ReactNode
+  error?: React.ReactNode
+  children: React.ReactNode
+}
+
+function FormField({
+  label,
+  htmlFor,
+  description,
+  error,
+  children,
+}: FormFieldProps) {
+  return (
+    <Field data-slot="form-field" data-testid="form-field" className="gap-2">
+      <FieldLabel data-slot="form-field-label" htmlFor={htmlFor}>
+        {label}
+      </FieldLabel>
+      {children}
+      {description ? <FieldDescription>{description}</FieldDescription> : null}
+      {error ? <FieldError data-slot="form-field-error">{error}</FieldError> : null}
+    </Field>
+  )
+}
+
 function FieldContent({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
@@ -106,7 +133,7 @@ function FieldLabel({
     <Label
       data-slot="field-label"
       className={cn(
-        "group/field-label peer/field-label flex w-fit gap-2 leading-snug group-data-[disabled=true]/field:opacity-50 has-data-checked:border-primary/30 has-data-checked:bg-primary/5 has-[>[data-slot=field]]:rounded-lg has-[>[data-slot=field]]:border *:data-[slot=field]:p-2.5 dark:has-data-checked:border-primary/20 dark:has-data-checked:bg-primary/10",
+        "group/field-label peer/field-label flex w-fit gap-2 leading-snug group-data-[disabled=true]/field:opacity-50 has-data-checked:border-primary/30 has-data-checked:bg-primary/5 has-[>[data-slot=field]]:rounded-lg has-[>[data-slot=field]]:border *:data-[slot=field]:p-2.5",
         "has-[>[data-slot=field]]:w-full has-[>[data-slot=field]]:flex-col",
         className
       )}
@@ -226,6 +253,7 @@ function FieldError({
 
 export {
   Field,
+  FormField,
   FieldLabel,
   FieldDescription,
   FieldError,
