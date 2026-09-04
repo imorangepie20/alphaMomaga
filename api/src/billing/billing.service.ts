@@ -212,4 +212,25 @@ export class BillingService {
     this.receipts.push(receipt);
     return receipt;
   }
+
+  async voidReceipt(id: string, reason: string): Promise<void> {
+    if (!reason.trim()) throw new Error('Receipt void requires a reason');
+    const receipt = this.receipts.find((item) => item.id === id);
+    if (!receipt) throw new Error(`Payment receipt ${id} not found`);
+    if (receipt.voidedAt) throw new Error(`Payment receipt ${id} is already voided`);
+    receipt.voidedAt = new Date().toISOString();
+    receipt.voidReason = reason.trim();
+
+    for (const allocation of receipt.allocations) {
+      const charge = await this.findCharge(allocation.chargeId);
+      const receivedWon = this.receipts
+        .filter((item) => !item.voidedAt)
+        .flatMap((item) => item.allocations)
+        .filter((item) => item.chargeId === charge.id)
+        .reduce((total, item) => total + item.amountWon, 0);
+      charge.receivedWon = receivedWon;
+      charge.outstandingWon = charge.billedWon - receivedWon;
+      charge.status = receivedWon === 0 ? 'Approved' : charge.outstandingWon === 0 ? 'Paid' : 'PartiallyPaid';
+    }
+  }
 }

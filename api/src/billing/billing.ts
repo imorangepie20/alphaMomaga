@@ -38,6 +38,8 @@ export type PaymentReceiptInput = {
 export type PaymentReceipt = Omit<PaymentReceiptInput, 'allocations'> & {
   id: string;
   allocations: PaymentAllocationInput[];
+  voidedAt?: string;
+  voidReason?: string;
 };
 
 export function parseBillingMonth(value: string): { year: number; month: number } {

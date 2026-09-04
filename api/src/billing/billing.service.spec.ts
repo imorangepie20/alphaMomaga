@@ -124,4 +124,15 @@ describe('BillingService.recordReceipt', () => {
       status: 'PartiallyPaid',
     });
   });
+
+  it('restores the charge balance when a receipt is voided', async () => {
+    const service = new BillingService(new ContractsService());
+    const [draft] = await service.generateMonth('2026-09', new Date('2026-09-04T00:00:00.000Z'));
+    await service.approveCharge(draft.id);
+    const receipt = await service.recordReceipt({ propertyId: draft.propertyId, tenantId: draft.tenantId, receivedDate: '2026-09-04', amountWon: 400000, method: 'BankTransfer', allocations: [{ chargeId: draft.id, amountWon: 400000 }] });
+
+    await service.voidReceipt(receipt.id, 'duplicate entry');
+
+    expect(await service.findCharge(draft.id)).toMatchObject({ receivedWon: 0, outstandingWon: 1200000, status: 'Approved' });
+  });
 });
