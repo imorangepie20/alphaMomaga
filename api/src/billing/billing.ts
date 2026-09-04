@@ -17,6 +17,29 @@ export type MonthlyCharge = {
   status: MonthlyChargeStatus;
 };
 
+export type PaymentMethod = 'BankTransfer' | 'Cash' | 'Card' | 'Other';
+
+export type PaymentAllocationInput = {
+  chargeId: string;
+  amountWon: number;
+};
+
+export type PaymentReceiptInput = {
+  propertyId: string;
+  tenantId: string;
+  receivedDate: string;
+  amountWon: number;
+  method: PaymentMethod;
+  reference?: string;
+  memo?: string;
+  allocations: PaymentAllocationInput[];
+};
+
+export type PaymentReceipt = Omit<PaymentReceiptInput, 'allocations'> & {
+  id: string;
+  allocations: PaymentAllocationInput[];
+};
+
 export function parseBillingMonth(value: string): { year: number; month: number } {
   const match = billingMonthPattern.exec(value);
   if (!match) {

@@ -67,3 +67,44 @@ describe('BillingService.generateMonth', () => {
     expect(audit.record).toHaveBeenCalledWith(transaction, expect.objectContaining({ action: 'charge.generated', entityId: 'contract-1' }));
   });
 });
+
+describe('BillingService.approveCharge', () => {
+  it('changes a draft charge to approved before receipt allocation', async () => {
+    const service = new BillingService(new ContractsService());
+    const [draft] = await service.generateMonth(
+      '2026-09',
+      new Date('2026-09-04T00:00:00.000Z'),
+    );
+
+    const approved = await service.approveCharge(draft.id);
+
+    expect(approved).toMatchObject({ id: draft.id, status: 'Approved' });
+  });
+});
+
+describe('BillingService.recordReceipt', () => {
+  it('marks an approved charge partially paid after a valid partial allocation', async () => {
+    const service = new BillingService(new ContractsService());
+    const [draft] = await service.generateMonth(
+      '2026-09',
+      new Date('2026-09-04T00:00:00.000Z'),
+    );
+    await service.approveCharge(draft.id);
+
+    const receipt = await service.recordReceipt({
+      propertyId: draft.propertyId,
+      tenantId: draft.tenantId,
+      receivedDate: '2026-09-04',
+      amountWon: 400000,
+      method: 'BankTransfer',
+      allocations: [{ chargeId: draft.id, amountWon: 400000 }],
+    });
+
+    expect(receipt.amountWon).toBe(400000);
+    expect(await service.findCharge(draft.id)).toMatchObject({
+      receivedWon: 400000,
+      outstandingWon: 800000,
+      status: 'PartiallyPaid',
+    });
+  });
+});
