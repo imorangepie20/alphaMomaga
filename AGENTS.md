@@ -10,6 +10,7 @@
 
 1. `docs/project-rules/core-principles.md`
 2. `docs/project-rules/doc-access-order.md`
+3. `docs/overview/current-development-context.md` (존재하는 경우)
 
 구현이나 디버깅 전에는 문서 접근 순서를 따릅니다.
 
