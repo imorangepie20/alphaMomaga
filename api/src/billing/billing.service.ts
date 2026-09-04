@@ -23,6 +23,10 @@ function isEligibleForBillingMonth(contract: Contract, billingMonth: string): bo
   return contract.startDate <= endDate && contract.endDate >= startDate;
 }
 
+function isReadyForReceipt(status: MonthlyCharge['status']): boolean {
+  return status === 'Approved' || status === 'PartiallyPaid' || status === 'Overdue';
+}
+
 @Injectable()
 export class BillingService {
   private readonly charges: MonthlyCharge[] = [];
@@ -399,7 +403,7 @@ export class BillingService {
           if (charge.propertyId !== input.propertyId || charge.tenantId !== input.tenantId) {
             throw new Error('Receipt allocation must match the charge property and tenant');
           }
-          if (charge.status !== 'Approved' && charge.status !== 'PartiallyPaid') {
+          if (!isReadyForReceipt(charge.status)) {
             throw new Error(`Monthly charge ${charge.id} is not ready for receipt allocation`);
           }
           if (allocation.amountWon > charge.outstandingWon) {
@@ -467,7 +471,7 @@ export class BillingService {
       if (charge.propertyId !== input.propertyId || charge.tenantId !== input.tenantId) {
         throw new Error('Receipt allocation must match the charge property and tenant');
       }
-      if (charge.status !== 'Approved' && charge.status !== 'PartiallyPaid') {
+      if (!isReadyForReceipt(charge.status)) {
         throw new Error(`Monthly charge ${charge.id} is not ready for receipt allocation`);
       }
       if (amountWon > charge.outstandingWon) {

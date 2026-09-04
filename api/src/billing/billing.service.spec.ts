@@ -207,6 +207,18 @@ describe('BillingService.findReceipts', () => {
 });
 
 describe('BillingService.recordReceipt', () => {
+  it('accepts a receipt allocation for an overdue charge', async () => {
+    const service = new BillingService(new ContractsService());
+    const [charge] = await service.generateMonth('2026-09', new Date('2026-09-04T00:00:00.000Z'));
+    await service.approveCharge(charge.id);
+    charge.status = 'Overdue';
+
+    await expect(service.recordReceipt({
+      propertyId: charge.propertyId, tenantId: charge.tenantId, receivedDate: '2026-09-04',
+      amountWon: 400000, method: 'BankTransfer', allocations: [{ chargeId: charge.id, amountWon: 400000 }],
+    })).resolves.toMatchObject({ amountWon: 400000 });
+  });
+
   it('rejects duplicate allocations that exceed one charge outstanding balance', async () => {
     const service = new BillingService(new ContractsService());
     const [draft] = await service.generateMonth('2026-09', new Date('2026-09-04T00:00:00.000Z'));
@@ -250,11 +262,11 @@ describe('BillingService.recordReceipt', () => {
     });
   });
 
-  it('persists a receipt, allocation, balance, and audit event in one database transaction', async () => {
+  it('persists a receipt allocation for an overdue database charge in one transaction', async () => {
     const charge = {
       id: 'charge-1', propertyId: 'property-1', tenantId: 'tenant-1', contractId: 'contract-1',
       billingMonth: '2026-09', dueDate: '2026-09-05', baseRentWon: 1200000, adjustmentWon: 0,
-      billedWon: 1200000, receivedWon: 0, outstandingWon: 1200000, status: 'Approved',
+      billedWon: 1200000, receivedWon: 0, outstandingWon: 1200000, status: 'Overdue',
     };
     const lockedCharges = vi.fn().mockResolvedValue([charge]);
     const whereCharge = vi.fn(() => ({ for: lockedCharges }));
