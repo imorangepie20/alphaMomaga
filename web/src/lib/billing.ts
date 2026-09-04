@@ -75,8 +75,8 @@ async function getBilling<T>(path: string): Promise<T> {
   return response.json() as Promise<T>;
 }
 
-export function getMonthlyCharges(billingMonth: string): Promise<MonthlyCharge[]> {
-  return getBilling<MonthlyCharge[]>(`monthly-charges?billingMonth=${encodeURIComponent(billingMonth)}`);
+export function getMonthlyCharges(billingMonth?: string): Promise<MonthlyCharge[]> {
+  return getBilling<MonthlyCharge[]>(billingMonth ? `monthly-charges?billingMonth=${encodeURIComponent(billingMonth)}` : "monthly-charges");
 }
 
 export function getBillingSummary(billingMonth: string): Promise<BillingSummary> {

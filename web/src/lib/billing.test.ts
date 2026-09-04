@@ -29,6 +29,15 @@ describe("billing server reads", () => {
     expect(new Headers(options.headers).get("authorization")).toBe("Bearer access-token");
   });
 
+  it("reads all charges when a receipt allocation needs prior-month balances", async () => {
+    mockFetch.mockResolvedValue(new Response(JSON.stringify([]), { status: 200 }));
+
+    await expect(getMonthlyCharges()).resolves.toEqual([]);
+
+    const [url] = mockFetch.mock.calls[0] as [URL, RequestInit];
+    expect(url.toString()).toBe("https://api.approid.team/monthly-charges");
+  });
+
   it("surfaces unauthorized billing reads instead of falling back to fixture payments", async () => {
     mockFetch.mockResolvedValue(new Response(null, { status: 401 }));
 
