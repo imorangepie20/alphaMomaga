@@ -8,6 +8,9 @@ export type Contract = {
   monthlyRent: string;
   startDate: string;
   endDate: string;
+  billingDay: number;
+  dueDay: number;
+  billingEnabled: boolean;
   status: ContractStatus;
   terminatedAt?: string;
 };
@@ -19,6 +22,9 @@ export type CreateContractInput = {
   monthlyRent: string;
   startDate: string;
   endDate: string;
+  billingDay?: number;
+  dueDay?: number;
+  billingEnabled?: boolean;
   status: ContractStatus;
 };
 
@@ -37,6 +43,8 @@ export function validateContract(
   contract: Contract,
   referenceDate = new Date(),
 ): void {
+  validateBillingDay(contract.billingDay);
+  validateDueDay(contract.dueDay);
   const datePattern = /^\d{4}-\d{2}-\d{2}$/;
   if (
     !datePattern.test(contract.startDate) ||
@@ -95,5 +103,17 @@ export function validateContract(
         `Contract ${contract.id} has an invalid termination date`,
       );
     }
+  }
+}
+
+export function validateBillingDay(value: number): void {
+  if (!Number.isInteger(value) || value < 1 || value > 31) {
+    throw new Error('Contract billingDay must be an integer between 1 and 31');
+  }
+}
+
+export function validateDueDay(value: number): void {
+  if (!Number.isInteger(value) || value < 1 || value > 31) {
+    throw new Error('Contract dueDay must be an integer between 1 and 31');
   }
 }

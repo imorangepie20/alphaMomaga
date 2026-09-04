@@ -62,7 +62,7 @@
 - Produces: Drizzle tables `monthlyCharges`, `paymentReceipts`, `paymentAllocations` and enums `monthlyChargeStatus`, `paymentMethod`.
 - Produces: `validateBillingDay(value: number): void` and `validateDueDay(value: number): void`.
 
-- [ ] **Step 1: Write the failing contract rule tests**
+- [x] **Step 1: Write the failing contract rule tests**
 
 ```ts
 it('defaults a new contract to first-day drafting and fifth-day due dates', async () => {
@@ -75,13 +75,13 @@ it.each([0, 32, 1.5])('rejects an invalid billing day: %s', (billingDay) => {
 });
 ```
 
-- [ ] **Step 2: Run the focused test and verify it fails**
+- [x] **Step 2: Run the focused test and verify it fails**
 
 Run: `npm test -- contracts.service.spec.ts` from `api`.
 
 Expected: FAIL because the contract fields and validation functions do not exist.
 
-- [ ] **Step 3: Add schema and contract fields**
+- [x] **Step 3: Add schema and contract fields**
 
 ```ts
 export const contracts = pgTable('contracts', {
@@ -109,11 +109,11 @@ export const monthlyCharges = pgTable('monthly_charges', {
 
 Add nullable approval and cancellation audit columns to `monthly_charges`. Create `payment_receipts` with received amount, method, reference, memo, recording and void columns; create `payment_allocations` with receipt, charge, positive `amount_won`, and timestamp. Generate the Drizzle migration and inspect that existing tenant and payment columns are untouched.
 
-- [ ] **Step 4: Map and validate contract billing rules**
+- [x] **Step 4: Map and validate contract billing rules**
 
 Update all `Contract`, input, mapper, in-memory fixture, insert, renewal, and seed paths. Accept optional create input values, default to `1`, `5`, and `true`; reject non-integer day values outside `1..31`.
 
-- [ ] **Step 5: Run focused tests and migration generation**
+- [x] **Step 5: Run focused tests and migration generation**
 
 Run: `npm test -- contracts.service.spec.ts` from `api`.
 
@@ -121,10 +121,10 @@ Run: `npm run db:generate` from `api`.
 
 Expected: contract tests PASS and generated SQL contains the three new tables, `contract_id,billing_month` unique constraint, and no `DROP` statement for legacy payment data.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
-git add api/src/database/schema.ts api/src/contracts api/drizzle api/package.json api/package-lock.json
+git add api/src/database/schema.ts api/src/contracts api/drizzle
 git commit -m "feat(api): add billing ledger schema"
 ```
 

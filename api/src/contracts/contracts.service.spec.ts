@@ -1,5 +1,5 @@
 import type { Contract } from './contract.js';
-import { validateContract } from './contract.js';
+import { validateBillingDay, validateContract, validateDueDay } from './contract.js';
 import { ContractsService, mapContractRow } from './contracts.service.js';
 
 const referenceDate = new Date('2026-09-02T12:00:00.000Z');
@@ -12,6 +12,9 @@ const contract = (overrides: Partial<Contract> = {}): Contract => ({
   monthlyRent: '₩1,000,000',
   startDate: '2026-01-01',
   endDate: '2027-01-01',
+  billingDay: 1,
+  dueDay: 5,
+  billingEnabled: true,
   status: 'Active',
   ...overrides,
 });
@@ -119,6 +122,9 @@ describe('ContractsService', () => {
       monthlyRentWon: 1200000,
       startDate: '2026-01-01',
       endDate: '2027-01-01',
+      billingDay: 1,
+      dueDay: 5,
+      billingEnabled: true,
       status: 'Active',
       terminatedAt: null,
       createdAt: new Date('2026-01-01T00:00:00.000Z'),
@@ -219,5 +225,39 @@ describe('ContractsService.update', () => {
     expect(
       service.update('non-existent-id', { status: 'Expired' }),
     ).rejects.toThrow('not found');
+  });
+});
+
+describe('ContractsService billing rules', () => {
+  it('defaults a new contract to first-day drafting and fifth-day due dates', async () => {
+    const service = new ContractsService();
+
+    const created = await service.create(
+      {
+        propertyId: 'property-1',
+        tenantId: 'tenant-1',
+        unit: 'A-102',
+        monthlyRent: '₩1,200,000',
+        startDate: '2026-10-01',
+        endDate: '2027-09-30',
+        status: 'Upcoming',
+      },
+      undefined,
+      new Date('2026-09-04T00:00:00.000Z'),
+    );
+
+    expect(created).toMatchObject({
+      billingDay: 1,
+      dueDay: 5,
+      billingEnabled: true,
+    });
+  });
+
+  it.each([0, 32, 1.5])('rejects an invalid billing day: %s', (billingDay) => {
+    expect(() => validateBillingDay(billingDay)).toThrow('billingDay');
+  });
+
+  it.each([0, 32, 1.5])('rejects an invalid due day: %s', (dueDay) => {
+    expect(() => validateDueDay(dueDay)).toThrow('dueDay');
   });
 });

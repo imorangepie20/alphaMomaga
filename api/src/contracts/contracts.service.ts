@@ -26,6 +26,9 @@ export function mapContractRow(row: ContractRow): Contract {
     monthlyRent: `₩${row.monthlyRentWon.toLocaleString('en-US')}`,
     startDate: row.startDate,
     endDate: row.endDate,
+    billingDay: row.billingDay,
+    dueDay: row.dueDay,
+    billingEnabled: row.billingEnabled,
     status: row.status,
   };
   if (row.terminatedAt) contract.terminatedAt = row.terminatedAt;
@@ -74,6 +77,9 @@ export class ContractsService {
       monthlyRent: '₩1,200,000',
       startDate: '2026-01-01',
       endDate: '2027-08-31',
+      billingDay: 1,
+      dueDay: 5,
+      billingEnabled: true,
       status: 'Active',
     },
     {
@@ -84,6 +90,9 @@ export class ContractsService {
       monthlyRent: '₩980,000',
       startDate: '2025-12-16',
       endDate: '2026-12-15',
+      billingDay: 1,
+      dueDay: 5,
+      billingEnabled: true,
       status: 'Active',
     },
     {
@@ -94,6 +103,9 @@ export class ContractsService {
       monthlyRent: '₩1,540,000',
       startDate: '2026-03-10',
       endDate: '2027-03-09',
+      billingDay: 1,
+      dueDay: 5,
+      billingEnabled: true,
       status: 'Active',
     },
     {
@@ -104,6 +116,9 @@ export class ContractsService {
       monthlyRent: '₩1,020,000',
       startDate: '2025-10-03',
       endDate: '2026-10-02',
+      billingDay: 1,
+      dueDay: 5,
+      billingEnabled: true,
       status: 'Active',
     },
   ];
@@ -381,6 +396,9 @@ export class ContractsService {
       id: `contract-${randomUUID()}`,
       ...input,
       monthlyRent: `₩${monthlyRentWon.toLocaleString('en-US')}`,
+      billingDay: input.billingDay ?? 1,
+      dueDay: input.dueDay ?? 5,
+      billingEnabled: input.billingEnabled ?? true,
     };
     validateContract(contract, referenceDate);
     return contract;
@@ -421,6 +439,9 @@ export class ContractsService {
       tenantId: source.tenantId,
       unit: source.unit,
       monthlyRent: `₩${monthlyRentWon.toLocaleString('en-US')}`,
+      billingDay: source.billingDay,
+      dueDay: source.dueDay,
+      billingEnabled: source.billingEnabled,
       startDate: input.startDate,
       endDate: input.endDate,
       status,
@@ -509,6 +530,9 @@ export class ContractsService {
       monthlyRentWon: this.parseRent(contract.monthlyRent),
       startDate: contract.startDate,
       endDate: contract.endDate,
+      billingDay: contract.billingDay,
+      dueDay: contract.dueDay,
+      billingEnabled: contract.billingEnabled,
       status: contract.status,
       ...(contract.terminatedAt && { terminatedAt: contract.terminatedAt }),
     };
