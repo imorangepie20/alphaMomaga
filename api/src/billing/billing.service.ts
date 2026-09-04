@@ -302,10 +302,19 @@ export class BillingService {
       if (filters.tenantId) conditions.push(eq(paymentReceipts.tenantId, filters.tenantId));
       const query = database.select().from(paymentReceipts);
       const rows = conditions.length > 0 ? await query.where(and(...conditions)) : await query;
+      const allocations = rows.length === 0
+        ? []
+        : await database.select().from(paymentAllocations).where(inArray(paymentAllocations.receiptId, rows.map((row) => row.id)));
+      const allocationsByReceiptId = new Map<string, { chargeId: string; amountWon: number }[]>();
+      for (const allocation of allocations) {
+        const items = allocationsByReceiptId.get(allocation.receiptId) ?? [];
+        items.push({ chargeId: allocation.chargeId, amountWon: allocation.amountWon });
+        allocationsByReceiptId.set(allocation.receiptId, items);
+      }
       return rows.map((row) => ({
         id: row.id, propertyId: row.propertyId, tenantId: row.tenantId, receivedDate: row.receivedDate,
         amountWon: row.amountWon, method: row.method, reference: row.reference ?? undefined, memo: row.memo ?? undefined,
-        allocations: [], voidedAt: row.voidedAt?.toISOString(), voidReason: row.voidReason ?? undefined,
+        allocations: allocationsByReceiptId.get(row.id) ?? [], voidedAt: row.voidedAt?.toISOString(), voidReason: row.voidReason ?? undefined,
       }));
     }
     return this.receipts.filter((receipt) =>
