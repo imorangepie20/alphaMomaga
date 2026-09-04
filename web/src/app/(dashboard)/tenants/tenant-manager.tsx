@@ -59,7 +59,7 @@ export function TenantManager({ tenants, properties, charges, billingMonth }: { 
     try { await saveTenant(input, selected?.id); setOpen(false); router.refresh(); }
     catch (cause) {
       const status = cause instanceof Error ? cause.message : "";
-      setError(status === "401" ? "로그인이 만료되었습니다. 다시 로그인해 주세요." : status === "403" ? "현재 계정에는 임차인 관리 권한이 없습니다." : "저장하지 못했습니다. 같은 속성의 호실 중복 여부를 확인해 주세요.");
+      setError(status === "401" ? "로그인이 만료되었습니다. 다시 로그인해 주세요." : status === "403" ? "현재 계정에는 임차인 관리 권한이 없습니다." : status === "400" ? "입력 정보를 확인해 주세요. 같은 자산의 호실 중복 또는 잘못된 임대료가 원인일 수 있습니다." : "저장 요청을 처리하지 못했습니다. 연결 상태를 확인하고 다시 시도해 주세요.");
     } finally { savingRef.current = false; setSaving(false); }
   }
 
