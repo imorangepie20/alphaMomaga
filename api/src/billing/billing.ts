@@ -30,6 +30,16 @@ export type BillingSummary = {
   cancelledCount: number;
 };
 
+export type TenantLedger = {
+  tenantId: string;
+  billingMonth: string;
+  charges: MonthlyCharge[];
+  receipts: PaymentReceipt[];
+  billedWon: number;
+  receivedWon: number;
+  outstandingWon: number;
+};
+
 export type PaymentMethod = 'BankTransfer' | 'Cash' | 'Card' | 'Other';
 
 export type PaymentAllocationInput = {

@@ -6,6 +6,10 @@
 기존 `tenants.status`와 `payments`는 호환용 과거 데이터이므로 월별 납부 상태를
 판단하거나 수정하는 근거로 사용하지 않습니다.
 
+임차인 상세 또는 보고서에는 `GET /tenants/:tenantId/ledger?billingMonth=YYYY-MM`을
+사용합니다. 이 API는 해당 월의 청구, 관련 영수증, 청구·수납·미수 합계를 같은
+기준으로 반환합니다.
+
 ## 월간 처리 순서
 
 1. `/payments?billingMonth=YYYY-MM`에서 청구 초안이 생성되었는지 확인합니다.

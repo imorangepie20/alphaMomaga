@@ -6,7 +6,7 @@ import { ContractsService } from '../contracts/contracts.service.js';
 import type { Contract } from '../contracts/contract.js';
 import { DatabaseService } from '../database/database.service.js';
 import { monthlyCharges, paymentAllocations, paymentReceipts } from '../database/schema.js';
-import { billingMonthBounds, calculateDueDate, deriveChargeStatus, type BillingSummary, type MonthlyCharge, type PaymentReceipt, type PaymentReceiptInput } from './billing.js';
+import { billingMonthBounds, calculateDueDate, deriveChargeStatus, type BillingSummary, type MonthlyCharge, type PaymentReceipt, type PaymentReceiptInput, type TenantLedger } from './billing.js';
 
 function parseWon(value: string): number {
   const digits = value.replaceAll(/[^0-9]/g, '');
@@ -295,6 +295,22 @@ export class BillingService {
       overdueCount: 0,
       cancelledCount: 0,
     });
+  }
+
+  async getTenantLedger(tenantId: string, billingMonth: string): Promise<TenantLedger> {
+    const [charges, receipts] = await Promise.all([
+      this.findCharges({ tenantId, billingMonth }),
+      this.findReceipts({ tenantId, billingMonth }),
+    ]);
+    return {
+      tenantId,
+      billingMonth,
+      charges,
+      receipts,
+      billedWon: charges.reduce((total, charge) => total + charge.billedWon, 0),
+      receivedWon: charges.reduce((total, charge) => total + charge.receivedWon, 0),
+      outstandingWon: charges.reduce((total, charge) => total + charge.outstandingWon, 0),
+    };
   }
 
   async findReceipts(filters: { billingMonth?: string; propertyId?: string; tenantId?: string } = {}): Promise<PaymentReceipt[]> {
