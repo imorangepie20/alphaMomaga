@@ -40,7 +40,7 @@ export function FeaturedPropertyCard() {
         {/* Banner placeholder */}
         <div className="relative h-32 w-full overflow-hidden rounded-lg bg-gradient-to-br from-violet-500 via-indigo-600 to-blue-700">
           <div className="absolute inset-0 flex items-end p-3">
-            <span className="text-lg font-bold text-white drop-shadow">
+            <span className="text-lg font-semibold text-white drop-shadow">
               The Somerset
             </span>
           </div>
@@ -49,15 +49,15 @@ export function FeaturedPropertyCard() {
         {/* Stats row */}
         <div className="grid grid-cols-3 gap-2 text-center">
           <div className="flex flex-col gap-0.5">
-            <span className="text-lg font-bold tabular-nums">175</span>
+            <span className="text-lg font-semibold tabular-nums">175</span>
             <span className="text-xs text-muted-foreground">매각</span>
           </div>
           <div className="flex flex-col gap-0.5">
-            <span className="text-lg font-bold tabular-nums">125</span>
+            <span className="text-lg font-semibold tabular-nums">125</span>
             <span className="text-xs text-muted-foreground">임대</span>
           </div>
           <div className="flex flex-col gap-0.5">
-            <span className="text-lg font-bold tabular-nums">2K+</span>
+            <span className="text-lg font-semibold tabular-nums">2K+</span>
             <span className="text-xs text-muted-foreground">조회 수</span>
           </div>
         </div>
@@ -81,7 +81,7 @@ export function OnProgressDealsCard() {
         <CardTitle>계약 현황</CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col items-center justify-center py-6">
-        <span className="text-5xl font-bold tabular-nums">132</span>
+        <span className="text-5xl font-semibold tabular-nums">132</span>
         <span className="mt-1 text-sm text-muted-foreground">활성 계약</span>
       </CardContent>
     </Card>
@@ -157,9 +157,9 @@ export function LeadsContactCard() {
 // ─── Active Listing Table ─────────────────────────────────────────────────────
 
 const statusConfig: Record<PropertyStatus, string> = {
-  Active:  "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400",
-  Pending: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400",
-  Sold:    "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
+  Active: "bg-emerald-100 text-emerald-700",
+  Pending: "bg-amber-100 text-amber-700",
+  Sold: "bg-blue-100 text-blue-700",
 };
 
 export function ActiveListingCard() {

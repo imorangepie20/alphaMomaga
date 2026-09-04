@@ -20,7 +20,7 @@ export default function AdminReportsPage() {
             <CardHeader>
               <CardTitle>{item.label}</CardTitle>
             </CardHeader>
-            <CardContent className="text-3xl font-bold">{item.value}</CardContent>
+            <CardContent className="text-3xl font-semibold">{item.value}</CardContent>
           </Card>
         ))}
       </div>

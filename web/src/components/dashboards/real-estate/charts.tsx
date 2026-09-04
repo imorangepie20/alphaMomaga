@@ -230,7 +230,7 @@ export function PropertyOverviewCard() {
           </ChartContainer>
           {/* Center label */}
           <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-            <span className="text-2xl font-bold tabular-nums">
+            <span className="text-2xl font-semibold tabular-nums">
               {totalProperties.toLocaleString()}
             </span>
             <span className="text-xs text-muted-foreground">관리 자산</span>

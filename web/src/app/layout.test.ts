@@ -23,6 +23,21 @@ const shellAndAuthSources = [
   "../components/auth/auth-card.tsx",
   "../components/auth/social-buttons.tsx",
 ].map((path) => readFileSync(resolve(__dirname, path), "utf8"));
+const productAdministrationSources = [
+  "../components/pages/settings/settings-page.tsx",
+  "../components/pages/users/users-page.tsx",
+  "(dashboard)/admin/users/page.tsx",
+  "(dashboard)/admin/roles/page.tsx",
+  "(dashboard)/admin/reports/page.tsx",
+  "(dashboard)/users/page.tsx",
+  "../components/dashboards/real-estate/charts.tsx",
+  "../components/dashboards/real-estate/kpis.tsx",
+  "../components/dashboards/real-estate/widgets.tsx",
+  "../components/dashboards/default/dashboard-header.tsx",
+  "../components/dashboards/default/metric-cards.tsx",
+  "../components/dashboards/default/payments-table.tsx",
+].map((path) => readFileSync(resolve(__dirname, path), "utf8"));
+const settingsPage = productAdministrationSources[0];
 
 describe("application theme", () => {
   it("keeps the management application light-only", () => {
@@ -52,6 +67,16 @@ describe("application theme", () => {
       expect(source).toContain("border-border");
       expect(source).toContain("bg-card");
       expect(source).toContain("text-card-foreground");
+    }
+  });
+
+  it("keeps product administration pages within the light-only UI contract", () => {
+    expect(settingsPage).not.toMatch(/value=["']dark["']/);
+    expect(settingsPage).not.toMatch(/value=["']system["']/);
+    expect(settingsPage).toContain("Light-only theme");
+
+    for (const source of productAdministrationSources) {
+      expect(source).not.toContain("dark:");
     }
   });
 });

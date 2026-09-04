@@ -123,7 +123,7 @@ function ProfileTab() {
         {/* Avatar upload row */}
         <div className="flex items-center gap-4">
           <Avatar className="size-16">
-            <AvatarFallback className="bg-gradient-to-br from-violet-500 to-indigo-600 text-white text-xl font-bold">
+            <AvatarFallback className="bg-gradient-to-br from-violet-500 to-indigo-600 text-white text-xl font-semibold">
               AJ
             </AvatarFallback>
           </Avatar>
@@ -310,14 +310,6 @@ function AccountTab() {
 
 // ─── Appearance Tab ──────────────────────────────────────────────────────────
 
-type Theme = "light" | "dark" | "system";
-
-const themeOptions: { value: Theme; label: string; icon: string }[] = [
-  { value: "light", label: "Light", icon: "☀️" },
-  { value: "dark", label: "Dark", icon: "🌙" },
-  { value: "system", label: "System", icon: "💻" },
-];
-
 const accentColors = [
   { label: "Slate", value: "#64748b" },
   { label: "Violet", value: "#7c3aed" },
@@ -328,7 +320,6 @@ const accentColors = [
 ];
 
 function AppearanceTab() {
-  const [theme, setTheme] = useState<Theme>("system");
   const [accent, setAccent] = useState("#7c3aed");
 
   return (
@@ -340,27 +331,12 @@ function AppearanceTab() {
         </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-6">
-        {/* Theme */}
-        <div className="flex flex-col gap-2">
-          <Label>Theme</Label>
-          <div className="grid grid-cols-3 gap-3">
-            {themeOptions.map((opt) => (
-              <button
-                key={opt.value}
-                type="button"
-                onClick={() => setTheme(opt.value)}
-                className={cn(
-                  "flex flex-col items-center gap-2 rounded-xl border p-4 text-sm font-medium transition-all outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
-                  theme === opt.value
-                    ? "border-primary bg-primary/5 text-primary ring-1 ring-primary/30"
-                    : "border-border bg-transparent text-muted-foreground hover:bg-muted/50 hover:text-foreground"
-                )}
-              >
-                <span className="text-2xl">{opt.icon}</span>
-                {opt.label}
-              </button>
-            ))}
-          </div>
+        <div className="rounded-lg border border-border bg-muted/40 p-4">
+          <p className="text-sm font-medium">Light-only theme</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            This application always uses the light theme for a consistent
+            management workspace.
+          </p>
         </div>
 
         <Separator />
@@ -592,7 +568,7 @@ function BillingTab() {
                   <TableCell className="pr-6">
                     <Badge
                       variant="secondary"
-                      className="bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400 border-transparent text-[10px]"
+                      className="border-transparent bg-emerald-100 text-[10px] text-emerald-700"
                     >
                       {row.status}
                     </Badge>
@@ -622,7 +598,7 @@ export function SettingsPage() {
     <div className="flex flex-col gap-6">
       {/* Page header */}
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">Settings</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">Settings</h1>
         <p className="text-muted-foreground text-sm mt-1">
           Manage your account settings and preferences.
         </p>
