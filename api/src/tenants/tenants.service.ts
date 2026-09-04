@@ -83,7 +83,8 @@ export class TenantsService {
           propertyId: input.propertyId,
           unit: input.unit,
           rentWon,
-          status: input.status,
+          // Tenant payment status is legacy metadata. The billing ledger is authoritative.
+          status: 'Pending',
         }).returning();
         if (this.auditService) {
           await this.auditService.record(transaction, {
@@ -106,7 +107,7 @@ export class TenantsService {
       throw new Error(`같은 부동산의 ${input.unit}에 이미 임차인이 있습니다`);
     }
 
-    const tenant: Tenant = { id: `tenant-${this.tenants.length + 1}`, ...input, rent: `₩${rentWon.toLocaleString('en-US')}` };
+    const tenant: Tenant = { id: `tenant-${this.tenants.length + 1}`, ...input, rent: `₩${rentWon.toLocaleString('en-US')}`, status: 'Pending' };
     this.tenants.push(tenant);
     this.references?.registerTenant(tenant.id, tenant.propertyId);
     return tenant;
@@ -148,10 +149,6 @@ export class TenantsService {
         parseRent(`₩${input.rent.toLocaleString('en-US')}`);
       }
 
-      if (input.status !== undefined && !['Paid', 'Overdue', 'Pending'].includes(input.status)) {
-        throw new Error('Invalid status value');
-      }
-
       const database = this.databaseService?.client;
       if (database) {
         return database.transaction(async (transaction) => {
@@ -181,7 +178,6 @@ export class TenantsService {
           if (input.name !== undefined) updateData.name = input.name;
           if (input.unit !== undefined) updateData.unit = input.unit;
           if (input.rent !== undefined) updateData.rentWon = input.rent;
-          if (input.status !== undefined) updateData.status = input.status;
 
           const [row] = await transaction.update(tenants)
             .set(updateData)
@@ -226,7 +222,7 @@ export class TenantsService {
         propertyId: existing.propertyId,
         unit: input.unit ?? existing.unit,
         rent: `₩${rentWon.toLocaleString('en-US')}`,
-        status: input.status ?? existing.status,
+        status: existing.status,
       };
 
       this.tenants[index] = updated;

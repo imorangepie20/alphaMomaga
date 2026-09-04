@@ -16,7 +16,6 @@ describe("saveTenant", () => {
       propertyId: "property-1",
       unit: "A-202",
       rent: 1100000,
-      status: "Pending" as const,
     };
     await saveTenant(input);
     expect(mockFetch).toHaveBeenLastCalledWith(

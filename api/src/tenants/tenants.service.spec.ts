@@ -23,6 +23,14 @@ describe('TenantsService', () => {
     expect((await tenantsService.findAll())).toHaveLength(5);
   });
 
+  it('assigns a neutral legacy status when creating a tenant without a payment status', async () => {
+    const tenantsService = new TenantsService();
+
+    const tenant = await tenantsService.create({ name: 'Han Areum', propertyId: 'property-2', unit: 'B-401', rent: '₩1,050,000' } as unknown as Parameters<TenantsService['create']>[0]);
+
+    expect(tenant.status).toBe('Pending');
+  });
+
   it.each(['₩1,,000', '₩1000', '₩0', '1000000'])('rejects malformed rent %s', (rent) => {
     expect(() => parseRent(rent)).toThrow();
   });
@@ -59,7 +67,7 @@ describe('TenantsService', () => {
       expect(updated.rent).toBe('₩1,500,000');
     });
 
-    it('updates tenant status', async () => {
+    it('ignores legacy tenant payment status updates', async () => {
       const service = new TenantsService();
       const created = await service.create({
         name: 'Test Tenant',
@@ -69,9 +77,9 @@ describe('TenantsService', () => {
         status: 'Pending',
       });
 
-      const updated = await service.update(created.id, { status: 'Paid' });
+      const updated = await service.update(created.id, { status: 'Paid' } as unknown as Parameters<TenantsService['update']>[1]);
 
-      expect(updated.status).toBe('Paid');
+      expect(updated.status).toBe('Pending');
     });
 
     it('updates multiple fields at once', async () => {
@@ -87,12 +95,11 @@ describe('TenantsService', () => {
       const updated = await service.update(created.id, {
         name: 'Updated Test',
         rent: 2000000,
-        status: 'Overdue',
       });
 
       expect(updated.name).toBe('Updated Test');
       expect(updated.rent).toBe('₩2,000,000');
-      expect(updated.status).toBe('Overdue');
+      expect(updated.status).toBe('Pending');
     });
 
     it('throws error when tenant not found', async () => {
@@ -113,7 +120,7 @@ describe('TenantsService', () => {
       expect(service.update(created.id, {})).rejects.toThrow('At least one field is required');
     });
 
-    it('throws error when status is invalid', async () => {
+    it('does not treat a legacy status update as an operational payment change', async () => {
       const service = new TenantsService();
       const created = await service.create({
         name: 'Test',
@@ -123,7 +130,7 @@ describe('TenantsService', () => {
         status: 'Pending',
       });
 
-      expect(service.update(created.id, { status: 'Invalid' as any })).rejects.toThrow('Invalid status value');
+      await expect(service.update(created.id, { status: 'Invalid' } as unknown as Parameters<TenantsService['update']>[1])).resolves.toMatchObject({ status: 'Pending' });
     });
 
     it('prevents duplicate unit in same property', async () => {

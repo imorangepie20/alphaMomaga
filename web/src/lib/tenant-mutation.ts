@@ -1,11 +1,8 @@
-import type { TenantPaymentStatus } from "./tenants";
-
 export type TenantMutationInput = {
   name: string;
   propertyId: string;
   unit: string;
   rent: number;
-  status: TenantPaymentStatus;
 };
 
 export async function saveTenant(
