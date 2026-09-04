@@ -6,7 +6,7 @@ import { ContractsService } from '../contracts/contracts.service.js';
 import type { Contract } from '../contracts/contract.js';
 import { DatabaseService } from '../database/database.service.js';
 import { monthlyCharges, paymentAllocations, paymentReceipts } from '../database/schema.js';
-import { billingMonthBounds, calculateDueDate, type MonthlyCharge, type PaymentReceipt, type PaymentReceiptInput } from './billing.js';
+import { billingMonthBounds, calculateDueDate, type BillingSummary, type MonthlyCharge, type PaymentReceipt, type PaymentReceiptInput } from './billing.js';
 
 function parseWon(value: string): number {
   const digits = value.replaceAll(/[^0-9]/g, '');
@@ -265,6 +265,33 @@ export class BillingService {
       && (!filters.propertyId || charge.propertyId === filters.propertyId)
       && (!filters.tenantId || charge.tenantId === filters.tenantId),
     );
+  }
+
+  async getSummary(billingMonth: string): Promise<BillingSummary> {
+    const charges = await this.findCharges({ billingMonth });
+    return charges.reduce<BillingSummary>((summary, charge) => {
+      summary.billedWon += charge.billedWon;
+      summary.receivedWon += charge.receivedWon;
+      summary.outstandingWon += charge.outstandingWon;
+      if (charge.status === 'Draft') summary.draftCount += 1;
+      if (charge.status === 'Approved') summary.approvedCount += 1;
+      if (charge.status === 'PartiallyPaid') summary.partiallyPaidCount += 1;
+      if (charge.status === 'Paid') summary.paidCount += 1;
+      if (charge.status === 'Overdue') summary.overdueCount += 1;
+      if (charge.status === 'Cancelled') summary.cancelledCount += 1;
+      return summary;
+    }, {
+      billingMonth,
+      billedWon: 0,
+      receivedWon: 0,
+      outstandingWon: 0,
+      draftCount: 0,
+      approvedCount: 0,
+      partiallyPaidCount: 0,
+      paidCount: 0,
+      overdueCount: 0,
+      cancelledCount: 0,
+    });
   }
 
   async recordReceipt(input: PaymentReceiptInput, recordedBy = 'system'): Promise<PaymentReceipt> {

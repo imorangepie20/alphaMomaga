@@ -17,6 +17,19 @@ export type MonthlyCharge = {
   status: MonthlyChargeStatus;
 };
 
+export type BillingSummary = {
+  billingMonth: string;
+  billedWon: number;
+  receivedWon: number;
+  outstandingWon: number;
+  draftCount: number;
+  approvedCount: number;
+  partiallyPaidCount: number;
+  paidCount: number;
+  overdueCount: number;
+  cancelledCount: number;
+};
+
 export type PaymentMethod = 'BankTransfer' | 'Cash' | 'Card' | 'Other';
 
 export type PaymentAllocationInput = {

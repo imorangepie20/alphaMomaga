@@ -155,6 +155,23 @@ describe('BillingService.findCharges', () => {
   });
 });
 
+describe('BillingService.getSummary', () => {
+  it('summarizes billed, received, outstanding, and approval work for one billing month', async () => {
+    const service = new BillingService(new ContractsService());
+    const [first] = await service.generateMonth('2026-09', new Date('2026-09-04T00:00:00.000Z'));
+    await service.approveCharge(first.id);
+    await service.recordReceipt({
+      propertyId: first.propertyId, tenantId: first.tenantId, receivedDate: '2026-09-04',
+      amountWon: 400000, method: 'BankTransfer', allocations: [{ chargeId: first.id, amountWon: 400000 }],
+    });
+
+    await expect(service.getSummary('2026-09')).resolves.toMatchObject({
+      billingMonth: '2026-09', billedWon: 4740000, receivedWon: 400000, outstandingWon: 4340000,
+      draftCount: 3, partiallyPaidCount: 1,
+    });
+  });
+});
+
 describe('BillingService.recordReceipt', () => {
   it('rejects duplicate allocations that exceed one charge outstanding balance', async () => {
     const service = new BillingService(new ContractsService());

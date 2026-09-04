@@ -21,6 +21,14 @@ export class BillingController {
     return this.billingService.findCharges({ billingMonth, propertyId, tenantId });
   }
 
+  @Get('billing-summary')
+  @UseGuards(AuthGuard, PermissionsGuard)
+  @RequirePermission('portfolio:read')
+  getSummary(@Query('billingMonth') billingMonth?: string) {
+    if (!billingMonth) throw new BadRequestException('billingMonth is required');
+    return this.billingService.getSummary(billingMonth);
+  }
+
   @Post('payment-receipts')
   @UseGuards(AuthGuard, PermissionsGuard)
   @RequirePermission('payment:manage')
