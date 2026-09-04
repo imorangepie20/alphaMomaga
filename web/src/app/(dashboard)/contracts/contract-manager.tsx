@@ -329,7 +329,7 @@ export function ContractManager({
                 <Label htmlFor="contract-status">상태</Label>
                 <select
                   id="contract-status"
-                  className="mt-1 h-9 w-full rounded-lg border bg-transparent px-2"
+                  className="mt-1 h-9 w-full rounded-lg border border-input bg-input/30 px-2.5 text-sm text-foreground"
                   value={updateForm.status}
                   onChange={(event) =>
                     setUpdateForm({
@@ -385,7 +385,7 @@ export function ContractManager({
                 <Label htmlFor="contract-tenant">임차인</Label>
                 <select
                   id="contract-tenant"
-                  className="mt-1 h-9 w-full rounded-lg border bg-transparent px-2"
+                  className="mt-1 h-9 w-full rounded-lg border border-input bg-input/30 px-2.5 text-sm text-foreground"
                   value={createForm.tenantId}
                   onChange={(event) => selectTenant(event.target.value)}
                 >
@@ -461,7 +461,7 @@ export function ContractManager({
                 <Label htmlFor="contract-create-status">상태</Label>
                 <select
                   id="contract-create-status"
-                  className="mt-1 h-9 w-full rounded-lg border bg-transparent px-2"
+                  className="mt-1 h-9 w-full rounded-lg border border-input bg-input/30 px-2.5 text-sm text-foreground"
                   value={createForm.status}
                   onChange={(event) =>
                     setCreateForm({

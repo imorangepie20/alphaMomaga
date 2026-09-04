@@ -1,7 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // Cloudflare Tunnel forwards the public hostname to this local dev server.
+  allowedDevOrigins: ["mnre.approid.team"],
 };
 
 export default nextConfig;

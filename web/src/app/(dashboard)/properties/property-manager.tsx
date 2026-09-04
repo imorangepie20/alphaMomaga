@@ -101,13 +101,13 @@ export function PropertyManager({ properties }: { properties: Property[] }) {
           <DialogHeader><DialogTitle>{selectedProperty ? "속성 수정" : "속성 추가"}</DialogTitle><DialogDescription>저장하면 권한이 확인된 API 요청으로 자산 정보가 반영됩니다.</DialogDescription></DialogHeader>
           <form className="space-y-4" onSubmit={handleSubmit}>
             <div className="grid gap-2"><Label htmlFor="property-name">이름</Label><Input id="property-name" value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} required /></div>
-            <div className="grid gap-2 sm:grid-cols-2">
+              <div className="grid gap-3 sm:grid-cols-2">
               <div className="grid gap-2"><Label htmlFor="property-location">위치</Label><Input id="property-location" value={form.location} onChange={(event) => setForm({ ...form, location: event.target.value })} required /></div>
               <div className="grid gap-2"><Label htmlFor="property-type">유형</Label><Input id="property-type" value={form.type} onChange={(event) => setForm({ ...form, type: event.target.value })} required /></div>
             </div>
-            <div className="grid gap-2 sm:grid-cols-2">
+              <div className="grid gap-3 sm:grid-cols-2">
               <div className="grid gap-2"><Label htmlFor="property-occupancy">점유율</Label><Input id="property-occupancy" type="number" min="0" max="100" value={form.occupancy} onChange={(event) => setForm({ ...form, occupancy: Number(event.target.value) })} required /></div>
-              <div className="grid gap-2"><Label htmlFor="property-status">상태</Label><select id="property-status" className="h-8 rounded-lg border border-input bg-transparent px-2.5 text-sm" value={form.status} onChange={(event) => setForm({ ...form, status: event.target.value as PropertyStatus })}><option value="Active">운영 중</option><option value="Occupied">점유</option><option value="Pending">검토 중</option></select></div>
+              <div className="grid gap-2"><Label htmlFor="property-status">상태</Label><select id="property-status" className="h-9 rounded-lg border border-input bg-input/30 px-2.5 text-sm text-foreground" value={form.status} onChange={(event) => setForm({ ...form, status: event.target.value as PropertyStatus })}><option value="Active">운영 중</option><option value="Occupied">점유</option><option value="Pending">검토 중</option></select></div>
             </div>
             {error ? <p role="alert" className="text-sm text-destructive">{error}</p> : null}
             <DialogFooter><Button type="button" variant="outline" onClick={() => setOpen(false)} disabled={isSaving}>취소</Button><Button type="submit" disabled={isSaving}>{isSaving ? "저장 중..." : "저장"}</Button></DialogFooter>

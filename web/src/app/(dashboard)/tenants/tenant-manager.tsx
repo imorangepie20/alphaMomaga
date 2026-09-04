@@ -151,7 +151,7 @@ export function TenantManager({
               <select
                 id="tenant-property"
                 disabled={!!selected}
-                className="mt-1 h-8 w-full rounded-lg border bg-transparent px-2"
+                className="mt-1 h-9 w-full rounded-lg border border-input bg-input/30 px-2.5 text-sm text-foreground"
                 value={form.propertyId}
                 onChange={(e) =>
                   setForm({ ...form, propertyId: e.target.value })
@@ -189,7 +189,7 @@ export function TenantManager({
               <Label htmlFor="tenant-status">상태</Label>
               <select
                 id="tenant-status"
-                className="mt-1 h-8 w-full rounded-lg border bg-transparent px-2"
+                className="mt-1 h-9 w-full rounded-lg border border-input bg-input/30 px-2.5 text-sm text-foreground"
                 value={form.status}
                 onChange={(e) =>
                   setForm({

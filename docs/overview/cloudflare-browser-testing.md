@@ -43,6 +43,8 @@ npm.cmd run dev -- -p 3001
 
 `web/.env.local` 또는 origin 프로세스 환경 변수에 `API_URL=https://api.approid.team`을 설정합니다. 설정하지 않으면 서버 페이지가 로컬 fallback fixture를 사용할 수 있습니다.
 
+`web/next.config.ts`의 `allowedDevOrigins`에는 `mnre.approid.team`이 포함되어야 합니다. 이 값은 Cloudflare Tunnel을 경유한 Next 개발 리소스와 HMR 요청을 허용합니다. 변경한 뒤에는 `web` 개발 서버를 재시작합니다.
+
 3. 공개 주소 응답을 확인합니다.
 
 ```powershell
@@ -99,6 +101,10 @@ Invoke-WebRequest https://api.approid.team/properties -UseBasicParsing
 - `401` 또는 `403`: 인증/권한 문제
 - `502`: API origin 또는 터널 route 문제
 - 연결 시간 초과: origin 프로세스, 네트워크, 터널 상태 확인
+
+### 버튼 클릭 또는 HMR이 동작하지 않는 경우
+
+Next 개발 로그에 `Blocked cross-origin request to Next.js dev resource`가 있으면 공개 도메인이 개발 서버에 허용되지 않은 상태입니다. `web/next.config.ts`의 `allowedDevOrigins`에 `mnre.approid.team`을 추가하고 `web` 개발 서버를 재시작한 뒤 브라우저를 새로고침합니다.
 
 ## 완료 기준
 

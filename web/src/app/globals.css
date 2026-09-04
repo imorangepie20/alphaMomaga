@@ -127,4 +127,8 @@
   html {
     @apply font-sans;
   }
+  select option {
+    background-color: Canvas;
+    color: CanvasText;
+  }
 }
