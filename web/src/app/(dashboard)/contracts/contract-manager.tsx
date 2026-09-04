@@ -2,7 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
-import { PencilIcon, PlusIcon } from "lucide-react";
+import { PencilIcon, PlusIcon, RefreshCwIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -16,8 +16,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   createContract,
+  renewContract,
   updateContract,
   type CreateContractMutationInput,
+  type RenewContractMutationInput,
   type UpdateContractMutationInput,
 } from "@/lib/contract-mutation";
 import type { Contract, ContractStatus } from "@/lib/contracts";
@@ -40,6 +42,12 @@ const statusLabels: Record<ContractStatus, string> = {
   Expired: "만료",
   Terminated: "해지",
 };
+
+function nextCalendarDay(value: string) {
+  const date = new Date(`${value}T00:00:00.000Z`);
+  date.setUTCDate(date.getUTCDate() + 1);
+  return date.toISOString().slice(0, 10);
+}
 
 function statusClass(status: ContractStatus) {
   if (status === "Active") {
@@ -76,9 +84,16 @@ export function ContractManager({
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState<Contract | null>(null);
+  const [renewalOpen, setRenewalOpen] = useState(false);
+  const [renewalContract, setRenewalContract] = useState<Contract | null>(null);
   const [createForm, setCreateForm] = useState(emptyCreateForm);
   const [updateForm, setUpdateForm] = useState<UpdateContractMutationInput>({
     status: "Active",
+  });
+  const [renewalForm, setRenewalForm] = useState<RenewContractMutationInput>({
+    startDate: "",
+    endDate: "",
+    monthlyRent: 0,
   });
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
@@ -104,6 +119,17 @@ export function ContractManager({
     });
     setError("");
     setOpen(true);
+  }
+
+  function startRenewal(contract: Contract) {
+    setRenewalContract(contract);
+    setRenewalForm({
+      startDate: nextCalendarDay(contract.endDate),
+      endDate: "",
+      monthlyRent: Number(contract.monthlyRent.replace(/[^0-9]/g, "")),
+    });
+    setError("");
+    setRenewalOpen(true);
   }
 
   function selectTenant(tenantId: string) {
@@ -170,6 +196,27 @@ export function ContractManager({
     }
   }
 
+  async function submitRenewal(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!renewalContract) return;
+    if (!renewalForm.endDate || renewalForm.monthlyRent <= 0) {
+      setError("갱신 계약 종료일과 월 임대료를 입력해 주세요.");
+      return;
+    }
+
+    setSaving(true);
+    setError("");
+    try {
+      await renewContract(renewalContract.id, renewalForm);
+      setRenewalOpen(false);
+      router.refresh();
+    } catch (cause) {
+      setError(mutationErrorMessage(cause));
+    } finally {
+      setSaving(false);
+    }
+  }
+
   return (
     <>
       <div className="flex justify-end px-6 pt-5">
@@ -221,14 +268,27 @@ export function ContractManager({
                   ) : null}
                 </td>
                 <td className="p-4 pr-6 text-right">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => startUpdate(contract)}
-                  >
-                    <PencilIcon data-icon="inline-start" />
-                    상태 수정
-                  </Button>
+                  <div className="flex justify-end gap-1">
+                    {(contract.status === "Active" ||
+                      contract.status === "Expired") && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => startRenewal(contract)}
+                      >
+                        <RefreshCwIcon data-icon="inline-start" />
+                        갱신
+                      </Button>
+                    )}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => startUpdate(contract)}
+                    >
+                      <PencilIcon data-icon="inline-start" />
+                      상태 수정
+                    </Button>
+                  </div>
                 </td>
               </tr>
             ))}
@@ -429,6 +489,108 @@ export function ContractManager({
               </DialogFooter>
             </form>
           )}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={renewalOpen} onOpenChange={setRenewalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>계약 갱신</DialogTitle>
+            <DialogDescription>
+              원본 계약의 임차인, 속성, 호실과 다음 시작일을 유지한 새 계약을
+              등록합니다.
+            </DialogDescription>
+          </DialogHeader>
+          {renewalContract ? (
+            <form className="space-y-3" onSubmit={submitRenewal}>
+              <div>
+                <Label htmlFor="renewal-tenant">임차인</Label>
+                <Input
+                  id="renewal-tenant"
+                  readOnly
+                  value={
+                    tenantNames.get(renewalContract.tenantId) ?? "미지정 임차인"
+                  }
+                />
+              </div>
+              <div>
+                <Label htmlFor="renewal-property">속성</Label>
+                <Input
+                  id="renewal-property"
+                  readOnly
+                  value={
+                    propertyNames.get(renewalContract.propertyId) ??
+                    "알 수 없는 속성"
+                  }
+                />
+              </div>
+              <div>
+                <Label htmlFor="renewal-unit">호실</Label>
+                <Input
+                  id="renewal-unit"
+                  readOnly
+                  value={renewalContract.unit}
+                />
+              </div>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div>
+                  <Label htmlFor="renewal-start-date">다음 계약 시작일</Label>
+                  <Input
+                    id="renewal-start-date"
+                    readOnly
+                    value={renewalForm.startDate}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="renewal-end-date">갱신 계약 종료일</Label>
+                  <Input
+                    id="renewal-end-date"
+                    type="date"
+                    min={renewalForm.startDate}
+                    value={renewalForm.endDate}
+                    onChange={(event) =>
+                      setRenewalForm({
+                        ...renewalForm,
+                        endDate: event.target.value,
+                      })
+                    }
+                  />
+                </div>
+              </div>
+              <div>
+                <Label htmlFor="renewal-rent">갱신 월 임대료 (원)</Label>
+                <Input
+                  id="renewal-rent"
+                  type="number"
+                  min="1"
+                  value={renewalForm.monthlyRent || ""}
+                  onChange={(event) =>
+                    setRenewalForm({
+                      ...renewalForm,
+                      monthlyRent: Number(event.target.value),
+                    })
+                  }
+                />
+              </div>
+              {error ? (
+                <p role="alert" className="text-sm text-destructive">
+                  {error}
+                </p>
+              ) : null}
+              <DialogFooter>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setRenewalOpen(false)}
+                >
+                  취소
+                </Button>
+                <Button type="submit" disabled={saving}>
+                  {saving ? "저장 중..." : "갱신 계약 저장"}
+                </Button>
+              </DialogFooter>
+            </form>
+          ) : null}
         </DialogContent>
       </Dialog>
     </>

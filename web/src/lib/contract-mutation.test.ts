@@ -1,5 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { createContract, updateContract } from "./contract-mutation";
+import {
+  createContract,
+  renewContract,
+  updateContract,
+} from "./contract-mutation";
 
 const mockFetch = vi.fn();
 
@@ -54,6 +58,28 @@ describe("contract mutations", () => {
         body: JSON.stringify({
           status: "Terminated",
           terminatedAt: "2026-09-04",
+        }),
+      }),
+    );
+  });
+
+  it("renews a contract through the protected renewal proxy with formatted monthly rent", async () => {
+    mockFetch.mockResolvedValue(new Response(null, { status: 201 }));
+
+    await renewContract("contract-1", {
+      startDate: "2027-09-01",
+      endDate: "2028-08-31",
+      monthlyRent: 1300000,
+    });
+
+    expect(mockFetch).toHaveBeenCalledWith(
+      "/api/proxy/contracts/contract-1/renew",
+      expect.objectContaining({
+        method: "POST",
+        body: JSON.stringify({
+          startDate: "2027-09-01",
+          endDate: "2028-08-31",
+          monthlyRent: "₩1,300,000",
         }),
       }),
     );
