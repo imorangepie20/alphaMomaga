@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Post,
@@ -75,6 +76,22 @@ export class ContractsController {
     } catch (error) {
       throw new BadRequestException(
         error instanceof Error ? error.message : 'Invalid contract renewal',
+      );
+    }
+  }
+
+  @Delete(':id')
+  @UseGuards(AuthGuard, PermissionsGuard)
+  @RequirePermission('contract:manage')
+  async delete(
+    @Param('id') id: string,
+    @Req() request: AuthenticatedRequest,
+  ): Promise<void> {
+    try {
+      await this.contractsService.delete(id, request.user);
+    } catch (error) {
+      throw new BadRequestException(
+        error instanceof Error ? error.message : 'Invalid contract deletion',
       );
     }
   }

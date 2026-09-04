@@ -157,4 +157,36 @@ export class MaintenanceService {
     this.maintenance[this.maintenance.indexOf(item)] = updated;
     return updated;
   }
+
+  async delete(id: string, principal?: AuthenticatedPrincipal): Promise<void> {
+    const database = this.databaseService?.client;
+    if (database) {
+      await database.transaction(async (transaction) => {
+        const [row] = await transaction
+          .delete(maintenance)
+          .where(eq(maintenance.id, id))
+          .returning();
+        if (!row) {
+          throw new Error('Maintenance ' + id + ' not found');
+        }
+        if (this.auditService) {
+          await this.auditService.record(transaction, {
+            action: 'maintenance.deleted',
+            actorSubject: principal?.subject ?? 'system',
+            actorRole: principal?.role ?? 'system',
+            entityType: 'maintenance',
+            entityId: id,
+            metadata: {},
+          });
+        }
+      });
+      return;
+    }
+
+    const index = this.maintenance.findIndex((item) => item.id === id);
+    if (index === -1) {
+      throw new Error('Maintenance ' + id + ' not found');
+    }
+    this.maintenance.splice(index, 1);
+  }
 }

@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Get, Param, Post, Put, Req, UseGuards } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, Param, Post, Put, Req, UseGuards } from '@nestjs/common';
 import { MaintenanceService } from './maintenance.service.js';
 import type { CreateMaintenanceInput, UpdateMaintenanceInput } from './maintenance.js';
 import { AuthGuard } from '../auth/auth.guard.js';
@@ -34,6 +34,17 @@ export class MaintenanceController {
       return await this.maintenanceService.update(id, input, request.user);
     } catch (error) {
       throw new BadRequestException(error instanceof Error ? error.message : 'Invalid maintenance update');
+    }
+  }
+
+  @Delete(':id')
+  @UseGuards(AuthGuard, PermissionsGuard)
+  @RequirePermission('maintenance:manage')
+  async delete(@Param('id') id: string, @Req() request: AuthenticatedRequest): Promise<void> {
+    try {
+      await this.maintenanceService.delete(id, request.user);
+    } catch (error) {
+      throw new BadRequestException(error instanceof Error ? error.message : 'Invalid maintenance deletion');
     }
   }
 }

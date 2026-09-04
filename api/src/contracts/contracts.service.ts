@@ -297,6 +297,38 @@ export class ContractsService {
     return renewed;
   }
 
+  async delete(
+    id: string,
+    principal?: AuthenticatedPrincipal,
+  ): Promise<void> {
+    const database = this.databaseService?.client;
+    if (database) {
+      await database.transaction(async (transaction) => {
+        const [row] = await transaction
+          .delete(contracts)
+          .where(eq(contracts.id, id))
+          .returning();
+        if (!row) {
+          throw new Error('Contract ' + id + ' not found');
+        }
+        await this.recordAudit(transaction, {
+          action: 'contract.deleted',
+          principal,
+          entityId: id,
+          metadata: {},
+        });
+      });
+      return;
+    }
+
+    const index = this.contracts.findIndex((contract) => contract.id === id);
+    if (index === -1) {
+      throw new Error('Contract ' + id + ' not found');
+    }
+    this.contracts.splice(index, 1);
+    this.references?.removeContract(id);
+  }
+
   private async synchronizeDatabaseContracts(
     database: any,
     referenceDate: Date,

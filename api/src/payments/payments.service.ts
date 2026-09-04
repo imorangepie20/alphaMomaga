@@ -171,6 +171,38 @@ export class PaymentsService {
     return updated;
   }
 
+  async delete(id: string, principal?: AuthenticatedPrincipal): Promise<void> {
+    const database = this.databaseService?.client;
+    if (database) {
+      await database.transaction(async (transaction) => {
+        const [row] = await transaction
+          .delete(payments)
+          .where(eq(payments.id, id))
+          .returning();
+        if (!row) {
+          throw new Error('Payment ' + id + ' not found');
+        }
+        if (this.auditService) {
+          await this.auditService.record(transaction, {
+            action: 'payment.deleted',
+            actorSubject: principal?.subject ?? 'system',
+            actorRole: principal?.role ?? 'system',
+            entityType: 'payment',
+            entityId: id,
+            metadata: {},
+          });
+        }
+      });
+      return;
+    }
+
+    const index = this.payments.findIndex((payment) => payment.id === id);
+    if (index === -1) {
+      throw new Error('Payment ' + id + ' not found');
+    }
+    this.payments.splice(index, 1);
+  }
+
   private parseAmount(amount: string): number {
     if (!/^₩[\d,]+$/.test(amount)) {
       throw new Error('Payment amount must be a positive won amount such as ₩12,400,000');

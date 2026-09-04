@@ -167,4 +167,36 @@ export class InspectionsService {
     this.inspections[this.inspections.indexOf(item)] = updated;
     return updated;
   }
+
+  async delete(id: string, principal?: AuthenticatedPrincipal): Promise<void> {
+    const database = this.databaseService?.client;
+    if (database) {
+      await database.transaction(async (transaction) => {
+        const [row] = await transaction
+          .delete(inspections)
+          .where(eq(inspections.id, id))
+          .returning();
+        if (!row) {
+          throw new Error('Inspection ' + id + ' not found');
+        }
+        if (this.auditService) {
+          await this.auditService.record(transaction, {
+            action: 'inspection.deleted',
+            actorSubject: principal?.subject ?? 'system',
+            actorRole: principal?.role ?? 'system',
+            entityType: 'inspection',
+            entityId: id,
+            metadata: {},
+          });
+        }
+      });
+      return;
+    }
+
+    const index = this.inspections.findIndex((item) => item.id === id);
+    if (index === -1) {
+      throw new Error('Inspection ' + id + ' not found');
+    }
+    this.inspections.splice(index, 1);
+  }
 }

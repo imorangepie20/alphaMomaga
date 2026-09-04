@@ -200,5 +200,9 @@ describe('Property lifecycle simulation (e2e)', () => {
         priority: 'Routine',
       })
       .expect(401);
+
+    await request(app.getHttpServer())
+      .delete('/payments/payment-1')
+      .expect(401);
   });
 });
