@@ -30,3 +30,17 @@
 
 `DATABASE_URL`은 폐기 가능한 테스트 DB에만 지정해 검증합니다. 운영 DB에 자동화 테스트나 시드 명령을 실행하지 않습니다.
 
+## Cloudflare 브라우저 확인
+
+Auth0 `PropertyManager` 테스트 계정으로 로그인한 세션 파일을 준비한 뒤 아래처럼
+읽기 전용 원장 검증을 실행합니다.
+
+```powershell
+$env:PLAYWRIGHT_BASE_URL = 'https://mnre.approid.team'
+$env:PLAYWRIGHT_AUTH_STORAGE_STATE = 'C:\safe-path\property-manager-session.json'
+cd C:\Users\jowoo\alpahMomega\web
+npm.cmd run test:e2e -- e2e/billing-ledger.spec.ts
+```
+
+세션 파일이 없으면 테스트는 의도적으로 skip됩니다. 자동 브라우저 테스트로 운영
+수납을 등록하거나 void하지 않으며, 변경 흐름은 별도 안전 fixture에서만 검증합니다.
