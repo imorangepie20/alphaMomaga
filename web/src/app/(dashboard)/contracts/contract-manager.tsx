@@ -546,7 +546,7 @@ export function ContractManager({
                   <Input
                     id="renewal-end-date"
                     type="date"
-                    min={renewalForm.startDate}
+                    min={nextCalendarDay(renewalForm.startDate)}
                     value={renewalForm.endDate}
                     onChange={(event) =>
                       setRenewalForm({
