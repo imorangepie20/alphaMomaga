@@ -13,6 +13,7 @@ import { DatabaseService } from '../database/database.service.js';
 import { AuditService } from '../audit/audit.service.js';
 import type { AuthenticatedPrincipal } from '../auth/principal.js';
 import { randomUUID } from 'node:crypto';
+import { InMemoryReferenceRegistry } from '../domain/in-memory-reference-registry.service.js';
 
 type ContractRow = typeof contracts.$inferSelect;
 
@@ -61,6 +62,7 @@ export class ContractsService {
   constructor(
     @Optional() private readonly databaseService?: DatabaseService,
     @Optional() private readonly auditService?: AuditService,
+    @Optional() private readonly references?: InMemoryReferenceRegistry,
   ) {}
 
   private readonly contracts: Contract[] = [
@@ -175,9 +177,14 @@ export class ContractsService {
     }
 
     this.synchronizeInMemoryContracts(referenceDate);
-    this.assertFixtureReferences(input);
+    if (this.references) {
+      this.references.assertContractReference(input.propertyId, input.tenantId);
+    } else {
+      this.assertFixtureReferences(input);
+    }
     this.assertNoOverlappingContract(contractToCreate, this.contracts);
     this.contracts.push(contractToCreate);
+    this.references?.registerContract(contractToCreate.id, contractToCreate.propertyId);
     return contractToCreate;
   }
 

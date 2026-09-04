@@ -7,6 +7,7 @@ import { DatabaseService } from '../database/database.service.js';
 import { AuditService } from '../audit/audit.service.js';
 import type { AuthenticatedPrincipal } from '../auth/principal.js';
 import { randomUUID } from 'node:crypto';
+import { InMemoryReferenceRegistry } from '../domain/in-memory-reference-registry.service.js';
 
 type InspectionRow = typeof inspections.$inferSelect;
 
@@ -28,6 +29,7 @@ export class InspectionsService {
   constructor(
     @Optional() private readonly databaseService?: DatabaseService,
     @Optional() private readonly auditService?: AuditService,
+    @Optional() private readonly references?: InMemoryReferenceRegistry,
   ) {}
 
   private readonly inspections: Inspection[] = [
@@ -91,6 +93,9 @@ export class InspectionsService {
     }
 
     // 인-메모리 검증 (fixtures 데이터에 hardcoded)
+    if (this.references) {
+      this.references.assertProperty(input.propertyId);
+    } else {
     const fixtureProperties = [
       { id: 'property-1' }, { id: 'property-2' }, { id: 'property-3' }, { id: 'property-4' },
     ];
@@ -99,6 +104,7 @@ export class InspectionsService {
       throw new Error(`Property ${input.propertyId}을(를) 찾을 수 없습니다`);
     }
 
+    }
     const item2: Inspection = {
       id: `inspection-${this.inspections.length + 1}`,
       ...input,

@@ -22,10 +22,11 @@ import { AuthGuard } from './auth/auth.guard.js';
 import { AuthService } from './auth/auth.service.js';
 import { AuthConfigService } from './auth/auth-config.service.js';
 import { PermissionsGuard } from './auth/permissions.guard.js';
+import { InMemoryReferenceRegistry } from './domain/in-memory-reference-registry.service.js';
 
 @Module({
   imports: [DatabaseModule, AuditModule],
   controllers: [AppController, PropertiesController, TenantsController, ContractsController, PaymentsController, MaintenanceController, InspectionsController, RolesController, AuthController],
-  providers: [AppService, PropertiesService, TenantsService, ContractsService, PaymentsService, MaintenanceService, InspectionsService, RolesService, AuthGuard, AuthConfigService, AuthService, PermissionsGuard],
+  providers: [AppService, InMemoryReferenceRegistry, PropertiesService, TenantsService, ContractsService, PaymentsService, MaintenanceService, InspectionsService, RolesService, AuthGuard, AuthConfigService, AuthService, PermissionsGuard],
 })
 export class AppModule {}

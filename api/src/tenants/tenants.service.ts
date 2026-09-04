@@ -7,6 +7,7 @@ import { tenants } from '../database/schema.js';
 import { DatabaseService } from '../database/database.service.js';
 import { AuditService } from '../audit/audit.service.js';
 import type { AuthenticatedPrincipal } from '../auth/principal.js';
+import { InMemoryReferenceRegistry } from '../domain/in-memory-reference-registry.service.js';
 
 type TenantRow = typeof tenants.$inferSelect;
 
@@ -38,6 +39,7 @@ export class TenantsService {
   constructor(
     @Optional() private readonly databaseService?: DatabaseService,
     @Optional() private readonly auditService?: AuditService,
+    @Optional() private readonly references?: InMemoryReferenceRegistry,
   ) {}
 
   private readonly tenants: Tenant[] = [
@@ -98,6 +100,7 @@ export class TenantsService {
     }
 
     // 인-메모리 중복 검증
+    this.references?.assertProperty(input.propertyId);
     const existing = this.tenants.find((t) => t.propertyId === input.propertyId && t.unit === input.unit);
     if (existing) {
       throw new Error(`같은 부동산의 ${input.unit}에 이미 임차인이 있습니다`);
@@ -105,6 +108,7 @@ export class TenantsService {
 
     const tenant: Tenant = { id: `tenant-${this.tenants.length + 1}`, ...input, rent: `₩${rentWon.toLocaleString('en-US')}` };
     this.tenants.push(tenant);
+    this.references?.registerTenant(tenant.id, tenant.propertyId);
     return tenant;
   }
 
@@ -131,6 +135,7 @@ export class TenantsService {
     const index = this.tenants.findIndex((t) => t.id === id);
     if (index !== -1) {
       this.tenants.splice(index, 1);
+      this.references?.removeTenant(id);
     }
   }
 

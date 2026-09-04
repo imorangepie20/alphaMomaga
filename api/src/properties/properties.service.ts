@@ -7,6 +7,7 @@ import { DatabaseService } from '../database/database.service.js';
 import { AuditService } from '../audit/audit.service.js';
 import type { AuthenticatedPrincipal } from '../auth/principal.js';
 import { randomUUID } from 'node:crypto';
+import { InMemoryReferenceRegistry } from '../domain/in-memory-reference-registry.service.js';
 
 type PropertyRow = typeof properties.$inferSelect;
 
@@ -26,6 +27,7 @@ export class PropertiesService {
   constructor(
     @Optional() private readonly databaseService?: DatabaseService,
     @Optional() private readonly auditService?: AuditService,
+    @Optional() private readonly references?: InMemoryReferenceRegistry,
   ) {}
 
   private readonly properties: Property[] = [
@@ -120,6 +122,7 @@ export class PropertiesService {
       status: input.status ?? 'Active',
     };
     this.properties.push(newProperty);
+    this.references?.registerProperty(newProperty.id);
     return newProperty;
   }
 
@@ -215,6 +218,7 @@ export class PropertiesService {
     const index = this.properties.findIndex((p) => p.id === id);
     if (index !== -1) {
       this.properties.splice(index, 1);
+      this.references?.removeProperty(id);
     }
   }
 }

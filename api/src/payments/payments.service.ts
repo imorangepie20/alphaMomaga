@@ -7,6 +7,7 @@ import { DatabaseService } from '../database/database.service.js';
 import { AuditService } from '../audit/audit.service.js';
 import type { AuthenticatedPrincipal } from '../auth/principal.js';
 import { randomUUID } from 'node:crypto';
+import { InMemoryReferenceRegistry } from '../domain/in-memory-reference-registry.service.js';
 
 type PaymentRow = typeof payments.$inferSelect;
 
@@ -28,6 +29,7 @@ export class PaymentsService {
   constructor(
     @Optional() private readonly databaseService?: DatabaseService,
     @Optional() private readonly auditService?: AuditService,
+    @Optional() private readonly references?: InMemoryReferenceRegistry,
   ) {}
 
   private readonly payments: Payment[] = [
@@ -93,6 +95,9 @@ export class PaymentsService {
     }
 
     // 인-메모리 검증 (fixtures 데이터에 hardcoded)
+    if (this.references) {
+      this.references.assertPaymentReference(input.propertyId, input.contractId);
+    } else {
     const fixtureContracts = [
       { id: 'contract-1' }, { id: 'contract-2' }, { id: 'contract-3' }, { id: 'contract-4' },
     ];
@@ -101,6 +106,7 @@ export class PaymentsService {
       throw new Error(`Contract ${input.contractId}을(를) 찾을 수 없습니다`);
     }
 
+    }
     const payment2: Payment = {
       id: `payment-${this.payments.length + 1}`,
       ...input,
