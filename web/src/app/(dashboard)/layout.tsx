@@ -10,7 +10,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
   return (
     <SidebarProvider>
       <AppSidebar />
-      <SidebarInset className="min-h-svh flex-col">
+      <SidebarInset className="min-h-svh flex-col bg-background text-foreground">
         <AppHeader user={session.user} />
         <main className="flex flex-1 flex-col gap-4 p-4">{children}</main>
         <AppFooter />

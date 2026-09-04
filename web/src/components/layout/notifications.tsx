@@ -28,7 +28,7 @@ export function Notifications() {
           </Button>
         }
       />
-      <DropdownMenuContent align="end" className="w-80">
+      <DropdownMenuContent align="end" className="w-80 border-border bg-card text-card-foreground">
         <DropdownMenuLabel>알림</DropdownMenuLabel>
         <DropdownMenuSeparator />
         {notifications.map((n) => (

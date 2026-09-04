@@ -32,7 +32,7 @@ export function AuthCard({
         </div>
       </div>
 
-      <Card>
+      <Card className="border-border bg-card text-card-foreground">
         <CardHeader className="text-center pb-0">
           <CardTitle className="text-xl font-semibold">{title}</CardTitle>
           {description && (

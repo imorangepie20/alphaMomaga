@@ -19,7 +19,7 @@ import {
 export function AppSidebar() {
   const pathname = usePathname();
   return (
-    <Sidebar collapsible="icon">
+    <Sidebar collapsible="icon" className="border-border bg-card text-card-foreground">
       <SidebarHeader>
         <div className="flex items-center gap-2 px-2 py-1.5">
           <div className="flex size-8 items-center justify-center rounded-md bg-primary text-primary-foreground">

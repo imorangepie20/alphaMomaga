@@ -1,4 +1,4 @@
-import { Apple, Mail } from "lucide-react"
+import { Apple } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 // GitHub icon as inline SVG (not in lucide-react at this version)
