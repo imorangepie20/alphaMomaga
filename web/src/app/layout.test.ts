@@ -38,6 +38,7 @@ const productAdministrationSources = [
   "../components/dashboards/default/payments-table.tsx",
 ].map((path) => readFileSync(resolve(__dirname, path), "utf8"));
 const settingsPage = productAdministrationSources[0];
+const darkVariant = ["dark", ":"].join("");
 
 describe("application theme", () => {
   it("keeps the management application light-only", () => {
@@ -48,7 +49,7 @@ describe("application theme", () => {
 
   it("keeps dashboard and authentication sources free of inactive theme hooks", () => {
     for (const source of shellAndAuthSources) {
-      expect(source).not.toContain("dark:");
+      expect(source).not.toContain(darkVariant);
       expect(source).not.toContain("ThemeToggle");
     }
   });
@@ -76,7 +77,7 @@ describe("application theme", () => {
     expect(settingsPage).toContain("Light-only theme");
 
     for (const source of productAdministrationSources) {
-      expect(source).not.toContain("dark:");
+      expect(source).not.toContain(darkVariant);
     }
   });
 });

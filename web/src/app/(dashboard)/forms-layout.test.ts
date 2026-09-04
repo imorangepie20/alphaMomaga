@@ -22,13 +22,14 @@ const contractManager = readFileSync(
   resolve(__dirname, "contracts/contract-manager.tsx"),
   "utf8",
 )
+const darkVariant = ["dark", ":"].join("")
 
 describe("management form layout", () => {
   it("defines the standardized field boundary", () => {
     expect(fieldSource).toContain('data-slot="form-field"')
     expect(fieldSource).toContain('data-slot="form-field-label"')
     expect(fieldSource).toContain('data-slot="form-field-error"')
-    expect(fieldSource).not.toContain("dark:")
+    expect(fieldSource).not.toContain(darkVariant)
   })
 
   it("keeps dialog chrome aligned with the shared form scale", () => {

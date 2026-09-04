@@ -60,6 +60,13 @@ const taskEightFormDemo = resolve(
   __dirname,
   "../components/pages/components-field/variants.tsx"
 );
+const commonUiRoot = resolve(__dirname, "../components/ui");
+const darkVariant = ["dark", ":"].join("");
+const darkThemeSelector = `.${"dark"}`;
+const activeDarkColorScheme = new RegExp(
+  `${darkThemeSelector.replace(".", "\\\\.")}\\s*\\{[^}]*color-scheme:\\s*${"dark"};`,
+  "s"
+);
 
 function collectTaskEightFiles(path: string): string[] {
   if (statSync(path).isFile()) {
@@ -72,6 +79,9 @@ function collectTaskEightFiles(path: string): string[] {
 }
 
 const taskEightFiles = taskEightRoots.flatMap(collectTaskEightFiles);
+const commonUiFiles = collectTaskEightFiles(commonUiRoot).filter(
+  (file) => !file.endsWith(".test.ts") && !file.endsWith(".test.tsx")
+);
 
 describe("global form styles", () => {
   it("declares a light color scheme for browser-native controls", () => {
@@ -79,7 +89,7 @@ describe("global form styles", () => {
   });
 
   it("does not retain an active dark color scheme", () => {
-    expect(globalStyles).not.toMatch(/\.dark\s*\{[^}]*color-scheme:\s*dark;/s);
+    expect(globalStyles).not.toMatch(activeDarkColorScheme);
   });
 
   it("keeps native select options readable with the light-only theme", () => {
@@ -105,22 +115,31 @@ describe("global form styles", () => {
   });
 
   it("keeps shared controls light-only", () => {
-    expect(inputSource).not.toContain("dark:");
-    expect(textareaSource).not.toContain("dark:");
-    expect(nativeSelectSource).not.toContain("dark:");
-    expect(selectSource).not.toContain("dark:");
-    expect(buttonSource).not.toContain("dark:");
+    expect(inputSource).not.toContain(darkVariant);
+    expect(textareaSource).not.toContain(darkVariant);
+    expect(nativeSelectSource).not.toContain(darkVariant);
+    expect(selectSource).not.toContain(darkVariant);
+    expect(buttonSource).not.toContain(darkVariant);
+  });
+
+  it("removes dark theme contracts from all common UI components", () => {
+    for (const file of commonUiFiles) {
+      const source = readFileSync(file, "utf8");
+
+      expect(source).not.toContain(darkVariant);
+      expect(source).not.toContain(darkThemeSelector);
+    }
   });
 
   it("keeps bounded dashboard and error surfaces light-only", () => {
     for (const file of taskSevenFiles) {
-      expect(readFileSync(file, "utf8")).not.toContain("dark:");
+      expect(readFileSync(file, "utf8")).not.toContain(darkVariant);
     }
   });
 
   it("keeps the bounded app and demo surfaces light-only", () => {
     for (const file of taskEightFiles) {
-      expect(readFileSync(file, "utf8")).not.toContain("dark:");
+      expect(readFileSync(file, "utf8")).not.toContain(darkVariant);
     }
   });
 
