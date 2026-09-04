@@ -58,4 +58,12 @@ describe('BillingController', () => {
     await expect(controller.generateMonth('2026-09')).resolves.toEqual([{ id: 'charge-1' }]);
     expect(generateMonth).toHaveBeenCalledWith('2026-09');
   });
+
+  it('forwards receipt history filters to the billing service', async () => {
+    const findReceipts = vi.fn().mockResolvedValue([{ id: 'receipt-1' }]);
+    const controller = new BillingController({ findReceipts } as unknown as BillingService);
+
+    await expect(controller.findReceipts('property-1', 'tenant-1')).resolves.toEqual([{ id: 'receipt-1' }]);
+    expect(findReceipts).toHaveBeenCalledWith({ propertyId: 'property-1', tenantId: 'tenant-1' });
+  });
 });

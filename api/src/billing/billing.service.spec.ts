@@ -172,6 +172,18 @@ describe('BillingService.getSummary', () => {
   });
 });
 
+describe('BillingService.findReceipts', () => {
+  it('returns receipt history for the selected tenant, including void state', async () => {
+    const service = new BillingService(new ContractsService());
+    const [draft] = await service.generateMonth('2026-09', new Date('2026-09-04T00:00:00.000Z'));
+    await service.approveCharge(draft.id);
+    const receipt = await service.recordReceipt({ propertyId: draft.propertyId, tenantId: draft.tenantId, receivedDate: '2026-09-04', amountWon: 400000, method: 'BankTransfer', allocations: [{ chargeId: draft.id, amountWon: 400000 }] });
+    await service.voidReceipt(receipt.id, 'duplicate entry');
+
+    await expect(service.findReceipts({ tenantId: draft.tenantId })).resolves.toEqual([expect.objectContaining({ id: receipt.id, voidReason: 'duplicate entry' })]);
+  });
+});
+
 describe('BillingService.recordReceipt', () => {
   it('rejects duplicate allocations that exceed one charge outstanding balance', async () => {
     const service = new BillingService(new ContractsService());

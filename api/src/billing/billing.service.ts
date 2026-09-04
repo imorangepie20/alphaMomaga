@@ -294,6 +294,26 @@ export class BillingService {
     });
   }
 
+  async findReceipts(filters: { propertyId?: string; tenantId?: string } = {}): Promise<PaymentReceipt[]> {
+    const database = this.databaseService?.client;
+    if (database) {
+      const conditions = [];
+      if (filters.propertyId) conditions.push(eq(paymentReceipts.propertyId, filters.propertyId));
+      if (filters.tenantId) conditions.push(eq(paymentReceipts.tenantId, filters.tenantId));
+      const query = database.select().from(paymentReceipts);
+      const rows = conditions.length > 0 ? await query.where(and(...conditions)) : await query;
+      return rows.map((row) => ({
+        id: row.id, propertyId: row.propertyId, tenantId: row.tenantId, receivedDate: row.receivedDate,
+        amountWon: row.amountWon, method: row.method, reference: row.reference ?? undefined, memo: row.memo ?? undefined,
+        allocations: [], voidedAt: row.voidedAt?.toISOString(), voidReason: row.voidReason ?? undefined,
+      }));
+    }
+    return this.receipts.filter((receipt) =>
+      (!filters.propertyId || receipt.propertyId === filters.propertyId)
+      && (!filters.tenantId || receipt.tenantId === filters.tenantId),
+    );
+  }
+
   async recordReceipt(input: PaymentReceiptInput, recordedBy = 'system'): Promise<PaymentReceipt> {
     if (!Number.isSafeInteger(input.amountWon) || input.amountWon <= 0) {
       throw new Error('Receipt amountWon must be a positive won amount');
