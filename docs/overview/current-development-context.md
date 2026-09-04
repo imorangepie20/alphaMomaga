@@ -20,6 +20,9 @@ property -> tenant -> contract -> monthly charge -> payment -> maintenance -> in
 
 ### 2026-09-05 현재 상태
 
+- 계약 화면의 기간 집계, 검색·자산/상태/만료 필터와 남은 일수 표시를 개선했다.
+  `docs/overview/contract-workspace.md` 참고. 웹 테스트 94개 및 변경 파일 린트 통과.
+
 - 임차인 화면의 다중 청구 누락을 수정하고 월 선택·검색·자산/상태 필터·개별 청구 내역을 추가했다.
   `docs/overview/tenant-ledger-workspace.md` 참고. 집계는 확정 청구와 임차인 인원수 기준이다.
 

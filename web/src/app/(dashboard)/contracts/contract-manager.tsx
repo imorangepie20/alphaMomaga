@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useRef, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { PencilIcon, PlusIcon, RefreshCwIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -26,6 +26,7 @@ import {
 import type { Contract, ContractStatus } from "@/lib/contracts";
 import type { Property } from "@/lib/properties";
 import type { Tenant } from "@/lib/tenants";
+import { contractTiming } from "@/lib/contract-overview";
 
 const emptyCreateForm: CreateContractMutationInput = {
   propertyId: "",
@@ -50,11 +51,11 @@ function nextCalendarDay(value: string) {
   return date.toISOString().slice(0, 10);
 }
 
-function canRenewContract(contract: Contract) {
+function canRenewContract(contract: Contract, today: string) {
   if (contract.status === "Active") return true;
   return (
     contract.status === "Expired" &&
-    nextCalendarDay(contract.endDate) >= new Date().toISOString().slice(0, 10)
+    nextCalendarDay(contract.endDate) >= today
   );
 }
 
@@ -85,10 +86,12 @@ export function ContractManager({
   contracts,
   tenants,
   properties,
+  today,
 }: {
   contracts: Contract[];
   tenants: Tenant[];
   properties: Property[];
+  today: string;
 }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -106,12 +109,22 @@ export function ContractManager({
   });
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
+  const savingRef = useRef(false);
+  const [query, setQuery] = useState("");
+  const [propertyFilter, setPropertyFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
   const propertyNames = new Map(
     properties.map((property) => [property.id, property.name]),
   );
   const tenantNames = new Map(
     tenants.map((tenant) => [tenant.id, tenant.name]),
   );
+  const filtered = contracts.filter((contract) => {
+    const timing = contractTiming(contract, today);
+    const statusMatches = !statusFilter || (statusFilter === "Expiring" ? timing.expiring : statusFilter === "Renewal" ? timing.renewal : contract.status === statusFilter);
+    return statusMatches && (!propertyFilter || propertyFilter === contract.propertyId) &&
+      `${tenantNames.get(contract.tenantId) ?? ""} ${propertyNames.get(contract.propertyId) ?? ""} ${contract.unit}`.toLocaleLowerCase().includes(query.trim().toLocaleLowerCase());
+  }).sort((a, b) => Number(contractTiming(b, today).expiring) - Number(contractTiming(a, today).expiring) || a.endDate.localeCompare(b.endDate) || a.id.localeCompare(b.id));
 
   function startCreate() {
     setSelected(null);
@@ -154,6 +167,7 @@ export function ContractManager({
 
   async function submitCreate(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (savingRef.current) return;
     if (
       !createForm.tenantId ||
       !createForm.propertyId ||
@@ -166,6 +180,7 @@ export function ContractManager({
       return;
     }
 
+    savingRef.current = true;
     setSaving(true);
     setError("");
     try {
@@ -175,18 +190,21 @@ export function ContractManager({
     } catch (cause) {
       setError(mutationErrorMessage(cause));
     } finally {
+      savingRef.current = false;
       setSaving(false);
     }
   }
 
   async function submitUpdate(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (savingRef.current) return;
     if (!selected) return;
     if (updateForm.status === "Terminated" && !updateForm.terminatedAt) {
       setError("해지 상태에는 해지일이 필요합니다.");
       return;
     }
 
+    savingRef.current = true;
     setSaving(true);
     setError("");
     try {
@@ -201,18 +219,21 @@ export function ContractManager({
     } catch (cause) {
       setError(mutationErrorMessage(cause));
     } finally {
+      savingRef.current = false;
       setSaving(false);
     }
   }
 
   async function submitRenewal(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (savingRef.current) return;
     if (!renewalContract) return;
     if (!renewalForm.endDate || renewalForm.monthlyRent <= 0) {
       setError("갱신 계약 종료일과 월 임대료를 입력해 주세요.");
       return;
     }
 
+    savingRef.current = true;
     setSaving(true);
     setError("");
     try {
@@ -222,6 +243,7 @@ export function ContractManager({
     } catch (cause) {
       setError(mutationErrorMessage(cause));
     } finally {
+      savingRef.current = false;
       setSaving(false);
     }
   }
@@ -229,17 +251,23 @@ export function ContractManager({
   return (
     <>
       <div className="flex justify-end px-6 pt-5">
-        <Button onClick={startCreate}>
+        <Button onClick={startCreate} disabled={saving || !tenants.length}>
           <PlusIcon data-icon="inline-start" />
           계약 추가
         </Button>
       </div>
+      <div className="grid gap-4 px-6 py-4 sm:grid-cols-3">
+        <FormField label="검색" htmlFor="contract-search"><Input id="contract-search" placeholder="임차인·자산명·호실" value={query} onChange={(event) => setQuery(event.target.value)} /></FormField>
+        <FormField label="자산 필터" htmlFor="contract-property-filter"><NativeSelect id="contract-property-filter" className="w-full" value={propertyFilter} onChange={(event) => setPropertyFilter(event.target.value)}><NativeSelectOption value="">전체 자산</NativeSelectOption>{properties.map((property) => <NativeSelectOption key={property.id} value={property.id}>{property.name}</NativeSelectOption>)}</NativeSelect></FormField>
+        <FormField label="계약 상태 필터" htmlFor="contract-status-filter"><NativeSelect id="contract-status-filter" className="w-full" value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)}><NativeSelectOption value="">전체 상태</NativeSelectOption><NativeSelectOption value="Expiring">30일 내 만료</NativeSelectOption><NativeSelectOption value="Renewal">120일 내 갱신 검토</NativeSelectOption>{Object.entries(statusLabels).map(([value, label]) => <NativeSelectOption key={value} value={value}>{label}</NativeSelectOption>)}</NativeSelect></FormField>
+      </div>
+      <p className="px-6 pb-3 text-sm text-muted-foreground">전체 {contracts.length}건 중 {filtered.length}건 · 만료 임박 우선{!tenants.length && " · 계약을 추가하려면 먼저 임차인을 등록해 주세요."}</p>
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b text-left text-muted-foreground">
               <th className="p-4 pl-6">임차인</th>
-              <th className="p-4">속성 / 호실</th>
+              <th className="p-4">자산 / 호실</th>
               <th className="p-4">월 임대료</th>
               <th className="p-4">계약 기간</th>
               <th className="p-4">상태</th>
@@ -247,7 +275,7 @@ export function ContractManager({
             </tr>
           </thead>
           <tbody>
-            {contracts.map((contract) => (
+            {filtered.map((contract) => (
               <tr key={contract.id} className="border-b">
                 <td className="p-4 pl-6 font-medium">
                   {tenantNames.get(contract.tenantId) ?? "미지정 임차인"}
@@ -263,6 +291,7 @@ export function ContractManager({
                 <td className="p-4">
                   <p>{contract.startDate}</p>
                   <p className="text-muted-foreground">~ {contract.endDate}</p>
+                  {contract.status !== "Terminated" && <p className="mt-1 text-xs text-muted-foreground">{contractTiming(contract, today).daysRemaining < 0 ? "계약 기간 종료" : `만료까지 ${contractTiming(contract, today).daysRemaining}일`}</p>}
                 </td>
                 <td className="p-4">
                   <span
@@ -278,7 +307,7 @@ export function ContractManager({
                 </td>
                 <td className="p-4 pr-6 text-right">
                   <div className="flex justify-end gap-1">
-                    {canRenewContract(contract) && (
+                    {canRenewContract(contract, today) && (
                       <Button
                         variant="ghost"
                         size="sm"
@@ -300,12 +329,13 @@ export function ContractManager({
                 </td>
               </tr>
             ))}
+            {!filtered.length && <tr><td colSpan={6} className="p-8 text-center text-muted-foreground">{contracts.length ? "검색 조건에 맞는 계약이 없습니다." : "등록된 계약이 없습니다."}</td></tr>}
           </tbody>
         </table>
       </div>
 
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent>
+      <Dialog open={open} onOpenChange={(value) => { if (!savingRef.current) setOpen(value); }}>
+        <DialogContent className="max-h-[calc(100dvh-2rem)] overflow-y-auto sm:max-w-lg">
           <DialogHeader>
             <DialogTitle>
               {selected ? "계약 상태 수정" : "계약 추가"}
@@ -365,6 +395,7 @@ export function ContractManager({
                 <Button
                   type="button"
                   variant="outline"
+                  disabled={saving}
                   onClick={() => setOpen(false)}
                 >
                   취소
@@ -470,6 +501,7 @@ export function ContractManager({
                 <Button
                   type="button"
                   variant="outline"
+                  disabled={saving}
                   onClick={() => setOpen(false)}
                 >
                   취소
@@ -483,8 +515,8 @@ export function ContractManager({
         </DialogContent>
       </Dialog>
 
-      <Dialog open={renewalOpen} onOpenChange={setRenewalOpen}>
-        <DialogContent>
+      <Dialog open={renewalOpen} onOpenChange={(value) => { if (!savingRef.current) setRenewalOpen(value); }}>
+        <DialogContent className="max-h-[calc(100dvh-2rem)] overflow-y-auto sm:max-w-lg">
           <DialogHeader>
             <DialogTitle>계약 갱신</DialogTitle>
             <DialogDescription>
@@ -562,6 +594,7 @@ export function ContractManager({
                 <Button
                   type="button"
                   variant="outline"
+                  disabled={saving}
                   onClick={() => setRenewalOpen(false)}
                 >
                   취소
