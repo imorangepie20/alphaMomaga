@@ -20,6 +20,9 @@ property -> tenant -> contract -> monthly charge -> payment -> maintenance -> in
 
 ### 2026-09-05 현재 상태
 
+- 임차인 화면의 다중 청구 누락을 수정하고 월 선택·검색·자산/상태 필터·개별 청구 내역을 추가했다.
+  `docs/overview/tenant-ledger-workspace.md` 참고. 집계는 확정 청구와 임차인 인원수 기준이다.
+
 - 점검 화면에 등록·일정/긴급도 수정·검토·완료일 입력과 필터를 연결했다.
   `docs/overview/inspection-workflow-ui.md` 참고. API도 일정·긴급도 수정을 지원하며 완료일은 서울 기준으로 검증한다.
 - 최신 검증: 웹 75개, API 184개 테스트 및 양쪽 빌드 통과. 인증된 브라우저 수동 검증은 남아 있다.
