@@ -1,5 +1,16 @@
 import { test, expect } from "@playwright/test";
 
+const storageState = process.env.PLAYWRIGHT_AUTH_STORAGE_STATE;
+
+test.skip(
+  !storageState,
+  "Dashboard content checks require an authenticated Auth0 storage state."
+);
+
+if (storageState) {
+  test.use({ storageState });
+}
+
 const dashboards = [
   {
     href: "/dashboard/hotel",

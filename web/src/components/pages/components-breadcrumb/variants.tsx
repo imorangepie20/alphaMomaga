@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Home, Slash, MoreHorizontal } from "lucide-react"
+import { Home, Slash } from "lucide-react"
 import Link from "next/link"
 
 import {

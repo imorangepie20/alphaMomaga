@@ -149,8 +149,6 @@ export function WithTimePickerVariant() {
 }
 
 // ─── 8. Preset Ranges ────────────────────────────────────────────────────────
-const startOfDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate())
-
 const PRESETS: { label: string; range: () => DateRange }[] = [
   {
     label: "Today",

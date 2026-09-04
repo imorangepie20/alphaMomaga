@@ -160,6 +160,8 @@ export function BasicSelectionVariant() {
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
   const [rowSelection, setRowSelection] = React.useState({})
 
+  // TanStack Table intentionally returns imperative functions; React Compiler skips it safely.
+  // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
     data: PAYMENTS,
     columns: basicColumns,
@@ -427,6 +429,8 @@ export function VerticalScrollVariant() {
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [rowSelection, setRowSelection] = React.useState({})
 
+  // TanStack Table intentionally returns imperative functions; React Compiler skips it safely.
+  // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
     data: PAYMENTS_EXTENDED,
     columns: scrollColumns,
@@ -564,6 +568,8 @@ const draggableRowColumns: ColumnDef<Payment>[] = [
 export function DraggableRowsVariant() {
   const [data, setData] = React.useState<Payment[]>(PAYMENTS)
 
+  // TanStack Table intentionally returns imperative functions; React Compiler skips it safely.
+  // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
     data,
     columns: draggableRowColumns,
@@ -698,6 +704,8 @@ export function DraggableColumnsVariant() {
     draggableColBaseColumns.map((c) => c.id as string)
   )
 
+  // TanStack Table intentionally returns imperative functions; React Compiler skips it safely.
+  // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
     data: PAYMENTS,
     columns: draggableColBaseColumns,
@@ -848,6 +856,8 @@ export function ActionButtonsVariant() {
 
   const columns = React.useMemo(() => actionColumns(handleDelete), [handleDelete])
 
+  // TanStack Table intentionally returns imperative functions; React Compiler skips it safely.
+  // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
     data,
     columns,

@@ -194,6 +194,8 @@ export function UsersPage() {
     });
   }, [globalFilter, roleFilter]);
 
+  // TanStack Table intentionally returns imperative functions; React Compiler skips it safely.
+  // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
     data: filteredData,
     columns,

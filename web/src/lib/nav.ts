@@ -1,12 +1,16 @@
 import type { LucideIcon } from "lucide-react";
 import {
-  LayoutDashboard, ShoppingCart, CreditCard, Hotel, KanbanSquare,
-  Building2, TrendingUp, Users, BarChart3, FolderOpen, Bitcoin,
-  GraduationCap, Stethoscope, Wallet, StickyNote, MessageSquare,
-  Share2, Mail, ListTodo, CheckSquare, Calendar, KeyRound, Store,
-  BookOpen, Bot, Image as ImageIcon, AudioLines, UserCircle, Rocket,
-  Layers, Settings, Tag, ShieldCheck, Bell, TriangleAlert, Boxes,
-  Component, Blocks, FlaskConical, Globe, FileText, ClipboardCheck,
+  BarChart3,
+  Building2,
+  ClipboardCheck,
+  CreditCard,
+  FileText,
+  LayoutDashboard,
+  Settings,
+  ShieldCheck,
+  TrendingUp,
+  Users,
+  Wallet,
 } from "lucide-react";
 
 export type NavItem = { title: string; href: string; icon?: LucideIcon };

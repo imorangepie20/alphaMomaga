@@ -1,8 +1,8 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Command } from "lucide-react";
 import { navGroups } from "@/lib/nav";
 import {
   Sidebar,
@@ -22,9 +22,14 @@ export function AppSidebar() {
     <Sidebar collapsible="icon" className="border-border bg-card text-card-foreground">
       <SidebarHeader>
         <div className="flex items-center gap-2 px-2 py-1.5">
-          <div className="flex size-8 items-center justify-center rounded-md bg-primary text-primary-foreground">
-            <Command className="size-4" />
-          </div>
+          <Image
+            src="/ChatGPT Image Sep 4, 2026, 11_49_33 AM.png"
+            alt="Alpha Momega"
+            width={32}
+            height={32}
+            className="size-8 object-contain"
+            priority
+          />
           <span className="font-semibold group-data-[collapsible=icon]:hidden">부동산 관리 시스템</span>
         </div>
       </SidebarHeader>

@@ -323,6 +323,8 @@ export function TasksTable() {
   const [selectedStatuses, setSelectedStatuses] = React.useState<Set<string>>(new Set());
   const [selectedPriorities, setSelectedPriorities] = React.useState<Set<string>>(new Set());
 
+  // TanStack Table intentionally returns imperative functions; React Compiler skips it safely.
+  // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
     data: tasks,
     columns,

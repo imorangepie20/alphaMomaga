@@ -3,7 +3,6 @@
 import * as React from "react";
 import { Copy, RefreshCw, Trash2, Plus, MoreHorizontal, Check } from "lucide-react";
 
-import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -51,12 +50,6 @@ function buildKeySegment(seed: number, length: number): string {
     s = (s * 31 + 17) % 65536;
   }
   return result;
-}
-
-function statusVariant(status: ApiKey["status"]) {
-  if (status === "active") return "active";
-  if (status === "expired") return "expired";
-  return "inactive";
 }
 
 // ─── Status Badge ─────────────────────────────────────────────────────────────

@@ -14,7 +14,6 @@ import {
   Copy,
   Scissors,
   Clipboard,
-  DollarSign,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"

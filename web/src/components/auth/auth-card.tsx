@@ -27,9 +27,14 @@ export function AuthCard({
     <div className={cn("flex flex-col gap-6", className)}>
       {/* Brand mark */}
       <div className="flex justify-center">
-        <div className="flex size-10 items-center justify-center rounded-xl bg-primary text-primary-foreground font-bold text-lg select-none">
-          A
-        </div>
+        <Image
+          src="/ChatGPT Image Sep 4, 2026, 11_49_33 AM.png"
+          alt="Alpha Momega"
+          width={48}
+          height={48}
+          className="size-12 object-contain"
+          priority
+        />
       </div>
 
       <Card className="border-border bg-card text-card-foreground">
@@ -49,3 +54,4 @@ export function AuthCard({
     </div>
   )
 }
+import Image from "next/image"

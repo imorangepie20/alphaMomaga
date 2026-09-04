@@ -151,6 +151,8 @@ export function PaymentsTable() {
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
 
+  // TanStack Table intentionally returns imperative functions; React Compiler skips it safely.
+  // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
     data: latestPayments,
     columns,

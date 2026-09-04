@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { KanbanCard } from "./kanban-card"
-import type { Card, Column } from "./data"
+import type { Column } from "./data"
 
 interface KanbanColumnProps {
   column: Column

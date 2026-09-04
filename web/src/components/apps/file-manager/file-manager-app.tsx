@@ -132,7 +132,7 @@ function KindIcon({ kind, className }: { kind: FileItem["kind"]; className?: str
 
 // ─── Item Action Dropdown ──────────────────────────────────────────────────────
 
-function ItemActions({ item }: { item: FileItem }) {
+function ItemActions() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
@@ -165,7 +165,7 @@ function GridCard({ item }: { item: FileItem }) {
   return (
     <div className="group/item relative flex flex-col items-center gap-3 rounded-xl border border-border bg-card p-4 text-center transition-colors hover:bg-accent/30 hover:border-accent cursor-default">
       <div className="absolute top-2 right-2">
-        <ItemActions item={item} />
+                    <ItemActions />
       </div>
 
       {item.kind === "folder" ? (
@@ -226,7 +226,7 @@ function ListRow({ item, isLast }: { item: FileItem; isLast: boolean }) {
           <span className="w-20 text-right">{item.modified}</span>
         </div>
 
-        <ItemActions item={item} />
+        <ItemActions />
       </div>
       {!isLast && <Separator />}
     </>

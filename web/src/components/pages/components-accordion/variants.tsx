@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { ChevronDownIcon, ChevronUpIcon, PlusIcon, MinusIcon, CircleHelpIcon } from "lucide-react"
+import { PlusIcon, MinusIcon } from "lucide-react"
 
 import {
   Accordion,

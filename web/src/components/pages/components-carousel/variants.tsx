@@ -82,18 +82,27 @@ export function DotsNavigationVariant() {
   const [current, setCurrent] = React.useState(0)
   const [count, setCount] = React.useState(0)
 
+  const handleApiChange = React.useCallback((nextApi: CarouselApi) => {
+    setApi(nextApi)
+    if (!nextApi) return
+    setCount(nextApi.scrollSnapList().length)
+    setCurrent(nextApi.selectedScrollSnap())
+  }, [])
+
   React.useEffect(() => {
     if (!api) return
-    setCount(api.scrollSnapList().length)
-    setCurrent(api.selectedScrollSnap())
-    api.on("select", () => {
+    const onSelect = () => {
       setCurrent(api.selectedScrollSnap())
-    })
+    }
+    api.on("select", onSelect)
+    return () => {
+      api.off("select", onSelect)
+    }
   }, [api])
 
   return (
     <div className="max-w-sm mx-auto px-10" data-testid="carousel-dots">
-      <Carousel setApi={setApi}>
+      <Carousel setApi={handleApiChange}>
         <CarouselContent>
           {GRADIENTS.map((g, i) => (
             <CarouselItem key={i}>
@@ -322,18 +331,27 @@ export function CustomDotsVariant() {
   const [current, setCurrent] = React.useState(0)
   const [count, setCount] = React.useState(0)
 
+  const handleApiChange = React.useCallback((nextApi: CarouselApi) => {
+    setApi(nextApi)
+    if (!nextApi) return
+    setCount(nextApi.scrollSnapList().length)
+    setCurrent(nextApi.selectedScrollSnap())
+  }, [])
+
   React.useEffect(() => {
     if (!api) return
-    setCount(api.scrollSnapList().length)
-    setCurrent(api.selectedScrollSnap())
-    api.on("select", () => {
+    const onSelect = () => {
       setCurrent(api.selectedScrollSnap())
-    })
+    }
+    api.on("select", onSelect)
+    return () => {
+      api.off("select", onSelect)
+    }
   }, [api])
 
   return (
     <div className="max-w-sm mx-auto px-10">
-      <Carousel setApi={setApi}>
+      <Carousel setApi={handleApiChange}>
         <CarouselContent>
           {GRADIENTS.map((g, i) => (
             <CarouselItem key={i}>
@@ -377,17 +395,26 @@ export function ThumbnailsVariant() {
   const [api, setApi] = React.useState<CarouselApi>()
   const [current, setCurrent] = React.useState(0)
 
+  const handleApiChange = React.useCallback((nextApi: CarouselApi) => {
+    setApi(nextApi)
+    if (!nextApi) return
+    setCurrent(nextApi.selectedScrollSnap())
+  }, [])
+
   React.useEffect(() => {
     if (!api) return
-    setCurrent(api.selectedScrollSnap())
-    api.on("select", () => {
+    const onSelect = () => {
       setCurrent(api.selectedScrollSnap())
-    })
+    }
+    api.on("select", onSelect)
+    return () => {
+      api.off("select", onSelect)
+    }
   }, [api])
 
   return (
     <div className="max-w-sm mx-auto px-10 flex flex-col gap-3">
-      <Carousel setApi={setApi}>
+      <Carousel setApi={handleApiChange}>
         <CarouselContent>
           {GRADIENTS.map((g, i) => (
             <CarouselItem key={i}>
@@ -462,20 +489,29 @@ export function ProgressBarVariant() {
   const [current, setCurrent] = React.useState(0)
   const [count, setCount] = React.useState(0)
 
+  const handleApiChange = React.useCallback((nextApi: CarouselApi) => {
+    setApi(nextApi)
+    if (!nextApi) return
+    setCount(nextApi.scrollSnapList().length)
+    setCurrent(nextApi.selectedScrollSnap())
+  }, [])
+
   React.useEffect(() => {
     if (!api) return
-    setCount(api.scrollSnapList().length)
-    setCurrent(api.selectedScrollSnap())
-    api.on("select", () => {
+    const onSelect = () => {
       setCurrent(api.selectedScrollSnap())
-    })
+    }
+    api.on("select", onSelect)
+    return () => {
+      api.off("select", onSelect)
+    }
   }, [api])
 
   const progress = count > 0 ? ((current + 1) / count) * 100 : 0
 
   return (
     <div className="max-w-sm mx-auto px-10 flex flex-col gap-3">
-      <Carousel setApi={setApi}>
+      <Carousel setApi={handleApiChange}>
         <CarouselContent>
           {GRADIENTS.map((g, i) => (
             <CarouselItem key={i}>

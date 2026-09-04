@@ -19,7 +19,7 @@ import { Progress } from "@/components/ui/progress"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 
-import { COURSES, CATEGORIES, type Course, type Category } from "./data"
+import { COURSES, CATEGORIES, type Course } from "./data"
 
 // ─── Category gradient colour map ────────────────────────────────────────────
 
