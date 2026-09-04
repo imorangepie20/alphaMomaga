@@ -1,5 +1,12 @@
 # 수납 원장 검증 상태
 
+## 2026-09-04 영속화 적용
+
+- Tunnel API의 `DATABASE_URL` 누락을 수정해 PostgreSQL repository로 전환했습니다.
+- 로컬과 Cloudflare API의 `GET /health/database`가 모두 `{ "status": "ok" }`를 반환합니다.
+- 실제 PostgreSQL 수납 e2e는 `1 passed`로 청구 생성, 동시성, 수납 배분과 void 후 잔액 복구를 검증했습니다.
+- Auth0 storage state가 없는 환경에서는 Cloudflare 수납 원장 e2e가 의도적으로 skip됩니다.
+
 ## 2026-09-04 로컬 검증
 
 - API 단위 테스트: `179 passed`
