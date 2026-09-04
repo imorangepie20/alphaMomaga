@@ -13,7 +13,7 @@ describe("global form styles", () => {
     expect(globalStyles).not.toMatch(/\.dark\s*\{[^}]*color-scheme:\s*dark;/s);
   });
 
-  it("keeps native select options readable in dark mode", () => {
+  it("keeps native select options readable with the light-only theme", () => {
     expect(globalStyles).toMatch(/select option\s*\{[^}]*background-color:\s*Canvas;[^}]*color:\s*CanvasText;/s);
   });
 });
