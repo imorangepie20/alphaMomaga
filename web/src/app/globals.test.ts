@@ -85,7 +85,7 @@ const commonUiFiles = collectTaskEightFiles(commonUiRoot).filter(
 
 describe("global form styles", () => {
   it("declares a light color scheme for browser-native controls", () => {
-    expect(globalStyles).toMatch(/:root\s*\{[^}]*color-scheme:\s*light;/s);
+    expect(globalStyles).toMatch(/:root\s*\{[^}]*color-scheme:\s*light;/);
   });
 
   it("does not retain an active dark color scheme", () => {
@@ -93,7 +93,7 @@ describe("global form styles", () => {
   });
 
   it("keeps native select options readable with the light-only theme", () => {
-    expect(globalStyles).toMatch(/select option\s*\{[^}]*background-color:\s*Canvas;[^}]*color:\s*CanvasText;/s);
+    expect(globalStyles).toMatch(/select option\s*\{[^}]*background-color:\s*Canvas;[^}]*color:\s*CanvasText;/);
   });
 
   it("defines the shared light control contract", () => {

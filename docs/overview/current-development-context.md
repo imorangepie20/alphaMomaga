@@ -18,6 +18,15 @@ property -> tenant -> contract -> monthly charge -> payment -> maintenance -> in
 
 ## 승인된 다음 작업
 
+### 2026-09-05 현재 상태
+
+- 월별 수납 구현 이후 자산 운영 현황을 확장했다. 상세 변경은
+  `docs/overview/phase-63-property-operations-overview.md`를 참고한다.
+- 자산 화면의 금액 집계는 해당 월 확정 청구 기준이며 초안·취소는 제외한다. 초안은 승인 대기 건수로 표시한다.
+- 실제 계약 기간을 확인하며, 자산 화면의 API 실패 시 예시 데이터로 대체하지 않는다.
+- 웹 전체 테스트 60개 통과. 다음 우선순위는 다른 운영 화면의 예시 데이터 대체 동작 점검과
+  자산별 상세 업무로 연결되는 탐색 기능이다. 아래 수납 설계는 기존 구현의 기준 문서로 유지한다.
+
 월별 청구 및 수납 원장을 구현한다. 승인된 설계와 실행 계획은 다음 문서가 기준이다.
 
 - 설계: `docs/superpowers/specs/2026-09-04-monthly-billing-ledger-design.md`

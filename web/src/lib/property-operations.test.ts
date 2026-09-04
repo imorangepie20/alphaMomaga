@@ -2,6 +2,32 @@ import { describe, expect, it } from "vitest";
 import { buildPropertyOperations } from "./property-operations";
 
 describe("buildPropertyOperations", () => {
+  it("excludes drafts, cancellations and other months from receivables", () => {
+    const charge = { id: "c", propertyId: "p", tenantId: "t", contractId: "k", billingMonth: "2026-09", dueDate: "2026-09-01", baseRentWon: 100, adjustmentWon: 0, billedWon: 100, receivedWon: 20, outstandingWon: 80 };
+    const result = buildPropertyOperations({
+      properties: [{ id: "p", name: "House", location: "Seoul", type: "House", occupancy: "0%", status: "Active" }],
+      tenants: [], contracts: [], maintenance: [], inspections: [], today: "2026-09-05",
+      charges: [
+        { ...charge, status: "PartiallyPaid" },
+        { ...charge, id: "draft", status: "Draft" },
+        { ...charge, id: "cancelled", status: "Cancelled" },
+        { ...charge, id: "previous", billingMonth: "2026-08", status: "Overdue" },
+      ],
+    });
+    expect(result.rows[0]).toMatchObject({ billedWon: 100, receivedWon: 20, outstandingWon: 80, draftCount: 1 });
+    expect(result.summary.outstandingWon).toBe(80);
+  });
+
+  it("counts only contracts effective on the reference date and includes the 90-day boundary", () => {
+    const contract = { id: "c", propertyId: "p", tenantId: "t", unit: "101", monthlyRent: "100", startDate: "2026-01-01", endDate: "2026-12-04", status: "Active" as const };
+    const result = buildPropertyOperations({
+      properties: [{ id: "p", name: "House", location: "Seoul", type: "House", occupancy: "0%", status: "Active" }],
+      tenants: [], charges: [], maintenance: [], inspections: [], today: "2026-09-05",
+      contracts: [contract, { ...contract, id: "future", startDate: "2026-10-01" }, { ...contract, id: "past", endDate: "2026-09-04" }, { ...contract, id: "terminated", status: "Terminated" }, { ...contract, id: "later", endDate: "2026-12-05" }],
+    });
+    expect(result.rows[0]).toMatchObject({ activeContractCount: 2, expiringContractCount: 1 });
+  });
+
   it("combines current-month receivables, active contracts, deadlines, and open work by property", () => {
     const result = buildPropertyOperations({
       properties: [

@@ -90,7 +90,11 @@ export function PropertyManager({ properties }: { properties: PropertyOperationR
             <TableRow key={property.id}>
               <TableCell className="pl-6"><div className="font-medium">{property.name}</div><div className="mt-1 text-xs text-muted-foreground">{property.location} · {property.type}<br />임차인 {property.tenantCount}명 · 활성 계약 {property.activeContractCount}건</div></TableCell>
               <TableCell className="font-medium">{property.occupancy}</TableCell>
-              <TableCell><div className="text-sm">청구 {property.billedWon.toLocaleString("ko-KR")}원</div><div className={property.outstandingWon > 0 ? "mt-1 text-xs font-medium text-destructive" : "mt-1 text-xs text-muted-foreground"}>수납 {property.receivedWon.toLocaleString("ko-KR")}원 · 미수 {property.outstandingWon.toLocaleString("ko-KR")}원</div></TableCell>
+              <TableCell>
+                <div className="text-sm">확정 청구 {property.billedWon.toLocaleString("ko-KR")}원</div>
+                <div className={property.outstandingWon > 0 ? "mt-1 text-xs font-medium text-destructive" : "mt-1 text-xs text-muted-foreground"}>수납 {property.receivedWon.toLocaleString("ko-KR")}원 · 미수 {property.outstandingWon.toLocaleString("ko-KR")}원</div>
+                {property.draftCount > 0 && <div className="mt-1 text-xs text-muted-foreground">청구 승인 대기 {property.draftCount}건</div>}
+              </TableCell>
               <TableCell><div className="text-sm">미완료 업무 {property.openWorkCount}건</div><div className={property.expiringContractCount > 0 ? "mt-1 text-xs font-medium text-amber-700" : "mt-1 text-xs text-muted-foreground"}>90일 내 계약 만료 {property.expiringContractCount}건</div></TableCell>
               <TableCell><Badge variant="outline" className={property.needsAttention ? "border-amber-500/30 bg-amber-500/10 text-amber-700" : "border-emerald-500/30 bg-emerald-500/10 text-emerald-700"}>{property.needsAttention ? "확인 필요" : "정상"}</Badge></TableCell>
               <TableCell className="pr-6 text-right"><Button variant="ghost" size="sm" onClick={() => openEditDialog(property)}><PencilIcon data-icon="inline-start" />수정</Button></TableCell>

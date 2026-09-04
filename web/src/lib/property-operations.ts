@@ -18,6 +18,7 @@ type PropertyOperationsInput = {
 export type PropertyOperationRow = Property & {
   tenantCount: number;
   activeContractCount: number;
+  draftCount: number;
   billedWon: number;
   receivedWon: number;
   outstandingWon: number;
@@ -35,8 +36,10 @@ function isWithinNinetyDays(date: string, today: string) {
 export function buildPropertyOperations({ properties, tenants, contracts, charges, maintenance, inspections, today }: PropertyOperationsInput) {
   const rows: PropertyOperationRow[] = properties.map((property) => {
     const tenantCount = tenants.filter((tenant) => tenant.propertyId === property.id).length;
-    const propertyContracts = contracts.filter((contract) => contract.propertyId === property.id && contract.status === "Active");
-    const propertyCharges = charges.filter((charge) => charge.propertyId === property.id);
+    const propertyContracts = contracts.filter((contract) => contract.propertyId === property.id && contract.status === "Active" && contract.startDate <= today && contract.endDate >= today);
+    const monthlyCharges = charges.filter((charge) => charge.propertyId === property.id && charge.billingMonth === today.slice(0, 7));
+    const draftCount = monthlyCharges.filter((charge) => charge.status === "Draft").length;
+    const propertyCharges = monthlyCharges.filter((charge) => charge.status !== "Draft" && charge.status !== "Cancelled");
     const billedWon = propertyCharges.reduce((total, charge) => total + charge.billedWon, 0);
     const receivedWon = propertyCharges.reduce((total, charge) => total + charge.receivedWon, 0);
     const outstandingWon = propertyCharges.reduce((total, charge) => total + charge.outstandingWon, 0);
@@ -44,9 +47,9 @@ export function buildPropertyOperations({ properties, tenants, contracts, charge
     const openMaintenance = maintenance.filter((item) => item.propertyId === property.id && item.status !== "Completed").length;
     const openInspections = inspections.filter((item) => item.propertyId === property.id && item.status !== "Completed").length;
     const openWorkCount = openMaintenance + openInspections;
-    const needsAttention = property.status === "Pending" || outstandingWon > 0 || expiringContractCount > 0 || openWorkCount > 0;
+    const needsAttention = property.status === "Pending" || draftCount > 0 || outstandingWon > 0 || expiringContractCount > 0 || openWorkCount > 0;
 
-    return { ...property, tenantCount, activeContractCount: propertyContracts.length, billedWon, receivedWon, outstandingWon, expiringContractCount, openWorkCount, needsAttention };
+    return { ...property, tenantCount, activeContractCount: propertyContracts.length, draftCount, billedWon, receivedWon, outstandingWon, expiringContractCount, openWorkCount, needsAttention };
   });
 
   const averageOccupancy = properties.length

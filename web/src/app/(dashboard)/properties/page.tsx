@@ -1,11 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BillingApiError, getMonthlyCharges } from "@/lib/billing";
-import { getContracts } from "@/lib/contracts";
-import { getInspections } from "@/lib/inspections";
-import { getMaintenance } from "@/lib/maintenance";
+import { getPropertyRecords } from "@/lib/property-records";
 import { buildPropertyOperations } from "@/lib/property-operations";
-import { getProperties } from "@/lib/properties";
-import { getTenants } from "@/lib/tenants";
 import { PropertyManager } from "./property-manager";
 
 export const dynamic = "force-dynamic";
@@ -14,26 +10,24 @@ function currentDateInSeoul() {
   return new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Seoul", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
 }
 
-function currentBillingMonth() {
-  return currentDateInSeoul().slice(0, 7);
-}
-
 function formatWon(value: number) {
   return `₩${value.toLocaleString("ko-KR")}`;
 }
 
 export default async function PropertiesPage() {
-  const billingMonth = currentBillingMonth();
+  const today = currentDateInSeoul();
+  const billingMonth = today.slice(0, 7);
+  let operations: ReturnType<typeof buildPropertyOperations>;
   try {
-    const [properties, tenants, contracts, charges, maintenance, inspections] = await Promise.all([
-      getProperties(),
-      getTenants(),
-      getContracts(),
+    const [records, charges] = await Promise.all([
+      getPropertyRecords(),
       getMonthlyCharges(billingMonth),
-      getMaintenance(),
-      getInspections(),
     ]);
-    const operations = buildPropertyOperations({ properties, tenants, contracts, charges, maintenance, inspections, today: currentDateInSeoul() });
+    operations = buildPropertyOperations({ ...records, charges, today });
+  } catch (error) {
+    const message = error instanceof BillingApiError && error.status === 401 ? "로그인이 만료되었습니다. 다시 로그인한 뒤 자산 운영 현황을 확인해 주세요." : "자산 운영 현황을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.";
+    return <div className="space-y-2"><h1 className="text-2xl font-semibold tracking-tight">매물</h1><p role="alert" className="text-sm text-destructive">{message}</p></div>;
+  }
 
     return (
       <div className="space-y-6">
@@ -54,8 +48,4 @@ export default async function PropertiesPage() {
         <Card><CardContent className="px-0 pb-0"><PropertyManager properties={operations.rows} /></CardContent></Card>
       </div>
     );
-  } catch (error) {
-    const message = error instanceof BillingApiError && error.status === 401 ? "로그인이 만료되었습니다. 다시 로그인한 뒤 자산 운영 현황을 확인해 주세요." : "자산 운영 현황을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.";
-    return <div className="space-y-2"><h1 className="text-2xl font-semibold tracking-tight">매물</h1><p role="alert" className="text-sm text-destructive">{message}</p></div>;
-  }
 }
