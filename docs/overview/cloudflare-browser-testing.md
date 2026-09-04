@@ -72,6 +72,17 @@ cd C:\Users\jowoo\alpahMomega\web
 npm.cmd run test:e2e -- e2e/dashboards-ops.spec.ts
 ```
 
+## 라이트 전용 UI 수동 검증
+
+자동 검증에서는 `web/src`의 `dark:` 변형과 `.dark` selector가 제거되었고, 회귀 테스트와 production build가 통과했습니다. 다만 이 문서 작성 시점에는 제어 가능한 Cloudflare Tunnel 브라우저 세션이 없어 다음 검사는 아직 수동으로 완료하지 못했습니다.
+
+1. `https://mnre.approid.team/`에서 checkbox, radio, switch, tabs, badge, 메뉴의 hover, focus-visible, disabled, invalid 상태를 확인합니다.
+2. `/properties`, `/tenants`, `/contracts`에서 native select와 날짜 입력의 라이트 표면을 확인하고, 권한이 있는 계정으로 등록 및 수정을 수행합니다.
+3. `/payments`, `/maintenance`, `/inspections`, `/settings`, `/admin/users`에서 배경, 카드, 입력 필드, 표의 대비를 확인합니다.
+4. Auth0 로그인과 로그아웃 후 차트 tooltip 및 legend를 포함한 공통 UI가 라이트 상태로 유지되는지 확인합니다.
+
+검사 중 HMR 이전 스타일이 보이면 `web` 개발 서버를 재시작하고 브라우저를 강력 새로고침한 뒤 동일 항목을 다시 확인합니다. 이 절차는 다크 테마를 다시 활성화하기 위한 것이 아니라, 이전 개발 번들이 남아 있는 상태를 배제하기 위한 것입니다.
+
 로컬 테스트로 되돌릴 때는 환경 변수를 제거합니다.
 
 ```powershell
