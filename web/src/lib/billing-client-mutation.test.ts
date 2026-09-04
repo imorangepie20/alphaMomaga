@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { approveCharge, cancelCharge, recordReceipt, voidReceipt } from "./billing-client-mutation";
+import { approveCharge, cancelCharge, generateBillingRun, recordReceipt, voidReceipt } from "./billing-client-mutation";
 
 const mockFetch = vi.fn();
 
@@ -9,6 +9,12 @@ describe("billing lifecycle mutations", () => {
   it("posts a charge approval through the billing proxy", async () => {
     await approveCharge("charge-1");
     expect(mockFetch).toHaveBeenCalledWith("/api/billing/monthly-charges/charge-1/approve", expect.objectContaining({ method: "POST" }));
+  });
+
+  it("posts the selected billing month to generate draft charges", async () => {
+    await generateBillingRun("2026-09");
+
+    expect(mockFetch).toHaveBeenCalledWith("/api/billing/billing-runs/2026-09", expect.objectContaining({ method: "POST" }));
   });
 
   it("posts required cancellation and void reasons through the billing proxy", async () => {

@@ -34,6 +34,11 @@ export function approveCharge(id: string): Promise<void> {
   return post(`/api/billing/monthly-charges/${encodeURIComponent(id)}/approve`);
 }
 
+export function generateBillingRun(billingMonth: string): Promise<void> {
+  if (!/^\d{4}-\d{2}$/.test(billingMonth)) throw new Error("Billing month must use YYYY-MM");
+  return post(`/api/billing/billing-runs/${encodeURIComponent(billingMonth)}`);
+}
+
 export function cancelCharge(id: string, reason: string): Promise<void> {
   if (!reason.trim()) throw new Error("Cancellation reason is required");
   return post(`/api/billing/monthly-charges/${encodeURIComponent(id)}/cancel`, { reason: reason.trim() });
