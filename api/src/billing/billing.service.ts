@@ -1,5 +1,6 @@
 import { Injectable, Optional } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
+import { and, eq } from 'drizzle-orm';
 import { AuditService } from '../audit/audit.service.js';
 import { ContractsService } from '../contracts/contracts.service.js';
 import type { Contract } from '../contracts/contract.js';
@@ -120,7 +121,43 @@ export class BillingService {
     return generated;
   }
 
-  async approveCharge(id: string): Promise<MonthlyCharge> {
+  async approveCharge(id: string, actorSubject = 'system'): Promise<MonthlyCharge> {
+    const database = this.databaseService?.client;
+    if (database) {
+      return database.transaction(async (transaction) => {
+        const [row] = await transaction
+          .update(monthlyCharges)
+          .set({ status: 'Approved', approvedAt: new Date(), approvedBy: actorSubject, updatedAt: new Date() })
+          .where(and(eq(monthlyCharges.id, id), eq(monthlyCharges.status, 'Draft')))
+          .returning();
+        if (!row) {
+          throw new Error(`Monthly charge ${id} must be Draft to approve`);
+        }
+        await this.auditService?.record(transaction, {
+          action: 'charge.approved',
+          actorSubject,
+          actorRole: 'system',
+          entityType: 'monthly_charge',
+          entityId: row.id,
+          metadata: { billingMonth: row.billingMonth },
+        });
+        return {
+          id: row.id,
+          propertyId: row.propertyId,
+          tenantId: row.tenantId,
+          contractId: row.contractId,
+          billingMonth: row.billingMonth,
+          dueDate: row.dueDate,
+          baseRentWon: row.baseRentWon,
+          adjustmentWon: row.adjustmentWon,
+          billedWon: row.billedWon,
+          receivedWon: row.receivedWon,
+          outstandingWon: row.outstandingWon,
+          status: row.status,
+        };
+      });
+    }
+
     const charge = this.charges.find((item) => item.id === id);
     if (!charge) {
       throw new Error(`Monthly charge ${id} not found`);

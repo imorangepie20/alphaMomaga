@@ -80,6 +80,23 @@ describe('BillingService.approveCharge', () => {
 
     expect(approved).toMatchObject({ id: draft.id, status: 'Approved' });
   });
+
+  it('persists approval and records an audit event in a database transaction', async () => {
+    const returning = vi.fn().mockResolvedValue([{
+      id: 'charge-1', propertyId: 'property-1', tenantId: 'tenant-1', contractId: 'contract-1', billingMonth: '2026-09', dueDate: '2026-09-05', baseRentWon: 1200000, adjustmentWon: 0, billedWon: 1200000, receivedWon: 0, outstandingWon: 1200000, status: 'Approved', approvedAt: new Date(), approvedBy: 'manager-1', cancelledAt: null, cancelledBy: null, cancellationReason: null, createdAt: new Date(), updatedAt: new Date(),
+    }]);
+    const where = vi.fn(() => ({ returning }));
+    const set = vi.fn(() => ({ where }));
+    const transaction = { update: vi.fn(() => ({ set })) };
+    const database = { client: { transaction: async (callback: (tx: typeof transaction) => Promise<unknown>) => callback(transaction) } } as unknown as DatabaseService;
+    const audit = { record: vi.fn().mockResolvedValue(undefined) } as unknown as AuditService;
+    const service = new BillingService(undefined, database, audit);
+
+    const approved = await service.approveCharge('charge-1', 'manager-1');
+
+    expect(approved.status).toBe('Approved');
+    expect(audit.record).toHaveBeenCalledWith(transaction, expect.objectContaining({ action: 'charge.approved', entityId: 'charge-1' }));
+  });
 });
 
 describe('BillingService.recordReceipt', () => {
