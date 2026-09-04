@@ -15,8 +15,11 @@ const protectedResources = [
 const allowedMethods = new Set(["POST", "PUT", "DELETE"]);
 
 export type ProtectedResource = (typeof protectedResources)[number];
+export type ProtectedAction = "renew";
 
-export function isProtectedResource(resource: string): resource is ProtectedResource {
+export function isProtectedResource(
+  resource: string,
+): resource is ProtectedResource {
   return protectedResources.includes(resource as ProtectedResource);
 }
 
@@ -24,9 +27,21 @@ export async function forwardProtectedMutation(
   resource: ProtectedResource,
   request: Request,
   id?: string,
+  action?: ProtectedAction,
 ): Promise<Response> {
   if (!allowedMethods.has(request.method)) {
-    return new Response(null, { status: 405, headers: { allow: "POST, PUT, DELETE" } });
+    return new Response(null, {
+      status: 405,
+      headers: { allow: "POST, PUT, DELETE" },
+    });
+  }
+
+  if (action && (resource !== "contracts" || !id || action !== "renew")) {
+    return new Response(null, { status: 404 });
+  }
+
+  if (action && request.method !== "POST") {
+    return new Response(null, { status: 405, headers: { allow: "POST" } });
   }
 
   const apiUrl = getApiUrl();
@@ -48,13 +63,18 @@ export async function forwardProtectedMutation(
   }
 
   try {
-    const path = id ? `${resource}/${encodeURIComponent(id)}` : resource;
-    const response = await fetch(new URL(path, `${apiUrl.replace(/\/$/, "")}/`), {
-      method: request.method,
-      headers,
-      body: request.method === "DELETE" ? undefined : await request.arrayBuffer(),
-      cache: "no-store",
-    });
+    const itemPath = id ? `${resource}/${encodeURIComponent(id)}` : resource;
+    const path = action === "renew" ? `${itemPath}/renew` : itemPath;
+    const response = await fetch(
+      new URL(path, `${apiUrl.replace(/\/$/, "")}/`),
+      {
+        method: request.method,
+        headers,
+        body:
+          request.method === "DELETE" ? undefined : await request.arrayBuffer(),
+        cache: "no-store",
+      },
+    );
     const responseContentType = response.headers.get("content-type");
     const responseBody = [204, 205, 304].includes(response.status)
       ? null
@@ -62,7 +82,9 @@ export async function forwardProtectedMutation(
 
     return new Response(responseBody, {
       status: response.status,
-      headers: responseContentType ? { "content-type": responseContentType } : undefined,
+      headers: responseContentType
+        ? { "content-type": responseContentType }
+        : undefined,
     });
   } catch {
     return new Response(null, { status: 502 });
