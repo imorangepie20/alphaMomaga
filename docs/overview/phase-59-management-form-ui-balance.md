@@ -10,7 +10,8 @@
 ## 변경 내용
 
 - `web/src/app/globals.css`에 `select option`의 `Canvas`/`CanvasText` 시스템 색상 규칙을
-  추가해 운영체제 선택 목록의 배경과 글자색 대비를 보장했습니다.
+  추가하고, 라이트/다크 토큰에 `color-scheme`을 선언해 운영체제 선택 목록, 날짜 입력,
+  스크롤바의 배경과 글자색 대비를 앱 테마와 일치시켰습니다.
 - `Label`, `Input`, `NativeSelect`, `Dialog` 공통 컴포넌트의 글자 굵기, 높이, 간격을
   조정했습니다.
   - 필드 라벨은 `font-normal`로 낮춰 입력값 및 제목과 경쟁하지 않도록 했습니다.
