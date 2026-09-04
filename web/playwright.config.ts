@@ -4,9 +4,9 @@ export default defineConfig({
   testDir: "./e2e",
   fullyParallel: true,
   reporter: "list",
-  use: { baseURL: "http://localhost:3001", trace: "on-first-retry" },
+  use: { baseURL: process.env.PLAYWRIGHT_BASE_URL ?? "http://localhost:3001", trace: "on-first-retry" },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
-  webServer: {
+  webServer: process.env.PLAYWRIGHT_BASE_URL ? undefined : {
     command: "npm run build && npm run start -- -p 3001",
     url: "http://localhost:3001",
     env: {
