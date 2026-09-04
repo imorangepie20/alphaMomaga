@@ -12,5 +12,6 @@ describe("application theme", () => {
   it("keeps the management application light-only", () => {
     expect(rootLayout).not.toContain("ThemeProvider");
     expect(appHeader).not.toContain("ThemeToggle");
+    expect(rootLayout).toContain('<html lang="ko" className="light"');
   });
 });

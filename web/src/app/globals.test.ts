@@ -9,6 +9,10 @@ describe("global form styles", () => {
     expect(globalStyles).toMatch(/:root\s*\{[^}]*color-scheme:\s*light;/s);
   });
 
+  it("does not retain an active dark color scheme", () => {
+    expect(globalStyles).not.toMatch(/\.dark\s*\{[^}]*color-scheme:\s*dark;/s);
+  });
+
   it("keeps native select options readable in dark mode", () => {
     expect(globalStyles).toMatch(/select option\s*\{[^}]*background-color:\s*Canvas;[^}]*color:\s*CanvasText;/s);
   });
