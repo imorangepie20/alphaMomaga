@@ -10,6 +10,12 @@ Alpha Momega를 자산, 임차인, 계약, 월별 청구, 실제 수납, 미수,
 property -> tenant -> contract -> monthly charge -> payment -> maintenance -> inspection
 ~~~
 
+## 2026-09-04 모듈 경계 복구
+
+- 원인: `BillingModule`에 컨트롤러를 추가한 뒤 `AuthGuard`와 `PermissionsGuard`가 모듈 내부에서 `RolesService`를 해석하지 못해 Nest 애플리케이션이 시작되지 않았다. `ContractsModule`도 `InMemoryReferenceRegistry`를 공유하지 않아 DB 미구성 환경의 동적 계약 참조가 분리될 위험이 있었다.
+- 변경: `RolesModule`, `AuthModule`, `DomainModule`을 추가해 역할, 인증 가드, 인메모리 참조 저장소를 명시적으로 export했다. `BillingModule`은 인증과 역할 모듈을 import하고 가드를 해당 컨트롤러 경계에 제공하며, `ContractsModule`은 전역 `DomainModule`을 import한다.
+- 검증: `npm.cmd run test:e2e --prefix api -- lifecycle-simulation.e2e-spec.ts`와 `npm.cmd run build --prefix api`를 통과했다. 속성 생성부터 임차인, 계약, 결제, 유지보수, 점검 삭제까지의 기존 흐름이 다시 동작한다.
+
 ## 승인된 다음 작업
 
 월별 청구 및 수납 원장을 구현한다. 승인된 설계와 실행 계획은 다음 문서가 기준이다.

@@ -16,18 +16,15 @@ import { InspectionsService } from './inspections/inspections.service.js';
 import { DatabaseModule } from './database/database.module.js';
 import { AuditModule } from './audit/audit.module.js';
 import { RolesController } from './roles/roles.controller.js';
-import { RolesService } from './roles/roles.service.js';
 import { AuthController } from './auth/auth.controller.js';
-import { AuthGuard } from './auth/auth.guard.js';
-import { AuthService } from './auth/auth.service.js';
-import { AuthConfigService } from './auth/auth-config.service.js';
-import { PermissionsGuard } from './auth/permissions.guard.js';
-import { InMemoryReferenceRegistry } from './domain/in-memory-reference-registry.service.js';
 import { BillingModule } from './billing/billing.module.js';
+import { RolesModule } from './roles/roles.module.js';
+import { AuthModule } from './auth/auth.module.js';
+import { DomainModule } from './domain/domain.module.js';
 
 @Module({
-  imports: [DatabaseModule, AuditModule, ContractsModule, BillingModule],
+  imports: [DatabaseModule, AuditModule, DomainModule, RolesModule, AuthModule, ContractsModule, BillingModule],
   controllers: [AppController, PropertiesController, TenantsController, ContractsController, PaymentsController, MaintenanceController, InspectionsController, RolesController, AuthController],
-  providers: [AppService, InMemoryReferenceRegistry, PropertiesService, TenantsService, PaymentsService, MaintenanceService, InspectionsService, RolesService, AuthGuard, AuthConfigService, AuthService, PermissionsGuard],
+  providers: [AppService, PropertiesService, TenantsService, PaymentsService, MaintenanceService, InspectionsService],
 })
 export class AppModule {}
