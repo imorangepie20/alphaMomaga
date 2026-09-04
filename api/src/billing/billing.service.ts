@@ -304,8 +304,77 @@ export class BillingService {
     return receipt;
   }
 
-  async voidReceipt(id: string, reason: string): Promise<void> {
+  async voidReceipt(id: string, reason: string, voidedBy = 'system'): Promise<void> {
     if (!reason.trim()) throw new Error('Receipt void requires a reason');
+    const database = this.databaseService?.client;
+    if (database) {
+      await database.transaction(async (transaction) => {
+        const [receipt] = await transaction
+          .select()
+          .from(paymentReceipts)
+          .where(eq(paymentReceipts.id, id))
+          .for('update');
+        if (!receipt) throw new Error(`Payment receipt ${id} not found`);
+        if (receipt.voidedAt) throw new Error(`Payment receipt ${id} is already voided`);
+
+        const allocations = await transaction
+          .select()
+          .from(paymentAllocations)
+          .where(eq(paymentAllocations.receiptId, id))
+          .for('update');
+        const allocationByChargeId = new Map<string, number>();
+        for (const allocation of allocations) {
+          allocationByChargeId.set(
+            allocation.chargeId,
+            (allocationByChargeId.get(allocation.chargeId) ?? 0) + allocation.amountWon,
+          );
+        }
+
+        const charges = await transaction
+          .select()
+          .from(monthlyCharges)
+          .where(inArray(monthlyCharges.id, [...allocationByChargeId.keys()]))
+          .for('update');
+        const chargesById = new Map(charges.map((charge) => [charge.id, charge]));
+        if (chargesById.size !== allocationByChargeId.size) {
+          throw new Error(`Payment receipt ${id} has an invalid allocation`);
+        }
+
+        await transaction
+          .update(paymentReceipts)
+          .set({ voidedAt: new Date(), voidedBy, voidReason: reason.trim() })
+          .where(eq(paymentReceipts.id, id));
+
+        for (const [chargeId, amountWon] of allocationByChargeId) {
+          const charge = chargesById.get(chargeId)!;
+          const receivedWon = charge.receivedWon - amountWon;
+          if (receivedWon < 0) {
+            throw new Error(`Payment receipt ${id} cannot restore a negative charge balance`);
+          }
+          const outstandingWon = charge.billedWon - receivedWon;
+          await transaction
+            .update(monthlyCharges)
+            .set({
+              receivedWon,
+              outstandingWon,
+              status: receivedWon === 0 ? 'Approved' : outstandingWon === 0 ? 'Paid' : 'PartiallyPaid',
+              updatedAt: new Date(),
+            })
+            .where(eq(monthlyCharges.id, chargeId));
+        }
+
+        await this.auditService?.record(transaction, {
+          action: 'receipt.voided',
+          actorSubject: voidedBy,
+          actorRole: 'system',
+          entityType: 'payment_receipt',
+          entityId: id,
+          metadata: { reason: reason.trim() },
+        });
+      });
+      return;
+    }
+
     const receipt = this.receipts.find((item) => item.id === id);
     if (!receipt) throw new Error(`Payment receipt ${id} not found`);
     if (receipt.voidedAt) throw new Error(`Payment receipt ${id} is already voided`);

@@ -190,4 +190,28 @@ describe('BillingService.recordReceipt', () => {
 
     expect(await service.findCharge(draft.id)).toMatchObject({ receivedWon: 0, outstandingWon: 1200000, status: 'Approved' });
   });
+
+  it('voids a persisted receipt and restores its allocated charge balance atomically', async () => {
+    const receipt = { id: 'receipt-1', voidedAt: null };
+    const allocation = { chargeId: 'charge-1', amountWon: 400000 };
+    const charge = { id: 'charge-1', billedWon: 1200000, receivedWon: 400000 };
+    const lockedReceipt = vi.fn().mockResolvedValue([receipt]);
+    const lockedAllocations = vi.fn().mockResolvedValue([allocation]);
+    const lockedCharges = vi.fn().mockResolvedValue([charge]);
+    const transaction = {
+      select: vi.fn()
+        .mockReturnValueOnce({ from: vi.fn(() => ({ where: vi.fn(() => ({ for: lockedReceipt })) })) })
+        .mockReturnValueOnce({ from: vi.fn(() => ({ where: vi.fn(() => ({ for: lockedAllocations })) })) })
+        .mockReturnValueOnce({ from: vi.fn(() => ({ where: vi.fn(() => ({ for: lockedCharges })) })) }),
+      update: vi.fn(() => ({ set: vi.fn(() => ({ where: vi.fn().mockResolvedValue(undefined) })) })),
+    };
+    const database = { client: { transaction: async (callback: (tx: typeof transaction) => Promise<unknown>) => callback(transaction) } } as unknown as DatabaseService;
+    const audit = { record: vi.fn().mockResolvedValue(undefined) } as unknown as AuditService;
+    const service = new BillingService(undefined, database, audit);
+
+    await service.voidReceipt('receipt-1', 'duplicate entry', 'manager-1');
+
+    expect(transaction.update).toHaveBeenCalledTimes(2);
+    expect(audit.record).toHaveBeenCalledWith(transaction, expect.objectContaining({ action: 'receipt.voided', entityId: 'receipt-1', actorSubject: 'manager-1' }));
+  });
 });
