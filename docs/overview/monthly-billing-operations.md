@@ -44,3 +44,16 @@ npm.cmd run test:e2e -- e2e/billing-ledger.spec.ts
 
 세션 파일이 없으면 테스트는 의도적으로 skip됩니다. 자동 브라우저 테스트로 운영
 수납을 등록하거나 void하지 않으며, 변경 흐름은 별도 안전 fixture에서만 검증합니다.
+
+## PostgreSQL 통합 검증
+
+전용 개발 또는 CI 데이터베이스에서는 다음 명령으로 동시 청구 생성과 영수증 void
+후 잔액 복구를 검증합니다.
+
+```powershell
+$env:DATABASE_URL = '<dedicated-test-postgres-url>'
+npm.cmd run test:e2e --prefix api -- billing-postgres.e2e-spec.ts --no-file-parallelism
+```
+
+테스트는 고유한 자산·임차인·계약 fixture를 만들고 종료 시 원장 배분, 영수증,
+청구, 계약, 임차인, 자산 순서로 정리합니다.
