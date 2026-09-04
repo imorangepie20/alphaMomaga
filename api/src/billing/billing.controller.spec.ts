@@ -42,4 +42,20 @@ describe('BillingController', () => {
     await expect(controller.getSummary('2026-09')).resolves.toEqual({ billingMonth: '2026-09' });
     expect(getSummary).toHaveBeenCalledWith('2026-09');
   });
+
+  it('forwards a charge approval request to the billing service', async () => {
+    const approveCharge = vi.fn().mockResolvedValue({ id: 'charge-1', status: 'Approved' });
+    const controller = new BillingController({ approveCharge } as unknown as BillingService);
+
+    await expect(controller.approveCharge('charge-1', { user: { subject: 'manager-1' } } as any)).resolves.toMatchObject({ status: 'Approved' });
+    expect(approveCharge).toHaveBeenCalledWith('charge-1', 'manager-1');
+  });
+
+  it('starts an idempotent billing run for the requested month', async () => {
+    const generateMonth = vi.fn().mockResolvedValue([{ id: 'charge-1' }]);
+    const controller = new BillingController({ generateMonth } as unknown as BillingService);
+
+    await expect(controller.generateMonth('2026-09')).resolves.toEqual([{ id: 'charge-1' }]);
+    expect(generateMonth).toHaveBeenCalledWith('2026-09');
+  });
 });

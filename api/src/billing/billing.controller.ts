@@ -29,6 +29,28 @@ export class BillingController {
     return this.billingService.getSummary(billingMonth);
   }
 
+  @Post('billing-runs/:billingMonth')
+  @UseGuards(AuthGuard, PermissionsGuard)
+  @RequirePermission('payment:manage')
+  async generateMonth(@Param('billingMonth') billingMonth: string) {
+    try {
+      return await this.billingService.generateMonth(billingMonth);
+    } catch (error) {
+      throw new BadRequestException(error instanceof Error ? error.message : 'Invalid billing month');
+    }
+  }
+
+  @Post('monthly-charges/:id/approve')
+  @UseGuards(AuthGuard, PermissionsGuard)
+  @RequirePermission('payment:manage')
+  async approveCharge(@Param('id') id: string, @Req() request: AuthenticatedRequest) {
+    try {
+      return await this.billingService.approveCharge(id, request.user?.subject);
+    } catch (error) {
+      throw new BadRequestException(error instanceof Error ? error.message : 'Invalid monthly charge approval');
+    }
+  }
+
   @Post('payment-receipts')
   @UseGuards(AuthGuard, PermissionsGuard)
   @RequirePermission('payment:manage')
