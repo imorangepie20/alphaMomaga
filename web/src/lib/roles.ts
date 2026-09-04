@@ -7,6 +7,7 @@ export type Permission =
   | "tenant:manage"
   | "contract:manage"
   | "payment:manage"
+  | "billing:manage"
   | "maintenance:manage"
   | "inspection:manage"
   | "user:manage"
@@ -22,6 +23,7 @@ const fallbackRoles: RoleDefinition[] = [
       "tenant:manage",
       "contract:manage",
       "payment:manage",
+      "billing:manage",
       "maintenance:manage",
       "inspection:manage",
       "user:manage",
@@ -36,6 +38,7 @@ const fallbackRoles: RoleDefinition[] = [
       "tenant:manage",
       "contract:manage",
       "payment:manage",
+      "billing:manage",
       "maintenance:manage",
       "inspection:manage",
       "report:read",

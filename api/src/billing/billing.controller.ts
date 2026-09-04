@@ -38,7 +38,7 @@ export class BillingController {
 
   @Post('billing-runs/:billingMonth')
   @UseGuards(AuthGuard, PermissionsGuard)
-  @RequirePermission('payment:manage')
+  @RequirePermission('billing:manage')
   async generateMonth(@Param('billingMonth') billingMonth: string) {
     try {
       return await this.billingService.generateMonth(billingMonth);
@@ -49,7 +49,7 @@ export class BillingController {
 
   @Post('monthly-charges/:id/approve')
   @UseGuards(AuthGuard, PermissionsGuard)
-  @RequirePermission('payment:manage')
+  @RequirePermission('billing:manage')
   async approveCharge(@Param('id') id: string, @Req() request: AuthenticatedRequest) {
     try {
       return await this.billingService.approveCharge(id, request.user?.subject);
@@ -60,7 +60,7 @@ export class BillingController {
 
   @Post('payment-receipts')
   @UseGuards(AuthGuard, PermissionsGuard)
-  @RequirePermission('payment:manage')
+  @RequirePermission('billing:manage')
   async recordReceipt(@Body() input: PaymentReceiptInput, @Req() request: AuthenticatedRequest) {
     try {
       return await this.billingService.recordReceipt(input, request.user?.subject);
@@ -71,7 +71,7 @@ export class BillingController {
 
   @Post('monthly-charges/:id/cancel')
   @UseGuards(AuthGuard, PermissionsGuard)
-  @RequirePermission('payment:manage')
+  @RequirePermission('billing:manage')
   async cancelCharge(@Param('id') id: string, @Body() input: { reason?: string }, @Req() request: AuthenticatedRequest) {
     try {
       return await this.billingService.cancelCharge(id, input.reason ?? '', request.user?.subject);
@@ -82,7 +82,7 @@ export class BillingController {
 
   @Post('payment-receipts/:id/void')
   @UseGuards(AuthGuard, PermissionsGuard)
-  @RequirePermission('payment:manage')
+  @RequirePermission('billing:manage')
   async voidReceipt(@Param('id') id: string, @Body() input: { reason?: string }, @Req() request: AuthenticatedRequest): Promise<void> {
     try {
       await this.billingService.voidReceipt(id, input.reason ?? '', request.user?.subject);
