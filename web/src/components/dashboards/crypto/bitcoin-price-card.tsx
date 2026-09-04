@@ -36,7 +36,7 @@ export function BitcoinPriceCard() {
             <CardTitle className="text-2xl tabular-nums">$46,200</CardTitle>
             <CardDescription className="mt-0.5 text-xs">Last 7 days</CardDescription>
           </div>
-          <span className="text-sm font-medium text-emerald-600 dark:text-emerald-400">
+          <span className="text-sm font-medium text-emerald-600">
             +12%
           </span>
         </div>

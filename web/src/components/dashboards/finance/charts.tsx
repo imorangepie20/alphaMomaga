@@ -74,7 +74,7 @@ export function MonthlyExpensesCard() {
         </ChartContainer>
       </CardContent>
       <CardFooter className="flex items-center gap-2 text-sm text-muted-foreground">
-        <TrendingUp className="size-4 text-emerald-600 dark:text-emerald-400" />
+        <TrendingUp className="size-4 text-emerald-600" />
         Trending up by 5.2% this month
       </CardFooter>
     </Card>

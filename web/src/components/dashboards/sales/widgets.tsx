@@ -83,7 +83,7 @@ export function TrackOrderStatusCard() {
                 {stat.value}
               </span>
               <span className="text-xs text-muted-foreground">{stat.label}</span>
-              <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400">
+              <span className="text-xs font-medium text-emerald-600">
                 {stat.delta}
               </span>
             </div>
@@ -100,17 +100,17 @@ const statusConfig = {
   paid: {
     label: "Paid",
     className:
-      "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400",
+      "bg-emerald-100 text-emerald-700",
   },
   pending: {
     label: "Pending",
     className:
-      "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400",
+      "bg-amber-100 text-amber-700",
   },
   cancelled: {
     label: "Cancelled",
     className:
-      "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
+      "bg-red-100 text-red-700",
   },
 } as const;
 

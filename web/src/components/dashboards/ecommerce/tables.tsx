@@ -21,15 +21,15 @@ import { recentOrders, bestSellingProducts } from "./data";
 const statusConfig = {
   success: {
     label: "Success",
-    className: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400",
+    className: "bg-emerald-100 text-emerald-700",
   },
   processing: {
     label: "Processing",
-    className: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400",
+    className: "bg-amber-100 text-amber-700",
   },
   failed: {
     label: "Failed",
-    className: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
+    className: "bg-red-100 text-red-700",
   },
 } as const;
 

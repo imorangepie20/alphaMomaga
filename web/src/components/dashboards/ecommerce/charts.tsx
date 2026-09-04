@@ -95,7 +95,7 @@ export function SalesByLocationCard() {
           </div>
           <div className="text-right">
             <p className="text-xl font-semibold tabular-nums">$42,379</p>
-            <p className="text-xs text-emerald-600 dark:text-emerald-400">+2.5%</p>
+            <p className="text-xs text-emerald-600">+2.5%</p>
           </div>
         </div>
       </CardHeader>

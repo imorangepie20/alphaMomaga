@@ -11,8 +11,8 @@ export default function Error500Page() {
           500
         </span>
         <div className="absolute inset-0 flex items-center justify-center">
-          <div className="flex size-16 items-center justify-center rounded-2xl bg-amber-100 shadow-sm ring-1 ring-amber-200 dark:bg-amber-950 dark:ring-amber-900">
-            <AlertTriangle className="size-7 text-amber-600 dark:text-amber-400" />
+          <div className="flex size-16 items-center justify-center rounded-2xl bg-amber-100 shadow-sm ring-1 ring-amber-200">
+            <AlertTriangle className="size-7 text-amber-600" />
           </div>
         </div>
       </div>

@@ -25,7 +25,7 @@ export function KpiCard({ label, value, delta, trend = "up", sublabel, icon: Ico
           <p
             className={cn(
               "flex items-center gap-1 text-xs",
-              trend === "up" ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400"
+              trend === "up" ? "text-emerald-600" : "text-red-600"
             )}
           >
             {trend === "up" ? <ArrowUpRight className="size-3" /> : <ArrowDownRight className="size-3" />}

@@ -90,7 +90,7 @@ export function CourseProgressCard() {
       <CardHeader>
         <CardTitle>Course Progress by Month</CardTitle>
         <CardDescription>
-          <span className="font-medium text-emerald-600 dark:text-emerald-400">
+          <span className="font-medium text-emerald-600">
             50.56% increase
           </span>
           {" · "}11 May 2026 – 07 Jun 2026

@@ -23,6 +23,29 @@ const buttonSource = readFileSync(
   resolve(__dirname, "../components/ui/button.tsx"),
   "utf8"
 );
+const dashboardFiles = [
+  "analytics/charts.tsx", "analytics/data.ts", "analytics/widgets.tsx",
+  "academy/charts.tsx", "academy/data.ts", "academy/widgets.tsx",
+  "crm/charts.tsx", "crm/data.ts", "crm/kpis.tsx", "crm/widgets.tsx",
+  "ecommerce/charts.tsx", "ecommerce/data.ts", "ecommerce/kpis.tsx", "ecommerce/reviews.tsx", "ecommerce/tables.tsx",
+  "file-manager/charts.tsx", "file-manager/data.ts", "file-manager/recent-files.tsx", "file-manager/widgets.tsx",
+  "finance/charts.tsx", "finance/data.ts", "finance/kpis.tsx", "finance/widgets.tsx",
+  "hotel/charts.tsx", "hotel/data.ts", "hotel/kpis.tsx", "hotel/widgets.tsx",
+  "hospital/calendar-widget.tsx", "hospital/charts.tsx", "hospital/data.ts", "hospital/kpis.tsx", "hospital/widgets.tsx",
+  "payment/balances-card.tsx", "payment/convert-currencies-card.tsx", "payment/data.ts", "payment/exchange-rates-card.tsx", "payment/transactions-card.tsx", "payment/verification-alert.tsx",
+  "project-management/charts.tsx", "project-management/data.ts", "project-management/kpis.tsx", "project-management/widgets.tsx",
+  "crypto/balance-summary.tsx", "crypto/bitcoin-price-card.tsx", "crypto/data.ts", "crypto/kpis.tsx", "crypto/recent-activities-card.tsx", "crypto/trade-card.tsx", "crypto/wallets-card.tsx",
+  "sales/charts.tsx", "sales/data.ts", "sales/kpis.tsx", "sales/widgets.tsx",
+] as const;
+const taskSevenFiles = [
+  ...dashboardFiles.map((file) =>
+    resolve(__dirname, `../components/dashboards/${file}`)
+  ),
+  resolve(__dirname, "(dashboard)/error/404/page.tsx"),
+  resolve(__dirname, "(dashboard)/error/500/page.tsx"),
+  resolve(__dirname, "not-found.tsx"),
+  resolve(__dirname, "../components/dashboards/shared/kpi-card.tsx"),
+];
 
 describe("global form styles", () => {
   it("declares a light color scheme for browser-native controls", () => {
@@ -61,5 +84,11 @@ describe("global form styles", () => {
     expect(nativeSelectSource).not.toContain("dark:");
     expect(selectSource).not.toContain("dark:");
     expect(buttonSource).not.toContain("dark:");
+  });
+
+  it("keeps bounded dashboard and error surfaces light-only", () => {
+    for (const file of taskSevenFiles) {
+      expect(readFileSync(file, "utf8")).not.toContain("dark:");
+    }
   });
 });

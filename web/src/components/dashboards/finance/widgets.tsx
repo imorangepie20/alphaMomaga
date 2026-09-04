@@ -33,7 +33,7 @@ export function IncomeSourcesCard() {
           <CardTitle>Income Sources</CardTitle>
           <div className="text-right">
             <p className="text-xl font-semibold tabular-nums">$92,000</p>
-            <p className="text-xs text-emerald-600 dark:text-emerald-400">+15.5%</p>
+            <p className="text-xs text-emerald-600">+15.5%</p>
           </div>
         </div>
       </CardHeader>
@@ -62,11 +62,11 @@ export function IncomeSourcesCard() {
 const typeConfig = {
   Income: {
     className:
-      "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400",
+      "bg-emerald-100 text-emerald-700",
   },
   Expenses: {
     className:
-      "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
+      "bg-red-100 text-red-700",
   },
 } as const;
 
@@ -109,8 +109,8 @@ export function FinanceTransactionsCard() {
                     className={cn(
                       "pr-(--card-spacing) text-right tabular-nums font-medium",
                       tx.positive
-                        ? "text-emerald-600 dark:text-emerald-400"
-                        : "text-red-600 dark:text-red-400"
+                        ? "text-emerald-600"
+                        : "text-red-600"
                     )}
                   >
                     {tx.amount}
