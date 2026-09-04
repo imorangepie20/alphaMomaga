@@ -20,6 +20,11 @@ property -> tenant -> contract -> monthly charge -> payment -> maintenance -> in
 
 ### 2026-09-05 현재 상태
 
+- 유지보수 화면에 등록, 일정·상태 수정, 작업 시작, 완료 확인, 검색·자산·상태 필터 및 기한 초과
+  표시를 연결했다. `docs/overview/maintenance-workflow-ui.md`에 구현 범위와 후속 기능을 기록했다.
+- 유지보수 조회 실패 시 예시 데이터가 표시되지 않는다. 웹 테스트 69개, 타입 검사, 변경 파일 린트 통과.
+- 반복 보일러 작업은 통합 테스트 데이터와 일치하지만 생성 주체는 확정하지 않았다. 기존 레코드는 유지했다.
+
 - 월별 수납 구현 이후 자산 운영 현황을 확장했다. 상세 변경은
   `docs/overview/phase-63-property-operations-overview.md`를 참고한다.
 - 자산 화면의 금액 집계는 해당 월 확정 청구 기준이며 초안·취소는 제외한다. 초안은 승인 대기 건수로 표시한다.
