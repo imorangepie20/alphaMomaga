@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Param, Post, Req, UseGuards } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, Param, Post, Query, Req, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '../auth/auth.guard.js';
 import { RequirePermission } from '../auth/permissions.decorator.js';
 import { PermissionsGuard } from '../auth/permissions.guard.js';
@@ -9,6 +9,17 @@ import { BillingService } from './billing.service.js';
 @Controller()
 export class BillingController {
   constructor(private readonly billingService: BillingService) {}
+
+  @Get('monthly-charges')
+  @UseGuards(AuthGuard, PermissionsGuard)
+  @RequirePermission('portfolio:read')
+  findCharges(
+    @Query('billingMonth') billingMonth?: string,
+    @Query('propertyId') propertyId?: string,
+    @Query('tenantId') tenantId?: string,
+  ) {
+    return this.billingService.findCharges({ billingMonth, propertyId, tenantId });
+  }
 
   @Post('payment-receipts')
   @UseGuards(AuthGuard, PermissionsGuard)

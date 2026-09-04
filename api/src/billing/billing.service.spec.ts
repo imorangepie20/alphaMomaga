@@ -140,6 +140,21 @@ describe('BillingService.cancelCharge', () => {
   });
 });
 
+describe('BillingService.findCharges', () => {
+  it('returns only the selected billing month instead of a tenant-owned payment status', async () => {
+    const service = new BillingService(new ContractsService());
+    await service.generateMonth('2026-09', new Date('2026-09-04T00:00:00.000Z'));
+    await service.generateMonth('2026-10', new Date('2026-09-04T00:00:00.000Z'));
+
+    const charges = await service.findCharges({ billingMonth: '2026-09' });
+
+    expect(charges).toHaveLength(4);
+    expect(charges).toEqual(expect.arrayContaining([
+      expect.objectContaining({ billingMonth: '2026-09', outstandingWon: 1200000 }),
+    ]));
+  });
+});
+
 describe('BillingService.recordReceipt', () => {
   it('rejects duplicate allocations that exceed one charge outstanding balance', async () => {
     const service = new BillingService(new ContractsService());

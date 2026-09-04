@@ -26,4 +26,12 @@ describe('BillingController', () => {
     await expect(controller.cancelCharge('charge-1', { reason: 'duplicate charge' }, { user: { subject: 'manager-1' } } as any)).resolves.toMatchObject({ status: 'Cancelled' });
     expect(cancelCharge).toHaveBeenCalledWith('charge-1', 'duplicate charge', 'manager-1');
   });
+
+  it('forwards monthly charge filters to the billing service', async () => {
+    const findCharges = vi.fn().mockResolvedValue([{ id: 'charge-1' }]);
+    const controller = new BillingController({ findCharges } as unknown as BillingService);
+
+    await expect(controller.findCharges('2026-09', 'property-1', 'tenant-1')).resolves.toEqual([{ id: 'charge-1' }]);
+    expect(findCharges).toHaveBeenCalledWith({ billingMonth: '2026-09', propertyId: 'property-1', tenantId: 'tenant-1' });
+  });
 });

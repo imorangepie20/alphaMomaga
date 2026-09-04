@@ -1,6 +1,6 @@
 import { Injectable, Optional } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
-import { and, eq, inArray, or } from 'drizzle-orm';
+import { and, asc, eq, inArray, or } from 'drizzle-orm';
 import { AuditService } from '../audit/audit.service.js';
 import { ContractsService } from '../contracts/contracts.service.js';
 import type { Contract } from '../contracts/contract.js';
@@ -231,6 +231,40 @@ export class BillingService {
       throw new Error(`Monthly charge ${id} not found`);
     }
     return charge;
+  }
+
+  async findCharges(filters: { billingMonth?: string; propertyId?: string; tenantId?: string } = {}): Promise<MonthlyCharge[]> {
+    const database = this.databaseService?.client;
+    if (database) {
+      const conditions = [];
+      if (filters.billingMonth) conditions.push(eq(monthlyCharges.billingMonth, filters.billingMonth));
+      if (filters.propertyId) conditions.push(eq(monthlyCharges.propertyId, filters.propertyId));
+      if (filters.tenantId) conditions.push(eq(monthlyCharges.tenantId, filters.tenantId));
+      const query = database.select().from(monthlyCharges);
+      const rows = conditions.length > 0
+        ? await query.where(and(...conditions)).orderBy(asc(monthlyCharges.dueDate), asc(monthlyCharges.id))
+        : await query.orderBy(asc(monthlyCharges.dueDate), asc(monthlyCharges.id));
+      return rows.map((row) => ({
+        id: row.id,
+        propertyId: row.propertyId,
+        tenantId: row.tenantId,
+        contractId: row.contractId,
+        billingMonth: row.billingMonth,
+        dueDate: row.dueDate,
+        baseRentWon: row.baseRentWon,
+        adjustmentWon: row.adjustmentWon,
+        billedWon: row.billedWon,
+        receivedWon: row.receivedWon,
+        outstandingWon: row.outstandingWon,
+        status: row.status,
+      }));
+    }
+
+    return this.charges.filter((charge) =>
+      (!filters.billingMonth || charge.billingMonth === filters.billingMonth)
+      && (!filters.propertyId || charge.propertyId === filters.propertyId)
+      && (!filters.tenantId || charge.tenantId === filters.tenantId),
+    );
   }
 
   async recordReceipt(input: PaymentReceiptInput, recordedBy = 'system'): Promise<PaymentReceipt> {
