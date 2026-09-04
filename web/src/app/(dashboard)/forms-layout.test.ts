@@ -10,6 +10,18 @@ const fieldSource = readFileSync(
   resolve(__dirname, "../../components/ui/field.tsx"),
   "utf8",
 )
+const propertyManager = readFileSync(
+  resolve(__dirname, "properties/property-manager.tsx"),
+  "utf8",
+)
+const tenantManager = readFileSync(
+  resolve(__dirname, "tenants/tenant-manager.tsx"),
+  "utf8",
+)
+const contractManager = readFileSync(
+  resolve(__dirname, "contracts/contract-manager.tsx"),
+  "utf8",
+)
 
 describe("management form layout", () => {
   it("defines the standardized field boundary", () => {
@@ -23,5 +35,14 @@ describe("management form layout", () => {
     expect(dialogSource).toContain("p-(--dialog-padding)")
     expect(dialogSource).toContain("font-heading text-lg leading-none font-medium")
     expect(dialogSource).not.toContain("bg-background/40")
+  })
+
+  it("uses shared form fields and native selects in core manager dialogs", () => {
+    for (const source of [propertyManager, tenantManager, contractManager]) {
+      expect(source).toContain("FormField")
+      expect(source).not.toMatch(/<select(?![^>]*NativeSelect)/)
+    }
+
+    expect(contractManager).toContain('htmlFor="contract-tenant"')
   })
 })

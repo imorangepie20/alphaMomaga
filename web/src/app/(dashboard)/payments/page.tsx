@@ -73,10 +73,10 @@ export default async function PaymentsPage() {
                       variant="outline"
                       className={
                         payment.status === "Paid"
-                          ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300"
+                          ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-700"
                           : payment.status === "Overdue"
-                            ? "border-red-500/30 bg-red-500/10 text-red-700 dark:text-red-300"
-                            : "border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300"
+                            ? "border-red-500/30 bg-red-500/10 text-red-700"
+                            : "border-amber-500/30 bg-amber-500/10 text-amber-700"
                       }
                     >
                       {payment.status === "Paid" ? "납부 완료" : payment.status === "Overdue" ? "연체" : "납부 예정"}

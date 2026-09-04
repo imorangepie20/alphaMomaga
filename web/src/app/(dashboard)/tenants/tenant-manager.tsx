@@ -13,7 +13,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { FieldError, FormField } from "@/components/ui/field";
+import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import { saveTenant, type TenantMutationInput } from "@/lib/tenant-mutation";
 import type { Property } from "@/lib/properties";
 import type { Tenant, TenantPaymentStatus } from "@/lib/tenants";
@@ -138,43 +139,39 @@ export function TenantManager({
             </DialogDescription>
           </DialogHeader>
           <form className="space-y-3" onSubmit={submit}>
-            <div>
-              <Label htmlFor="tenant-name">이름</Label>
+            <FormField label="이름" htmlFor="tenant-name">
               <Input
                 id="tenant-name"
                 value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
               />
-            </div>
-            <div>
-              <Label htmlFor="tenant-property">속성</Label>
-              <select
+            </FormField>
+            <FormField label="속성" htmlFor="tenant-property">
+              <NativeSelect
                 id="tenant-property"
                 disabled={!!selected}
-                className="mt-1 h-9 w-full rounded-lg border border-input bg-input/30 px-2.5 text-sm text-foreground"
+                className="w-full"
                 value={form.propertyId}
                 onChange={(e) =>
                   setForm({ ...form, propertyId: e.target.value })
                 }
               >
-                <option value="">속성 선택</option>
+                <NativeSelectOption value="">속성 선택</NativeSelectOption>
                 {properties.map((property) => (
-                  <option key={property.id} value={property.id}>
+                  <NativeSelectOption key={property.id} value={property.id}>
                     {property.name}
-                  </option>
+                  </NativeSelectOption>
                 ))}
-              </select>
-            </div>
-            <div>
-              <Label htmlFor="tenant-unit">호실</Label>
+              </NativeSelect>
+            </FormField>
+            <FormField label="호실" htmlFor="tenant-unit">
               <Input
                 id="tenant-unit"
                 value={form.unit}
                 onChange={(e) => setForm({ ...form, unit: e.target.value })}
               />
-            </div>
-            <div>
-              <Label htmlFor="tenant-rent">월 임대료</Label>
+            </FormField>
+            <FormField label="월 임대료" htmlFor="tenant-rent">
               <Input
                 id="tenant-rent"
                 type="number"
@@ -184,12 +181,11 @@ export function TenantManager({
                   setForm({ ...form, rent: Number(e.target.value) })
                 }
               />
-            </div>
-            <div>
-              <Label htmlFor="tenant-status">상태</Label>
-              <select
+            </FormField>
+            <FormField label="상태" htmlFor="tenant-status">
+              <NativeSelect
                 id="tenant-status"
-                className="mt-1 h-9 w-full rounded-lg border border-input bg-input/30 px-2.5 text-sm text-foreground"
+                className="w-full"
                 value={form.status}
                 onChange={(e) =>
                   setForm({
@@ -198,16 +194,12 @@ export function TenantManager({
                   })
                 }
               >
-                <option value="Pending">미납</option>
-                <option value="Paid">납부 완료</option>
-                <option value="Overdue">연체</option>
-              </select>
-            </div>
-            {error ? (
-              <p role="alert" className="text-sm text-destructive">
-                {error}
-              </p>
-            ) : null}
+                <NativeSelectOption value="Pending">미납</NativeSelectOption>
+                <NativeSelectOption value="Paid">납부 완료</NativeSelectOption>
+                <NativeSelectOption value="Overdue">연체</NativeSelectOption>
+              </NativeSelect>
+            </FormField>
+            <FieldError>{error}</FieldError>
             <DialogFooter>
               <Button
                 type="button"

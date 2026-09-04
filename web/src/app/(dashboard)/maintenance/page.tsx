@@ -71,12 +71,12 @@ export default async function MaintenancePage() {
                       variant="outline"
                       className={
                         item.status === "Completed"
-                          ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300"
+                          ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-700"
                           : item.status === "InProgress"
-                            ? "border-blue-500/30 bg-blue-500/10 text-blue-700 dark:text-blue-300"
+                            ? "border-blue-500/30 bg-blue-500/10 text-blue-700"
                             : item.status === "Scheduled"
-                              ? "border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300"
-                              : "border-slate-500/30 bg-slate-500/10 text-slate-700 dark:text-slate-300"
+                              ? "border-amber-500/30 bg-amber-500/10 text-amber-700"
+                              : "border-slate-500/30 bg-slate-500/10 text-slate-700"
                       }
                     >
                       {item.status === "Completed" ? "완료" : item.status === "InProgress" ? "진행 중" : item.status === "Scheduled" ? "예정" : "대기"}

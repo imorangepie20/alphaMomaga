@@ -13,7 +13,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { FieldError, FormField } from "@/components/ui/field";
+import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import {
   createContract,
   renewContract,
@@ -59,15 +60,15 @@ function canRenewContract(contract: Contract) {
 
 function statusClass(status: ContractStatus) {
   if (status === "Active") {
-    return "border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300";
+    return "border-emerald-500/30 bg-emerald-500/10 text-emerald-700";
   }
   if (status === "Upcoming") {
-    return "border-sky-500/30 bg-sky-500/10 text-sky-700 dark:text-sky-300";
+    return "border-sky-500/30 bg-sky-500/10 text-sky-700";
   }
   if (status === "Expired") {
-    return "border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300";
+    return "border-amber-500/30 bg-amber-500/10 text-amber-700";
   }
-  return "border-red-500/30 bg-red-500/10 text-red-700 dark:text-red-300";
+  return "border-red-500/30 bg-red-500/10 text-red-700";
 }
 
 function mutationErrorMessage(cause: unknown) {
@@ -325,11 +326,10 @@ export function ContractManager({
                   {selected.unit} · {selected.startDate} ~ {selected.endDate}
                 </p>
               </div>
-              <div>
-                <Label htmlFor="contract-status">상태</Label>
-                <select
+              <FormField label="상태" htmlFor="contract-status">
+                <NativeSelect
                   id="contract-status"
-                  className="mt-1 h-9 w-full rounded-lg border border-input bg-input/30 px-2.5 text-sm text-foreground"
+                  className="w-full"
                   value={updateForm.status}
                   onChange={(event) =>
                     setUpdateForm({
@@ -339,15 +339,14 @@ export function ContractManager({
                   }
                 >
                   {Object.entries(statusLabels).map(([value, label]) => (
-                    <option key={value} value={value}>
+                    <NativeSelectOption key={value} value={value}>
                       {label}
-                    </option>
+                    </NativeSelectOption>
                   ))}
-                </select>
-              </div>
+                </NativeSelect>
+              </FormField>
               {updateForm.status === "Terminated" ? (
-                <div>
-                  <Label htmlFor="contract-terminated-at">해지일</Label>
+                <FormField label="해지일" htmlFor="contract-terminated-at">
                   <Input
                     id="contract-terminated-at"
                     type="date"
@@ -359,13 +358,9 @@ export function ContractManager({
                       })
                     }
                   />
-                </div>
+                </FormField>
               ) : null}
-              {error ? (
-                <p role="alert" className="text-sm text-destructive">
-                  {error}
-                </p>
-              ) : null}
+              <FieldError>{error}</FieldError>
               <DialogFooter>
                 <Button
                   type="button"
@@ -381,24 +376,22 @@ export function ContractManager({
             </form>
           ) : (
             <form className="space-y-3" onSubmit={submitCreate}>
-              <div>
-                <Label htmlFor="contract-tenant">임차인</Label>
-                <select
+              <FormField label="임차인" htmlFor="contract-tenant">
+                <NativeSelect
                   id="contract-tenant"
-                  className="mt-1 h-9 w-full rounded-lg border border-input bg-input/30 px-2.5 text-sm text-foreground"
+                  className="w-full"
                   value={createForm.tenantId}
                   onChange={(event) => selectTenant(event.target.value)}
                 >
-                  <option value="">임차인 선택</option>
+                  <NativeSelectOption value="">임차인 선택</NativeSelectOption>
                   {tenants.map((tenant) => (
-                    <option key={tenant.id} value={tenant.id}>
+                    <NativeSelectOption key={tenant.id} value={tenant.id}>
                       {tenant.name} · {tenant.unit}
-                    </option>
+                    </NativeSelectOption>
                   ))}
-                </select>
-              </div>
-              <div>
-                <Label htmlFor="contract-property">속성</Label>
+                </NativeSelect>
+              </FormField>
+              <FormField label="속성" htmlFor="contract-property">
                 <Input
                   id="contract-property"
                   readOnly
@@ -407,13 +400,11 @@ export function ContractManager({
                     "임차인을 먼저 선택해 주세요"
                   }
                 />
-              </div>
-              <div>
-                <Label htmlFor="contract-unit">호실</Label>
+              </FormField>
+              <FormField label="호실" htmlFor="contract-unit">
                 <Input id="contract-unit" readOnly value={createForm.unit} />
-              </div>
-              <div>
-                <Label htmlFor="contract-rent">월 임대료 (원)</Label>
+              </FormField>
+              <FormField label="월 임대료 (원)" htmlFor="contract-rent">
                 <Input
                   id="contract-rent"
                   type="number"
@@ -426,10 +417,9 @@ export function ContractManager({
                     })
                   }
                 />
-              </div>
+              </FormField>
               <div className="grid gap-3 sm:grid-cols-2">
-                <div>
-                  <Label htmlFor="contract-start-date">계약 시작일</Label>
+                <FormField label="계약 시작일" htmlFor="contract-start-date">
                   <Input
                     id="contract-start-date"
                     type="date"
@@ -441,9 +431,8 @@ export function ContractManager({
                       })
                     }
                   />
-                </div>
-                <div>
-                  <Label htmlFor="contract-end-date">계약 종료일</Label>
+                </FormField>
+                <FormField label="계약 종료일" htmlFor="contract-end-date">
                   <Input
                     id="contract-end-date"
                     type="date"
@@ -455,13 +444,12 @@ export function ContractManager({
                       })
                     }
                   />
-                </div>
+                </FormField>
               </div>
-              <div>
-                <Label htmlFor="contract-create-status">상태</Label>
-                <select
+              <FormField label="상태" htmlFor="contract-create-status">
+                <NativeSelect
                   id="contract-create-status"
-                  className="mt-1 h-9 w-full rounded-lg border border-input bg-input/30 px-2.5 text-sm text-foreground"
+                  className="w-full"
                   value={createForm.status}
                   onChange={(event) =>
                     setCreateForm({
@@ -471,17 +459,13 @@ export function ContractManager({
                   }
                 >
                   {Object.entries(statusLabels).map(([value, label]) => (
-                    <option key={value} value={value}>
+                    <NativeSelectOption key={value} value={value}>
                       {label}
-                    </option>
+                    </NativeSelectOption>
                   ))}
-                </select>
-              </div>
-              {error ? (
-                <p role="alert" className="text-sm text-destructive">
-                  {error}
-                </p>
-              ) : null}
+                </NativeSelect>
+              </FormField>
+              <FieldError>{error}</FieldError>
               <DialogFooter>
                 <Button
                   type="button"
@@ -510,8 +494,7 @@ export function ContractManager({
           </DialogHeader>
           {renewalContract ? (
             <form className="space-y-3" onSubmit={submitRenewal}>
-              <div>
-                <Label htmlFor="renewal-tenant">임차인</Label>
+              <FormField label="임차인" htmlFor="renewal-tenant">
                 <Input
                   id="renewal-tenant"
                   readOnly
@@ -519,9 +502,8 @@ export function ContractManager({
                     tenantNames.get(renewalContract.tenantId) ?? "미지정 임차인"
                   }
                 />
-              </div>
-              <div>
-                <Label htmlFor="renewal-property">속성</Label>
+              </FormField>
+              <FormField label="속성" htmlFor="renewal-property">
                 <Input
                   id="renewal-property"
                   readOnly
@@ -530,26 +512,23 @@ export function ContractManager({
                     "알 수 없는 속성"
                   }
                 />
-              </div>
-              <div>
-                <Label htmlFor="renewal-unit">호실</Label>
+              </FormField>
+              <FormField label="호실" htmlFor="renewal-unit">
                 <Input
                   id="renewal-unit"
                   readOnly
                   value={renewalContract.unit}
                 />
-              </div>
+              </FormField>
               <div className="grid gap-3 sm:grid-cols-2">
-                <div>
-                  <Label htmlFor="renewal-start-date">다음 계약 시작일</Label>
+                <FormField label="다음 계약 시작일" htmlFor="renewal-start-date">
                   <Input
                     id="renewal-start-date"
                     readOnly
                     value={renewalForm.startDate}
                   />
-                </div>
-                <div>
-                  <Label htmlFor="renewal-end-date">갱신 계약 종료일</Label>
+                </FormField>
+                <FormField label="갱신 계약 종료일" htmlFor="renewal-end-date">
                   <Input
                     id="renewal-end-date"
                     type="date"
@@ -562,10 +541,9 @@ export function ContractManager({
                       })
                     }
                   />
-                </div>
+                </FormField>
               </div>
-              <div>
-                <Label htmlFor="renewal-rent">갱신 월 임대료 (원)</Label>
+              <FormField label="갱신 월 임대료 (원)" htmlFor="renewal-rent">
                 <Input
                   id="renewal-rent"
                   type="number"
@@ -578,12 +556,8 @@ export function ContractManager({
                     })
                   }
                 />
-              </div>
-              {error ? (
-                <p role="alert" className="text-sm text-destructive">
-                  {error}
-                </p>
-              ) : null}
+              </FormField>
+              <FieldError>{error}</FieldError>
               <DialogFooter>
                 <Button
                   type="button"
