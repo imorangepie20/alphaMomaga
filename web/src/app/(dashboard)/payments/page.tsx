@@ -6,6 +6,7 @@ import { ReceiptManager } from "./receipt-manager";
 import { ChargeActions } from "./charge-actions";
 import { ReceiptHistory } from "./receipt-history";
 import { BillingMonthSelector } from "./billing-month-selector";
+import { getTenants } from "@/lib/tenants";
 
 export const dynamic = "force-dynamic";
 
@@ -30,7 +31,8 @@ function statusClass(status: MonthlyChargeStatus): string {
 export default async function PaymentsPage({ searchParams }: { searchParams: Promise<{ billingMonth?: string }> }) {
   const billingMonth = (await searchParams).billingMonth ?? currentBillingMonth();
   try {
-    const [summary, charges, receipts, receiptCharges] = await Promise.all([getBillingSummary(billingMonth), getMonthlyCharges(billingMonth), getPaymentReceipts(billingMonth), getMonthlyCharges()]);
+    const [summary, charges, receipts, receiptCharges, tenants] = await Promise.all([getBillingSummary(billingMonth), getMonthlyCharges(billingMonth), getPaymentReceipts(billingMonth), getMonthlyCharges(), getTenants()]);
+    const tenantNames = Object.fromEntries(tenants.map((tenant) => [tenant.id, `${tenant.name} · ${tenant.unit}`]));
     return <div className="space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-3"><div><h1 className="text-2xl font-semibold tracking-tight">수납 원장</h1><p className="text-sm text-muted-foreground">{billingMonth} 청구월 기준 수납과 미수 현황입니다.</p></div><BillingMonthSelector billingMonth={billingMonth} /></div>
       <div className="grid gap-4 sm:grid-cols-3">
@@ -38,7 +40,7 @@ export default async function PaymentsPage({ searchParams }: { searchParams: Pro
         <Card><CardHeader><CardTitle>수납 금액</CardTitle></CardHeader><CardContent className="text-3xl font-semibold tabular-nums">{formatWon(summary.receivedWon)}</CardContent></Card>
         <Card><CardHeader><CardTitle>미수 금액</CardTitle></CardHeader><CardContent className="text-3xl font-semibold tabular-nums">{formatWon(summary.outstandingWon)}</CardContent></Card>
       </div>
-      <Card><CardHeader className="flex-row items-center justify-between"><CardTitle>월별 청구 원장</CardTitle><ReceiptManager charges={receiptCharges} /></CardHeader><CardContent className="px-0"><Table>
+      <Card><CardHeader className="flex-row items-center justify-between"><CardTitle>월별 청구 원장</CardTitle><ReceiptManager charges={receiptCharges} tenantNames={tenantNames} /></CardHeader><CardContent className="px-0"><Table>
         <TableHeader><TableRow><TableHead className="pl-6">청구월</TableHead><TableHead>납부 기한</TableHead><TableHead>청구</TableHead><TableHead>수납</TableHead><TableHead>미수</TableHead><TableHead>상태</TableHead><TableHead className="pr-6 text-right">관리</TableHead></TableRow></TableHeader>
         <TableBody>
           {charges.map((charge) => <TableRow key={charge.id}><TableCell className="pl-6 font-medium">{charge.billingMonth}</TableCell><TableCell>{charge.dueDate}</TableCell><TableCell>{formatWon(charge.billedWon)}</TableCell><TableCell>{formatWon(charge.receivedWon)}</TableCell><TableCell>{formatWon(charge.outstandingWon)}</TableCell><TableCell><Badge variant="outline" className={statusClass(charge.status)}>{statusLabel(charge.status)}</Badge></TableCell><TableCell className="pr-6 text-right"><ChargeActions charge={charge} /></TableCell></TableRow>)}
