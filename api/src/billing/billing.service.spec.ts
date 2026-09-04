@@ -100,6 +100,24 @@ describe('BillingService.approveCharge', () => {
 });
 
 describe('BillingService.recordReceipt', () => {
+  it('rejects duplicate allocations that exceed one charge outstanding balance', async () => {
+    const service = new BillingService(new ContractsService());
+    const [draft] = await service.generateMonth('2026-09', new Date('2026-09-04T00:00:00.000Z'));
+    await service.approveCharge(draft.id);
+
+    await expect(service.recordReceipt({
+      propertyId: draft.propertyId,
+      tenantId: draft.tenantId,
+      receivedDate: '2026-09-04',
+      amountWon: 1400000,
+      method: 'BankTransfer',
+      allocations: [
+        { chargeId: draft.id, amountWon: 700000 },
+        { chargeId: draft.id, amountWon: 700000 },
+      ],
+    })).rejects.toThrow(`Receipt allocation exceeds outstanding amount for ${draft.id}`);
+  });
+
   it('marks an approved charge partially paid after a valid partial allocation', async () => {
     const service = new BillingService(new ContractsService());
     const [draft] = await service.generateMonth(
@@ -123,6 +141,43 @@ describe('BillingService.recordReceipt', () => {
       outstandingWon: 800000,
       status: 'PartiallyPaid',
     });
+  });
+
+  it('persists a receipt, allocation, balance, and audit event in one database transaction', async () => {
+    const charge = {
+      id: 'charge-1', propertyId: 'property-1', tenantId: 'tenant-1', contractId: 'contract-1',
+      billingMonth: '2026-09', dueDate: '2026-09-05', baseRentWon: 1200000, adjustmentWon: 0,
+      billedWon: 1200000, receivedWon: 0, outstandingWon: 1200000, status: 'Approved',
+    };
+    const lockedCharges = vi.fn().mockResolvedValue([charge]);
+    const whereCharge = vi.fn(() => ({ for: lockedCharges }));
+    const receiptReturning = vi.fn().mockResolvedValue([{ id: 'receipt-1' }]);
+    const receiptValues = vi.fn(() => ({ returning: receiptReturning }));
+    const allocationValues = vi.fn().mockResolvedValue(undefined);
+    const balanceWhere = vi.fn().mockResolvedValue(undefined);
+    const balanceSet = vi.fn(() => ({ where: balanceWhere }));
+    const transaction = {
+      select: vi.fn(() => ({ from: vi.fn(() => ({ where: whereCharge })) })),
+      insert: vi.fn()
+        .mockReturnValueOnce({ values: receiptValues })
+        .mockReturnValueOnce({ values: allocationValues }),
+      update: vi.fn(() => ({ set: balanceSet })),
+    };
+    const database = { client: { transaction: async (callback: (tx: typeof transaction) => Promise<unknown>) => callback(transaction) } } as unknown as DatabaseService;
+    const audit = { record: vi.fn().mockResolvedValue(undefined) } as unknown as AuditService;
+    const service = new BillingService(undefined, database, audit);
+
+    const receipt = await service.recordReceipt({
+      propertyId: 'property-1', tenantId: 'tenant-1', receivedDate: '2026-09-04', amountWon: 400000,
+      method: 'BankTransfer', allocations: [{ chargeId: 'charge-1', amountWon: 400000 }],
+    }, 'manager-1');
+
+    expect(receipt).toMatchObject({ id: 'receipt-1', amountWon: 400000 });
+    expect(allocationValues).toHaveBeenCalledWith(expect.arrayContaining([
+      expect.objectContaining({ receiptId: 'receipt-1', chargeId: 'charge-1', amountWon: 400000 }),
+    ]));
+    expect(balanceSet).toHaveBeenCalledWith(expect.objectContaining({ receivedWon: 400000, outstandingWon: 800000, status: 'PartiallyPaid' }));
+    expect(audit.record).toHaveBeenCalledWith(transaction, expect.objectContaining({ action: 'receipt.recorded', entityId: 'receipt-1', actorSubject: 'manager-1' }));
   });
 
   it('restores the charge balance when a receipt is voided', async () => {

@@ -1,11 +1,11 @@
 import { Injectable, Optional } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
-import { and, eq } from 'drizzle-orm';
+import { and, eq, inArray } from 'drizzle-orm';
 import { AuditService } from '../audit/audit.service.js';
 import { ContractsService } from '../contracts/contracts.service.js';
 import type { Contract } from '../contracts/contract.js';
 import { DatabaseService } from '../database/database.service.js';
-import { monthlyCharges } from '../database/schema.js';
+import { monthlyCharges, paymentAllocations, paymentReceipts } from '../database/schema.js';
 import { billingMonthBounds, calculateDueDate, type MonthlyCharge, type PaymentReceipt, type PaymentReceiptInput } from './billing.js';
 
 function parseWon(value: string): number {
@@ -177,7 +177,7 @@ export class BillingService {
     return charge;
   }
 
-  async recordReceipt(input: PaymentReceiptInput): Promise<PaymentReceipt> {
+  async recordReceipt(input: PaymentReceiptInput, recordedBy = 'system'): Promise<PaymentReceipt> {
     if (!Number.isSafeInteger(input.amountWon) || input.amountWon <= 0) {
       throw new Error('Receipt amountWon must be a positive won amount');
     }
@@ -189,23 +189,114 @@ export class BillingService {
       throw new Error('Receipt allocations must equal the receipt amount');
     }
 
-    const charges = input.allocations.map((allocation) => ({ allocation, charge: this.charges.find((item) => item.id === allocation.chargeId) }));
-    for (const { allocation, charge } of charges) {
-      if (!charge) throw new Error(`Monthly charge ${allocation.chargeId} not found`);
+    const allocationByChargeId = new Map<string, number>();
+    for (const allocation of input.allocations) {
+      allocationByChargeId.set(
+        allocation.chargeId,
+        (allocationByChargeId.get(allocation.chargeId) ?? 0) + allocation.amountWon,
+      );
+    }
+
+    const allocationsByCharge = [...allocationByChargeId].map(([chargeId, amountWon]) => ({
+      chargeId,
+      amountWon,
+    }));
+
+    const database = this.databaseService?.client;
+    if (database) {
+      return database.transaction(async (transaction) => {
+        const databaseCharges = await transaction
+          .select()
+          .from(monthlyCharges)
+          .where(inArray(monthlyCharges.id, allocationsByCharge.map((allocation) => allocation.chargeId)))
+          .for('update');
+        const chargesById = new Map(databaseCharges.map((charge) => [charge.id, charge]));
+
+        for (const allocation of allocationsByCharge) {
+          const charge = chargesById.get(allocation.chargeId);
+          if (!charge) throw new Error(`Monthly charge ${allocation.chargeId} not found`);
+          if (charge.propertyId !== input.propertyId || charge.tenantId !== input.tenantId) {
+            throw new Error('Receipt allocation must match the charge property and tenant');
+          }
+          if (charge.status !== 'Approved' && charge.status !== 'PartiallyPaid') {
+            throw new Error(`Monthly charge ${charge.id} is not ready for receipt allocation`);
+          }
+          if (allocation.amountWon > charge.outstandingWon) {
+            throw new Error(`Receipt allocation exceeds outstanding amount for ${charge.id}`);
+          }
+        }
+
+        const [receipt] = await transaction
+          .insert(paymentReceipts)
+          .values({
+            id: `receipt-${randomUUID()}`,
+            propertyId: input.propertyId,
+            tenantId: input.tenantId,
+            receivedDate: input.receivedDate,
+            amountWon: input.amountWon,
+            method: input.method,
+            reference: input.reference,
+            memo: input.memo,
+            recordedBy,
+          })
+          .returning();
+        if (!receipt) throw new Error('Unable to create payment receipt');
+
+        await transaction.insert(paymentAllocations).values(input.allocations.map((allocation) => ({
+          id: `allocation-${randomUUID()}`,
+          receiptId: receipt.id,
+          chargeId: allocation.chargeId,
+          amountWon: allocation.amountWon,
+        })));
+
+        for (const allocation of allocationsByCharge) {
+          const charge = chargesById.get(allocation.chargeId)!;
+          const receivedWon = charge.receivedWon + allocation.amountWon;
+          const outstandingWon = charge.billedWon - receivedWon;
+          await transaction
+            .update(monthlyCharges)
+            .set({
+              receivedWon,
+              outstandingWon,
+              status: outstandingWon === 0 ? 'Paid' : 'PartiallyPaid',
+              updatedAt: new Date(),
+            })
+            .where(eq(monthlyCharges.id, charge.id));
+        }
+
+        await this.auditService?.record(transaction, {
+          action: 'receipt.recorded',
+          actorSubject: recordedBy,
+          actorRole: 'system',
+          entityType: 'payment_receipt',
+          entityId: receipt.id,
+          metadata: { propertyId: input.propertyId, tenantId: input.tenantId, amountWon: input.amountWon },
+        });
+
+        return { id: receipt.id, ...input };
+      });
+    }
+
+    const charges = allocationsByCharge.map((allocation) => ({
+      ...allocation,
+      charge: this.charges.find((item) => item.id === allocation.chargeId),
+    }));
+    for (const { chargeId, amountWon, charge } of charges) {
+      if (!charge) throw new Error(`Monthly charge ${chargeId} not found`);
       if (charge.propertyId !== input.propertyId || charge.tenantId !== input.tenantId) {
         throw new Error('Receipt allocation must match the charge property and tenant');
       }
       if (charge.status !== 'Approved' && charge.status !== 'PartiallyPaid') {
         throw new Error(`Monthly charge ${charge.id} is not ready for receipt allocation`);
       }
-      if (allocation.amountWon > charge.outstandingWon) {
+      if (amountWon > charge.outstandingWon) {
         throw new Error(`Receipt allocation exceeds outstanding amount for ${charge.id}`);
       }
     }
 
     const receipt: PaymentReceipt = { id: `receipt-${randomUUID()}`, ...input };
-    for (const { allocation, charge } of charges) {
-      charge!.receivedWon += allocation.amountWon;
+    for (const { amountWon, charge } of charges) {
+      charge!.receivedWon += amountWon;
       charge!.outstandingWon = charge!.billedWon - charge!.receivedWon;
       charge!.status = charge!.outstandingWon === 0 ? 'Paid' : 'PartiallyPaid';
     }
