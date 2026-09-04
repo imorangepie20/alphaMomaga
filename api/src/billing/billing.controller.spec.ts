@@ -18,4 +18,12 @@ describe('BillingController', () => {
     await expect(controller.voidReceipt('receipt-1', { reason: 'duplicate entry' }, { user: { subject: 'manager-1' } } as any)).resolves.toBeUndefined();
     expect(voidReceipt).toHaveBeenCalledWith('receipt-1', 'duplicate entry', 'manager-1');
   });
+
+  it('forwards a charge cancellation request with its reason to the billing service', async () => {
+    const cancelCharge = vi.fn().mockResolvedValue({ id: 'charge-1', status: 'Cancelled' });
+    const controller = new BillingController({ cancelCharge } as unknown as BillingService);
+
+    await expect(controller.cancelCharge('charge-1', { reason: 'duplicate charge' }, { user: { subject: 'manager-1' } } as any)).resolves.toMatchObject({ status: 'Cancelled' });
+    expect(cancelCharge).toHaveBeenCalledWith('charge-1', 'duplicate charge', 'manager-1');
+  });
 });

@@ -1,6 +1,6 @@
 import { Injectable, Optional } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
-import { and, eq, inArray } from 'drizzle-orm';
+import { and, eq, inArray, or } from 'drizzle-orm';
 import { AuditService } from '../audit/audit.service.js';
 import { ContractsService } from '../contracts/contracts.service.js';
 import type { Contract } from '../contracts/contract.js';
@@ -166,6 +166,62 @@ export class BillingService {
       throw new Error(`Monthly charge ${id} must be Draft to approve`);
     }
     charge.status = 'Approved';
+    return charge;
+  }
+
+  async cancelCharge(id: string, reason: string, actorSubject = 'system'): Promise<MonthlyCharge> {
+    if (!reason.trim()) throw new Error('Monthly charge cancellation requires a reason');
+
+    const database = this.databaseService?.client;
+    if (database) {
+      return database.transaction(async (transaction) => {
+        const [row] = await transaction
+          .update(monthlyCharges)
+          .set({
+            status: 'Cancelled',
+            cancelledAt: new Date(),
+            cancelledBy: actorSubject,
+            cancellationReason: reason.trim(),
+            updatedAt: new Date(),
+          })
+          .where(and(
+            eq(monthlyCharges.id, id),
+            eq(monthlyCharges.receivedWon, 0),
+            or(eq(monthlyCharges.status, 'Draft'), eq(monthlyCharges.status, 'Approved')),
+          ))
+          .returning();
+        if (!row) throw new Error(`Monthly charge ${id} must be unallocated to cancel`);
+
+        await this.auditService?.record(transaction, {
+          action: 'charge.cancelled',
+          actorSubject,
+          actorRole: 'system',
+          entityType: 'monthly_charge',
+          entityId: id,
+          metadata: { reason: reason.trim(), billingMonth: row.billingMonth },
+        });
+        return {
+          id: row.id,
+          propertyId: row.propertyId,
+          tenantId: row.tenantId,
+          contractId: row.contractId,
+          billingMonth: row.billingMonth,
+          dueDate: row.dueDate,
+          baseRentWon: row.baseRentWon,
+          adjustmentWon: row.adjustmentWon,
+          billedWon: row.billedWon,
+          receivedWon: row.receivedWon,
+          outstandingWon: row.outstandingWon,
+          status: row.status,
+        };
+      });
+    }
+
+    const charge = await this.findCharge(id);
+    if (charge.receivedWon !== 0 || (charge.status !== 'Draft' && charge.status !== 'Approved')) {
+      throw new Error(`Monthly charge ${id} must be unallocated to cancel`);
+    }
+    charge.status = 'Cancelled';
     return charge;
   }
 

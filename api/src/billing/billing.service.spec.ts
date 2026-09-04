@@ -99,6 +99,47 @@ describe('BillingService.approveCharge', () => {
   });
 });
 
+describe('BillingService.cancelCharge', () => {
+  it('cancels an unallocated approved charge and prevents later receipt allocation', async () => {
+    const service = new BillingService(new ContractsService());
+    const [draft] = await service.generateMonth('2026-09', new Date('2026-09-04T00:00:00.000Z'));
+    await service.approveCharge(draft.id);
+
+    const cancelled = await service.cancelCharge(draft.id, 'duplicate charge');
+
+    expect(cancelled).toMatchObject({ id: draft.id, status: 'Cancelled' });
+    await expect(service.recordReceipt({
+      propertyId: draft.propertyId,
+      tenantId: draft.tenantId,
+      receivedDate: '2026-09-04',
+      amountWon: 100,
+      method: 'BankTransfer',
+      allocations: [{ chargeId: draft.id, amountWon: 100 }],
+    })).rejects.toThrow('is not ready for receipt allocation');
+  });
+
+  it('persists a cancellation reason and audit event for an unallocated database charge', async () => {
+    const row = {
+      id: 'charge-1', propertyId: 'property-1', tenantId: 'tenant-1', contractId: 'contract-1',
+      billingMonth: '2026-09', dueDate: '2026-09-05', baseRentWon: 1200000, adjustmentWon: 0,
+      billedWon: 1200000, receivedWon: 0, outstandingWon: 1200000, status: 'Cancelled',
+    };
+    const returning = vi.fn().mockResolvedValue([row]);
+    const where = vi.fn(() => ({ returning }));
+    const set = vi.fn(() => ({ where }));
+    const transaction = { update: vi.fn(() => ({ set })) };
+    const database = { client: { transaction: async (callback: (tx: typeof transaction) => Promise<unknown>) => callback(transaction) } } as unknown as DatabaseService;
+    const audit = { record: vi.fn().mockResolvedValue(undefined) } as unknown as AuditService;
+    const service = new BillingService(undefined, database, audit);
+
+    const cancelled = await service.cancelCharge('charge-1', 'duplicate charge', 'manager-1');
+
+    expect(cancelled.status).toBe('Cancelled');
+    expect(set).toHaveBeenCalledWith(expect.objectContaining({ cancellationReason: 'duplicate charge', cancelledBy: 'manager-1' }));
+    expect(audit.record).toHaveBeenCalledWith(transaction, expect.objectContaining({ action: 'charge.cancelled', entityId: 'charge-1' }));
+  });
+});
+
 describe('BillingService.recordReceipt', () => {
   it('rejects duplicate allocations that exceed one charge outstanding balance', async () => {
     const service = new BillingService(new ContractsService());

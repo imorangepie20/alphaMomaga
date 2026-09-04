@@ -21,6 +21,17 @@ export class BillingController {
     }
   }
 
+  @Post('monthly-charges/:id/cancel')
+  @UseGuards(AuthGuard, PermissionsGuard)
+  @RequirePermission('payment:manage')
+  async cancelCharge(@Param('id') id: string, @Body() input: { reason?: string }, @Req() request: AuthenticatedRequest) {
+    try {
+      return await this.billingService.cancelCharge(id, input.reason ?? '', request.user?.subject);
+    } catch (error) {
+      throw new BadRequestException(error instanceof Error ? error.message : 'Invalid monthly charge cancellation');
+    }
+  }
+
   @Post('payment-receipts/:id/void')
   @UseGuards(AuthGuard, PermissionsGuard)
   @RequirePermission('payment:manage')
