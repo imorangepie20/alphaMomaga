@@ -40,6 +40,8 @@ export type PaymentReceipt = {
   receivedDate: string;
   amountWon: number;
   method: "BankTransfer" | "Cash" | "Card" | "Other";
+  reference?: string;
+  memo?: string;
   allocations: { chargeId: string; amountWon: number }[];
   voidedAt?: string;
   voidReason?: string;
