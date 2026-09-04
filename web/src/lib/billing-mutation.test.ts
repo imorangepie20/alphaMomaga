@@ -6,6 +6,7 @@ vi.mock("./api-url", () => ({ getApiUrl: vi.fn() }));
 import { auth0 } from "./auth0";
 import { getApiUrl } from "./api-url";
 import { forwardBillingMutation } from "./billing-mutation";
+import { recordReceipt } from "./billing-client-mutation";
 
 const mockFetch = vi.fn();
 
@@ -28,5 +29,15 @@ describe("forwardBillingMutation", () => {
 
   it("rejects arbitrary API paths", async () => {
     await expect(forwardBillingMutation("users", new Request("https://web.test", { method: "POST" }))).resolves.toMatchObject({ status: 404 });
+  });
+});
+
+describe("recordReceipt", () => {
+  it("posts a receipt allocation through the billing proxy", async () => {
+    mockFetch.mockResolvedValue(new Response(JSON.stringify({ id: "receipt-1" }), { status: 201 }));
+
+    await recordReceipt({ propertyId: "property-1", tenantId: "tenant-1", receivedDate: "2026-09-04", amountWon: 400000, method: "BankTransfer", allocations: [{ chargeId: "charge-1", amountWon: 400000 }] });
+
+    expect(mockFetch).toHaveBeenCalledWith("/api/billing/payment-receipts", expect.objectContaining({ method: "POST" }));
   });
 });
