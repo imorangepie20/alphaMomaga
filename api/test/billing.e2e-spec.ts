@@ -6,15 +6,17 @@ import { AppModule } from '../src/app.module.js';
 
 describe('Billing ledger (e2e)', () => {
   let app: INestApplication<App>;
+  const previousDatabaseUrl = process.env.DATABASE_URL;
   const manager = { 'x-demo-role': 'PropertyManager' };
   const finance = { 'x-demo-role': 'Finance' };
 
   beforeAll(async () => {
     process.env.AUTH_ALLOW_DEMO_ROLE = 'true';
+    delete process.env.DATABASE_URL;
     app = (await Test.createTestingModule({ imports: [AppModule] }).compile()).createNestApplication();
     await app.init();
   });
-  afterAll(async () => { await app.close(); delete process.env.AUTH_ALLOW_DEMO_ROLE; });
+  afterAll(async () => { await app.close(); delete process.env.AUTH_ALLOW_DEMO_ROLE; if (previousDatabaseUrl === undefined) delete process.env.DATABASE_URL; else process.env.DATABASE_URL = previousDatabaseUrl; });
 
   it('runs the authenticated draft-to-receipt-to-void workflow', async () => {
     await request(app.getHttpServer()).post('/billing-runs/2026-09').set(manager).expect(201);

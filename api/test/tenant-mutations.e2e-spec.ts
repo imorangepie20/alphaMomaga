@@ -3,6 +3,7 @@ import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { App } from 'supertest/types';
 import { AppModule } from './../src/app.module.js';
+import { randomUUID } from 'node:crypto';
 
 describe('Tenant mutations authorization (e2e)', () => {
   let app: INestApplication<App>;
@@ -16,13 +17,15 @@ describe('Tenant mutations authorization (e2e)', () => {
   });
 
   it('allows a property manager to create a tenant', async () => {
+    const unit = `A-${randomUUID().slice(0, 8)}`;
     const response = await request(app.getHttpServer())
       .post('/tenants')
       .set('x-demo-role', 'PropertyManager')
-      .send({ name: 'Jung Sora', propertyId: 'property-1', unit: 'A-202', rent: '₩1,100,000', status: 'Pending' })
+      .send({ name: 'Jung Sora', propertyId: 'property-1', unit, rent: '₩1,100,000' })
       .expect(201);
 
-    expect(response.body).toEqual(expect.objectContaining({ name: 'Jung Sora', unit: 'A-202' }));
+    expect(response.body).toEqual(expect.objectContaining({ name: 'Jung Sora', unit }));
+    await request(app.getHttpServer()).delete(`/tenants/${response.body.id}`).set('x-demo-role', 'PropertyManager').expect(200);
   });
 
   it('denies finance users without tenant management permission', async () => {

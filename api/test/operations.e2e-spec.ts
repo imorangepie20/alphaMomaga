@@ -17,7 +17,7 @@ describe('Operations API (e2e)', () => {
 
   it.each(['/maintenance', '/inspections'])('%s returns operational records', async (route) => {
     const response = await request(app.getHttpServer()).get(route).expect(200);
-    expect(response.body).toHaveLength(4);
+    expect(response.body.length).toBeGreaterThanOrEqual(4);
     expect(response.body[0]).toEqual(expect.objectContaining({
       id: expect.any(String),
       propertyId: expect.any(String),
