@@ -20,6 +20,10 @@ property -> tenant -> contract -> monthly charge -> payment -> maintenance -> in
 
 ### 2026-09-05 현재 상태
 
+- 점검 화면에 등록·일정/긴급도 수정·검토·완료일 입력과 필터를 연결했다.
+  `docs/overview/inspection-workflow-ui.md` 참고. API도 일정·긴급도 수정을 지원하며 완료일은 서울 기준으로 검증한다.
+- 최신 검증: 웹 75개, API 184개 테스트 및 양쪽 빌드 통과. 인증된 브라우저 수동 검증은 남아 있다.
+
 - 유지보수 화면에 등록, 일정·상태 수정, 작업 시작, 완료 확인, 검색·자산·상태 필터 및 기한 초과
   표시를 연결했다. `docs/overview/maintenance-workflow-ui.md`에 구현 범위와 후속 기능을 기록했다.
 - 유지보수 조회 실패 시 예시 데이터가 표시되지 않는다. 웹 테스트 69개, 타입 검사, 변경 파일 린트 통과.

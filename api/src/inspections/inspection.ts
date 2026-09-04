@@ -20,11 +20,14 @@ export type CreateInspectionInput = {
 };
 
 export type UpdateInspectionInput = {
+  scheduledDate?: string;
+  priority?: InspectionPriority;
   status?: InspectionStatus;
   completedAt?: string;
 };
 
 export function validateInspection(item: Inspection, referenceDate = new Date()): void {
+  if (!['Pending', 'Scheduled', 'InReview', 'Completed'].includes(item.status) || !['Routine', 'Urgent'].includes(item.priority)) throw new Error(`Inspection ${item.id} has invalid status or priority`);
   const datePattern = /^\d{4}-\d{2}-\d{2}$/;
   const scheduledDate = new Date(`${item.scheduledDate}T00:00:00.000Z`);
   if (!item.id || !item.propertyId || !item.type || !datePattern.test(item.scheduledDate) || Number.isNaN(scheduledDate.getTime()) || scheduledDate.toISOString().slice(0, 10) !== item.scheduledDate) {
@@ -34,8 +37,8 @@ export function validateInspection(item: Inspection, referenceDate = new Date())
     const completedAt = item.completedAt
       ? new Date(`${item.completedAt}T00:00:00.000Z`)
       : undefined;
-    const today = new Date(Date.UTC(referenceDate.getUTCFullYear(), referenceDate.getUTCMonth(), referenceDate.getUTCDate()));
-    if (!item.completedAt || !datePattern.test(item.completedAt) || !completedAt || Number.isNaN(completedAt.getTime()) || completedAt < scheduledDate || completedAt > today) {
+    const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Seoul', year: 'numeric', month: '2-digit', day: '2-digit' }).format(referenceDate);
+    if (!item.completedAt || !datePattern.test(item.completedAt) || !completedAt || Number.isNaN(completedAt.getTime()) || completedAt.toISOString().slice(0, 10) !== item.completedAt || completedAt < scheduledDate || item.completedAt > today) {
       throw new Error(`Inspection ${item.id} has an invalid completion date`);
     }
   }

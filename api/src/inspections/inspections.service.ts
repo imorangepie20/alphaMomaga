@@ -124,8 +124,11 @@ export class InspectionsService {
         const [row] = await transaction
           .update(inspections)
           .set({
+            ...(input.scheduledDate !== undefined && { scheduledDate: input.scheduledDate }),
+            ...(input.priority !== undefined && { priority: input.priority }),
             ...(input.status !== undefined && { status: input.status }),
             ...(input.completedAt !== undefined && { completedAt: input.completedAt }),
+            ...(input.status !== undefined && input.status !== 'Completed' && { completedAt: null }),
           })
           .where(eq(inspections.id, id))
           .returning();
@@ -159,9 +162,12 @@ export class InspectionsService {
 
     const updated: Inspection = {
       ...item,
+      ...(input.scheduledDate !== undefined && { scheduledDate: input.scheduledDate }),
+      ...(input.priority !== undefined && { priority: input.priority }),
       ...(input.status !== undefined && { status: input.status }),
       ...(input.completedAt !== undefined && { completedAt: input.completedAt }),
     };
+    if (input.status !== undefined && input.status !== 'Completed') delete updated.completedAt;
     validateInspection(updated);
 
     this.inspections[this.inspections.indexOf(item)] = updated;

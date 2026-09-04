@@ -1,58 +1,25 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { getInspections } from "@/lib/inspections";
-import { getProperties } from "@/lib/properties";
+import Link from "next/link";
+import { getInspectionWorkspace } from "@/lib/inspections-workspace";
+import { InspectionManager } from "./inspection-manager";
 
 export const dynamic = "force-dynamic";
 
 export default async function InspectionsPage() {
-  const [inspections, properties] = await Promise.all([getInspections(), getProperties()]);
-  const propertyNames = new Map(properties.map((property) => [property.id, property.name]));
-  const scheduled = inspections.filter((item) => item.status === "Scheduled").length;
-  const completed = inspections.filter((item) => item.status === "Completed").length;
-  const needsReview = inspections.filter((item) => item.status === "InReview").length;
-  const urgent = inspections.filter((item) => item.priority === "Urgent").length;
-  return (
-    <div className="space-y-4">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">점검</h1>
-        <p className="text-sm text-muted-foreground">안전 점검과 법규 준수 현황을 관리합니다</p>
-      </div>
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <Card>
-          <CardHeader><CardTitle>점검 예정</CardTitle></CardHeader>
-          <CardContent className="text-3xl font-bold">{scheduled}</CardContent>
-        </Card>
-        <Card>
-          <CardHeader><CardTitle>점검 완료</CardTitle></CardHeader>
-          <CardContent className="text-3xl font-bold">{completed}</CardContent>
-        </Card>
-        <Card>
-          <CardHeader><CardTitle>검토 필요</CardTitle></CardHeader>
-          <CardContent className="text-3xl font-bold">{needsReview}</CardContent>
-        </Card>
-        <Card>
-          <CardHeader><CardTitle>긴급</CardTitle></CardHeader>
-          <CardContent className="text-3xl font-bold">{urgent}</CardContent>
-        </Card>
-      </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>점검 일정</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          {inspections.map((item) => (
-            <div key={item.id} className="flex items-center justify-between rounded-lg border p-3">
-              <div>
-                <div className="font-medium">{propertyNames.get(item.propertyId) ?? "연결되지 않은 자산"}</div>
-                <div className="text-sm text-muted-foreground">{item.type}</div>
-              </div>
-              <div className="text-sm text-muted-foreground">{item.scheduledDate}</div>
-              <div className="text-sm font-medium">{item.status === "Completed" ? "완료" : item.status === "InReview" ? "검토 중" : item.status === "Scheduled" ? "예정" : "대기"}</div>
-            </div>
-          ))}
-        </CardContent>
-      </Card>
-    </div>
-  );
+  const today = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Seoul", year: "numeric", month: "2-digit", day: "2-digit",
+  }).format(new Date());
+  let workspace: Awaited<ReturnType<typeof getInspectionWorkspace>>;
+  try {
+    workspace = await getInspectionWorkspace();
+  } catch {
+    return <div className="space-y-4">
+      <h1 className="text-2xl font-semibold tracking-tight">점검</h1>
+      <p role="alert" className="text-sm text-destructive">점검과 자산 정보를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.</p>
+      <Link href="/inspections" className="text-sm underline">다시 불러오기</Link>
+    </div>;
+  }
+  return <div className="space-y-6">
+    <div><h1 className="text-2xl font-semibold tracking-tight">점검</h1><p className="text-sm text-muted-foreground">점검 일정을 등록하고 긴급도, 검토 상태와 실제 완료일을 관리합니다.</p></div>
+    <InspectionManager {...workspace} today={today} />
+  </div>;
 }

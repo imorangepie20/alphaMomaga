@@ -8,6 +8,19 @@ const inspection = (overrides: Partial<Inspection> = {}): Inspection => ({
 });
 
 describe('InspectionsService', () => {
+  it('reschedules a pending inspection and changes its priority', async () => {
+    expect(await new InspectionsService().update('inspection-1', { scheduledDate: '2026-09-15', priority: 'Urgent' })).toMatchObject({ scheduledDate: '2026-09-15', priority: 'Urgent' });
+  });
+
+  it('uses the Seoul date for completion and rejects impossible calendar dates', () => {
+    expect(() => validateInspection(inspection({ scheduledDate: '2026-09-02', status: 'Completed', completedAt: '2026-09-03' }), new Date('2026-09-02T23:30:00Z'))).not.toThrow();
+    expect(() => validateInspection(inspection({ scheduledDate: '2026-02-01', status: 'Completed', completedAt: '2026-02-30' }), referenceDate)).toThrow();
+  });
+
+  it('clears the completion date when reopening work', async () => {
+    expect(await new InspectionsService().update('inspection-2', { status: 'InReview' })).not.toHaveProperty('completedAt');
+  });
+
   it('returns validated inspection records', async () => {
     expect(await new InspectionsService().findAll()).toHaveLength(4);
   });
