@@ -20,6 +20,8 @@
 - 자산과 임차인 사이의 법적 임대차 관계를 정의합니다.
 - 시작일, 종료일, 월 임대료, 상태, 갱신 정보를 포함합니다.
 - 계약 유효성과 상태 흐름을 검증해야 합니다.
+- 갱신은 원본 계약을 삭제하거나 덮어쓰지 않고 후속 계약을 생성합니다. 원본 계약의
+  수납과 감사 이력은 원래 계약 ID를 유지합니다.
 
 ### Payment
 - 임대료 수납과 연체 상태를 추적합니다.
@@ -63,6 +65,8 @@
 - Payment status must distinguish pending, paid, overdue, and cancelled states.
 - Maintenance work should be trackable by status and date.
 - Contract validity should be checked by lease dates and state.
+- 동일 속성·호실에는 기간이 겹치는 계약이 있을 수 없습니다. 갱신 계약은 원본 계약의
+  종료일 다음 날에 시작해야 합니다.
 - Authorization must be enforced for all manager and admin actions.
 
 ## 설계 원칙

@@ -24,7 +24,10 @@ describe("forwardProtectedMutation", () => {
   });
 
   it("forwards a server-side Bearer token and content type", async () => {
-    mockGetAccessToken.mockResolvedValue({ token: "access-token", expiresAt: 0 });
+    mockGetAccessToken.mockResolvedValue({
+      token: "access-token",
+      expiresAt: 0,
+    });
     mockFetch.mockResolvedValue(
       new Response(JSON.stringify({ id: "property-1" }), {
         status: 201,
@@ -37,7 +40,10 @@ describe("forwardProtectedMutation", () => {
       new Request("https://web.test/api/proxy/properties", {
         method: "POST",
         body: JSON.stringify({ name: "New Property" }),
-        headers: { "content-type": "application/json", authorization: "Bearer untrusted" },
+        headers: {
+          "content-type": "application/json",
+          authorization: "Bearer untrusted",
+        },
       }),
     );
 
@@ -54,7 +60,10 @@ describe("forwardProtectedMutation", () => {
     mockGetAccessToken.mockRejectedValue(new Error("no session"));
 
     await expect(
-      forwardProtectedMutation("properties", new Request("https://web.test", { method: "POST" })),
+      forwardProtectedMutation(
+        "properties",
+        new Request("https://web.test", { method: "POST" }),
+      ),
     ).resolves.toMatchObject({ status: 401 });
     expect(mockFetch).not.toHaveBeenCalled();
   });
@@ -73,7 +82,10 @@ describe("forwardProtectedMutation", () => {
     mockGetApiUrl.mockReturnValue(undefined);
 
     await expect(
-      forwardProtectedMutation("properties", new Request("https://web.test", { method: "POST" })),
+      forwardProtectedMutation(
+        "properties",
+        new Request("https://web.test", { method: "POST" }),
+      ),
     ).resolves.toMatchObject({ status: 503 });
   });
 
@@ -83,17 +95,64 @@ describe("forwardProtectedMutation", () => {
   });
 
   it("forwards an item mutation to the API item endpoint", async () => {
-    mockGetAccessToken.mockResolvedValue({ token: "access-token", expiresAt: 0 });
+    mockGetAccessToken.mockResolvedValue({
+      token: "access-token",
+      expiresAt: 0,
+    });
     mockFetch.mockResolvedValue(new Response(null, { status: 204 }));
 
     const response = await forwardProtectedMutation(
       "properties",
-      new Request("https://web.test/api/proxy/properties/property-1", { method: "DELETE" }),
+      new Request("https://web.test/api/proxy/properties/property-1", {
+        method: "DELETE",
+      }),
       "property-1",
     );
 
     const [url] = mockFetch.mock.calls[0] as [URL];
-    expect(url.toString()).toBe("https://api.approid.team/properties/property-1");
+    expect(url.toString()).toBe(
+      "https://api.approid.team/properties/property-1",
+    );
     expect(response.status).toBe(204);
+  });
+
+  it("forwards the literal renew action to the contract renewal endpoint", async () => {
+    mockGetAccessToken.mockResolvedValue({
+      token: "access-token",
+      expiresAt: 0,
+    });
+    mockFetch.mockResolvedValue(
+      new Response(JSON.stringify({ id: "contract-renewed" }), { status: 201 }),
+    );
+
+    const response = await forwardProtectedMutation(
+      "contracts",
+      new Request("https://web.test/api/proxy/contracts/contract-1/renew", {
+        method: "POST",
+        body: JSON.stringify({ startDate: "2027-09-01" }),
+      }),
+      "contract-1",
+      "renew",
+    );
+
+    const [url] = mockFetch.mock.calls[0] as [URL];
+    expect(url.toString()).toBe(
+      "https://api.approid.team/contracts/contract-1/renew",
+    );
+    expect(response.status).toBe(201);
+  });
+
+  it("rejects a non-POST renewal action before forwarding it", async () => {
+    const response = await forwardProtectedMutation(
+      "contracts",
+      new Request("https://web.test/api/proxy/contracts/contract-1/renew", {
+        method: "PUT",
+      }),
+      "contract-1",
+      "renew",
+    );
+
+    expect(response.status).toBe(405);
+    expect(mockFetch).not.toHaveBeenCalled();
   });
 });

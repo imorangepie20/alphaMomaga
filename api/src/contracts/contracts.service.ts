@@ -1,12 +1,14 @@
-import { Injectable, Optional, Inject } from '@nestjs/common';
-import { asc, eq } from 'drizzle-orm';
+import { Injectable, Optional } from '@nestjs/common';
+import { asc, eq, sql } from 'drizzle-orm';
 import type {
   Contract,
+  ContractStatus,
   CreateContractInput,
+  RenewContractInput,
   UpdateContractInput,
 } from './contract.js';
 import { validateContract } from './contract.js';
-import { contracts, tenants, properties } from '../database/schema.js';
+import { contracts, properties, tenants } from '../database/schema.js';
 import { DatabaseService } from '../database/database.service.js';
 import { AuditService } from '../audit/audit.service.js';
 import type { AuthenticatedPrincipal } from '../auth/principal.js';
@@ -27,6 +29,31 @@ export function mapContractRow(row: ContractRow): Contract {
   };
   if (row.terminatedAt) contract.terminatedAt = row.terminatedAt;
   return contract;
+}
+
+function utcCalendarDay(referenceDate: Date): string {
+  return referenceDate.toISOString().slice(0, 10);
+}
+
+function calendarDayAfter(value: string): string {
+  const date = new Date(`${value}T00:00:00.000Z`);
+  date.setUTCDate(date.getUTCDate() + 1);
+  return date.toISOString().slice(0, 10);
+}
+
+function synchronizedStatus(
+  contract: Contract,
+  referenceDate: Date,
+): ContractStatus {
+  const today = utcCalendarDay(referenceDate);
+  let status = contract.status;
+  if (status === 'Upcoming' && contract.startDate <= today) {
+    status = 'Active';
+  }
+  if (status === 'Active' && contract.endDate < today) {
+    status = 'Expired';
+  }
+  return status;
 }
 
 @Injectable()
@@ -79,21 +106,330 @@ export class ContractsService {
     },
   ];
 
-  async findAll(): Promise<Contract[]> {
+  async findAll(referenceDate = new Date()): Promise<Contract[]> {
     const database = this.databaseService?.client;
-    const records = database
-      ? (
-          await database.select().from(contracts).orderBy(asc(contracts.id))
-        ).map(mapContractRow)
-      : this.contracts;
-    records.forEach((contract) => validateContract(contract));
-    return records;
+    if (database) {
+      return database.transaction(async (transaction) =>
+        this.synchronizeDatabaseContracts(transaction, referenceDate),
+      );
+    }
+
+    this.synchronizeInMemoryContracts(referenceDate);
+    return this.contracts;
   }
 
   async create(
     input: CreateContractInput,
     principal?: AuthenticatedPrincipal,
+    referenceDate = new Date(),
   ): Promise<Contract> {
+    this.assertCreateInput(input);
+    const contractToCreate = this.buildContract(input, referenceDate);
+    const database = this.databaseService?.client;
+
+    if (database) {
+      return database.transaction(async (transaction) => {
+        await this.lockContractInterval(transaction, contractToCreate);
+        const currentContracts = await this.synchronizeDatabaseContracts(
+          transaction,
+          referenceDate,
+        );
+        this.assertNoOverlappingContract(contractToCreate, currentContracts);
+
+        const [propertyExists] = await transaction
+          .select()
+          .from(properties)
+          .where(eq(properties.id, input.propertyId))
+          .limit(1);
+        if (!propertyExists) {
+          throw new Error(`Property ${input.propertyId} not found`);
+        }
+
+        const [tenantExists] = await transaction
+          .select()
+          .from(tenants)
+          .where(eq(tenants.id, input.tenantId))
+          .limit(1);
+        if (!tenantExists) {
+          throw new Error(`Tenant ${input.tenantId} not found`);
+        }
+
+        const [row] = await transaction
+          .insert(contracts)
+          .values(this.toContractRow(contractToCreate))
+          .returning();
+
+        await this.recordAudit(transaction, {
+          action: 'contract.created',
+          principal,
+          entityId: row.id,
+          metadata: {
+            propertyId: input.propertyId,
+            tenantId: input.tenantId,
+            unit: input.unit,
+          },
+        });
+
+        return mapContractRow(row);
+      });
+    }
+
+    this.synchronizeInMemoryContracts(referenceDate);
+    this.assertFixtureReferences(input);
+    this.assertNoOverlappingContract(contractToCreate, this.contracts);
+    this.contracts.push(contractToCreate);
+    return contractToCreate;
+  }
+
+  async update(
+    id: string,
+    input: UpdateContractInput,
+    principal?: AuthenticatedPrincipal,
+    referenceDate = new Date(),
+  ): Promise<Contract> {
+    const database = this.databaseService?.client;
+    if (database) {
+      return database.transaction(async (transaction) => {
+        const currentContracts = await this.synchronizeDatabaseContracts(
+          transaction,
+          referenceDate,
+        );
+        const existing = this.findRequiredContract(id, currentContracts);
+        const updated = {
+          ...existing,
+          ...(input.status !== undefined && { status: input.status }),
+          ...(input.terminatedAt !== undefined && {
+            terminatedAt: input.terminatedAt,
+          }),
+        };
+        validateContract(updated, referenceDate);
+
+        const [row] = await transaction
+          .update(contracts)
+          .set({
+            ...(input.status !== undefined && { status: input.status }),
+            ...(input.terminatedAt !== undefined && {
+              terminatedAt: input.terminatedAt,
+            }),
+          })
+          .where(eq(contracts.id, id))
+          .returning();
+
+        await this.recordAudit(transaction, {
+          action: 'contract.updated',
+          principal,
+          entityId: id,
+          metadata: { changes: input },
+        });
+
+        return mapContractRow(row);
+      });
+    }
+
+    this.synchronizeInMemoryContracts(referenceDate);
+    const existing = this.findRequiredContract(id, this.contracts);
+    const updated = {
+      ...existing,
+      ...(input.status !== undefined && { status: input.status }),
+      ...(input.terminatedAt !== undefined && {
+        terminatedAt: input.terminatedAt,
+      }),
+    };
+    validateContract(updated, referenceDate);
+    Object.assign(existing, updated);
+    return existing;
+  }
+
+  async renew(
+    id: string,
+    input: RenewContractInput,
+    principal?: AuthenticatedPrincipal,
+    referenceDate = new Date(),
+  ): Promise<Contract> {
+    const database = this.databaseService?.client;
+    if (database) {
+      return database.transaction(async (transaction) => {
+        const [sourceRow] = await transaction
+          .select()
+          .from(contracts)
+          .where(eq(contracts.id, id))
+          .limit(1);
+        if (!sourceRow) {
+          throw new Error(`Contract ${id} not found`);
+        }
+        await this.lockContractInterval(transaction, mapContractRow(sourceRow));
+        const currentContracts = await this.synchronizeDatabaseContracts(
+          transaction,
+          referenceDate,
+        );
+        const source = this.findRequiredContract(id, currentContracts);
+        const renewed = this.buildRenewedContract(source, input, referenceDate);
+        this.assertNoOverlappingContract(renewed, currentContracts, source.id);
+
+        const [row] = await transaction
+          .insert(contracts)
+          .values(this.toContractRow(renewed))
+          .returning();
+
+        await this.recordAudit(transaction, {
+          action: 'contract.renewed',
+          principal,
+          entityId: row.id,
+          metadata: { sourceContractId: source.id },
+        });
+
+        return mapContractRow(row);
+      });
+    }
+
+    this.synchronizeInMemoryContracts(referenceDate);
+    const source = this.findRequiredContract(id, this.contracts);
+    const renewed = this.buildRenewedContract(source, input, referenceDate);
+    this.assertNoOverlappingContract(renewed, this.contracts, source.id);
+    this.contracts.push(renewed);
+    return renewed;
+  }
+
+  private async synchronizeDatabaseContracts(
+    database: any,
+    referenceDate: Date,
+  ): Promise<Contract[]> {
+    const rows = await database
+      .select()
+      .from(contracts)
+      .orderBy(asc(contracts.id));
+    const synchronized: Contract[] = [];
+
+    for (const row of rows) {
+      const contract = mapContractRow(row);
+      const status = synchronizedStatus(contract, referenceDate);
+      if (status !== contract.status) {
+        const [updatedRow] = await database
+          .update(contracts)
+          .set({ status })
+          .where(eq(contracts.id, contract.id))
+          .returning();
+        synchronized.push(mapContractRow(updatedRow));
+      } else {
+        synchronized.push(contract);
+      }
+    }
+
+    return synchronized;
+  }
+
+  private async lockContractInterval(
+    database: any,
+    contract: Pick<Contract, 'propertyId' | 'unit'>,
+  ): Promise<void> {
+    await database.execute(
+      sql`SELECT pg_advisory_xact_lock(hashtext(${contract.propertyId} || ':' || ${contract.unit}))`,
+    );
+  }
+
+  private synchronizeInMemoryContracts(referenceDate: Date): void {
+    for (const contract of this.contracts) {
+      contract.status = synchronizedStatus(contract, referenceDate);
+    }
+  }
+
+  private buildContract(
+    input: CreateContractInput,
+    referenceDate: Date,
+  ): Contract {
+    const monthlyRentWon = this.parseRent(input.monthlyRent);
+    const contract: Contract = {
+      id: `contract-${randomUUID()}`,
+      ...input,
+      monthlyRent: `₩${monthlyRentWon.toLocaleString('en-US')}`,
+    };
+    validateContract(contract, referenceDate);
+    return contract;
+  }
+
+  private buildRenewedContract(
+    source: Contract,
+    input: RenewContractInput,
+    referenceDate: Date,
+  ): Contract {
+    if (source.status === 'Terminated') {
+      throw new Error(
+        `Contract ${source.id} cannot be renewed after termination`,
+      );
+    }
+    if (source.status !== 'Active' && source.status !== 'Expired') {
+      throw new Error(
+        `Contract ${source.id} must be active or expired to renew`,
+      );
+    }
+
+    const expectedStartDate = calendarDayAfter(source.endDate);
+    if (input.startDate !== expectedStartDate) {
+      throw new Error(
+        `Renewed contract must start on the day after ${source.id} ends`,
+      );
+    }
+    if (input.startDate < utcCalendarDay(referenceDate)) {
+      throw new Error('Renewed contract cannot start before today');
+    }
+
+    const monthlyRentWon = this.parseRent(input.monthlyRent);
+    const status: ContractStatus =
+      input.startDate > utcCalendarDay(referenceDate) ? 'Upcoming' : 'Active';
+    const renewed: Contract = {
+      id: `contract-${randomUUID()}`,
+      propertyId: source.propertyId,
+      tenantId: source.tenantId,
+      unit: source.unit,
+      monthlyRent: `₩${monthlyRentWon.toLocaleString('en-US')}`,
+      startDate: input.startDate,
+      endDate: input.endDate,
+      status,
+    };
+    validateContract(renewed, referenceDate);
+    return renewed;
+  }
+
+  private assertNoOverlappingContract(
+    candidate: Contract,
+    currentContracts: Contract[],
+    excludedId?: string,
+  ): void {
+    const overlapping = currentContracts.find((existing) => {
+      if (existing.id === excludedId) return false;
+      if (
+        existing.propertyId !== candidate.propertyId ||
+        existing.unit !== candidate.unit
+      ) {
+        return false;
+      }
+
+      const effectiveEndDate =
+        existing.status === 'Terminated' && existing.terminatedAt
+          ? existing.terminatedAt
+          : existing.endDate;
+      return (
+        candidate.startDate <= effectiveEndDate &&
+        existing.startDate <= candidate.endDate
+      );
+    });
+
+    if (overlapping) {
+      throw new Error(
+        `Contract ${candidate.id} overlaps an existing contract ${overlapping.id}`,
+      );
+    }
+  }
+
+  private findRequiredContract(id: string, records: Contract[]): Contract {
+    const contract = records.find((item) => item.id === id);
+    if (!contract) {
+      throw new Error(`Contract ${id} not found`);
+    }
+    return contract;
+  }
+
+  private assertCreateInput(input: CreateContractInput): void {
     if (
       !input.propertyId ||
       !input.tenantId ||
@@ -107,164 +443,56 @@ export class ContractsService {
         'Contract requires propertyId, tenantId, unit, monthlyRent, startDate, endDate, and status',
       );
     }
-
-    const monthlyRentWon = this.parseRent(input.monthlyRent);
-    const contractToValidate: Contract = {
-      id: `contract-temp`,
-      ...input,
-      monthlyRent: `₩${monthlyRentWon.toLocaleString('en-US')}`,
-    };
-    validateContract(contractToValidate);
-
-    const database = this.databaseService?.client;
-    if (database) {
-      return database.transaction(async (transaction) => {
-        // 외래키 검증: propertyId와 tenantId 존재 확인
-        const [propertyExists] = await transaction
-          .select()
-          .from(properties)
-          .where(eq(properties.id, input.propertyId))
-          .limit(1);
-        if (!propertyExists) {
-          throw new Error(
-            `Property ${input.propertyId}을(를) 찾을 수 없습니다`,
-          );
-        }
-
-        const [tenantExists] = await transaction
-          .select()
-          .from(tenants)
-          .where(eq(tenants.id, input.tenantId))
-          .limit(1);
-        if (!tenantExists) {
-          throw new Error(`Tenant ${input.tenantId}을(를) 찾을 수 없습니다`);
-        }
-
-        const [row] = await transaction
-          .insert(contracts)
-          .values({
-            id: `contract-${randomUUID()}`,
-            propertyId: input.propertyId,
-            tenantId: input.tenantId,
-            unit: input.unit,
-            monthlyRentWon,
-            startDate: input.startDate,
-            endDate: input.endDate,
-            status: input.status,
-          })
-          .returning();
-
-        if (this.auditService) {
-          await this.auditService.record(transaction, {
-            action: 'contract.created',
-            actorSubject: principal?.subject ?? 'system',
-            actorRole: principal?.role ?? 'system',
-            entityType: 'contract',
-            entityId: row.id,
-            metadata: {
-              propertyId: input.propertyId,
-              tenantId: input.tenantId,
-              unit: input.unit,
-            },
-          });
-        }
-
-        return mapContractRow(row);
-      });
-    }
-
-    // 인-메모리 검증 (fixtures 데이터에 hardcoded)
-    const fixtureProperties = [
-      { id: 'property-1' },
-      { id: 'property-2' },
-      { id: 'property-3' },
-      { id: 'property-4' },
-    ];
-    const fixtureTenants = [
-      { id: 'tenant-1' },
-      { id: 'tenant-2' },
-      { id: 'tenant-3' },
-      { id: 'tenant-4' },
-    ];
-
-    if (!fixtureProperties.find((p) => p.id === input.propertyId)) {
-      throw new Error(`Property ${input.propertyId}을(를) 찾을 수 없습니다`);
-    }
-    if (!fixtureTenants.find((t) => t.id === input.tenantId)) {
-      throw new Error(`Tenant ${input.tenantId}을(를) 찾을 수 없습니다`);
-    }
-
-    const contract: Contract = {
-      id: `contract-${this.contracts.length + 1}`,
-      propertyId: input.propertyId,
-      tenantId: input.tenantId,
-      unit: input.unit,
-      monthlyRent: `₩${monthlyRentWon.toLocaleString('en-US')}`,
-      startDate: input.startDate,
-      endDate: input.endDate,
-      status: input.status,
-    };
-    this.contracts.push(contract);
-    return contract;
   }
 
-  async update(
-    id: string,
-    input: UpdateContractInput,
-    principal?: AuthenticatedPrincipal,
-  ): Promise<Contract> {
-    const database = this.databaseService?.client;
-    if (database) {
-      return database.transaction(async (transaction) => {
-        const [row] = await transaction
-          .update(contracts)
-          .set({
-            ...(input.status !== undefined && { status: input.status }),
-            ...(input.terminatedAt !== undefined && {
-              terminatedAt: input.terminatedAt,
-            }),
-          })
-          .where(eq(contracts.id, id))
-          .returning();
-
-        if (!row) {
-          throw new Error(`Contract ${id} not found`);
-        }
-
-        const contract = mapContractRow(row);
-        validateContract(contract);
-
-        if (this.auditService) {
-          await this.auditService.record(transaction, {
-            action: 'contract.updated',
-            actorSubject: principal?.subject ?? 'system',
-            actorRole: principal?.role ?? 'system',
-            entityType: 'contract',
-            entityId: id,
-            metadata: { changes: input },
-          });
-        }
-
-        return contract;
-      });
+  private assertFixtureReferences(input: CreateContractInput): void {
+    const propertyIds = new Set([
+      'property-1',
+      'property-2',
+      'property-3',
+      'property-4',
+    ]);
+    const tenantIds = new Set(['tenant-1', 'tenant-2', 'tenant-3', 'tenant-4']);
+    if (!propertyIds.has(input.propertyId)) {
+      throw new Error(`Property ${input.propertyId} not found`);
     }
-
-    const contract = this.contracts.find((c) => c.id === id);
-    if (!contract) {
-      throw new Error(`Contract ${id} not found`);
+    if (!tenantIds.has(input.tenantId)) {
+      throw new Error(`Tenant ${input.tenantId} not found`);
     }
+  }
 
-    const updatedContract: Contract = {
-      ...contract,
-      ...(input.status !== undefined && { status: input.status }),
-      ...(input.terminatedAt !== undefined && {
-        terminatedAt: input.terminatedAt,
-      }),
+  private toContractRow(contract: Contract) {
+    return {
+      id: contract.id,
+      propertyId: contract.propertyId,
+      tenantId: contract.tenantId,
+      unit: contract.unit,
+      monthlyRentWon: this.parseRent(contract.monthlyRent),
+      startDate: contract.startDate,
+      endDate: contract.endDate,
+      status: contract.status,
+      ...(contract.terminatedAt && { terminatedAt: contract.terminatedAt }),
     };
-    validateContract(updatedContract);
-    Object.assign(contract, updatedContract);
+  }
 
-    return contract;
+  private async recordAudit(
+    database: any,
+    event: {
+      action: string;
+      principal?: AuthenticatedPrincipal;
+      entityId: string;
+      metadata?: Record<string, unknown>;
+    },
+  ): Promise<void> {
+    if (!this.auditService) return;
+    await this.auditService.record(database, {
+      action: event.action,
+      actorSubject: event.principal?.subject ?? 'system',
+      actorRole: event.principal?.role ?? 'system',
+      entityType: 'contract',
+      entityId: event.entityId,
+      metadata: event.metadata,
+    });
   }
 
   private parseRent(rent: string): number {

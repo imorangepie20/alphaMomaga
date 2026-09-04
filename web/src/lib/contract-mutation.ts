@@ -15,6 +15,12 @@ export type UpdateContractMutationInput = {
   terminatedAt?: string;
 };
 
+export type RenewContractMutationInput = {
+  startDate: string;
+  endDate: string;
+  monthlyRent: number;
+};
+
 async function request(path: string, method: "POST" | "PUT", body: object) {
   const response = await fetch(path, {
     method,
@@ -41,4 +47,18 @@ export async function updateContract(
   input: UpdateContractMutationInput,
 ): Promise<void> {
   await request(`/api/proxy/contracts/${encodeURIComponent(id)}`, "PUT", input);
+}
+
+export async function renewContract(
+  id: string,
+  input: RenewContractMutationInput,
+): Promise<void> {
+  await request(
+    `/api/proxy/contracts/${encodeURIComponent(id)}/renew`,
+    "POST",
+    {
+      ...input,
+      monthlyRent: `₩${input.monthlyRent.toLocaleString("en-US")}`,
+    },
+  );
 }

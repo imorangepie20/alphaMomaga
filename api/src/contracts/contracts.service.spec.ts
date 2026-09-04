@@ -21,6 +21,95 @@ describe('ContractsService', () => {
     expect(await new ContractsService().findAll()).toHaveLength(4);
   });
 
+  it('synchronizes due lifecycle states when listing contracts', async () => {
+    const service = new ContractsService();
+
+    const records = await service.findAll(new Date('2027-09-01T00:00:00.000Z'));
+
+    expect(records.find((item) => item.id === 'contract-1')?.status).toBe(
+      'Expired',
+    );
+  });
+
+  it('synchronizes a past upcoming contract directly to expired', async () => {
+    const service = new ContractsService();
+    (service as unknown as { contracts: Contract[] }).contracts.push(
+      contract({
+        id: 'contract-past-upcoming',
+        startDate: '2026-01-01',
+        endDate: '2026-02-01',
+        status: 'Upcoming',
+      }),
+    );
+
+    const records = await service.findAll(new Date('2026-09-02T00:00:00.000Z'));
+
+    expect(
+      records.find((item) => item.id === 'contract-past-upcoming')?.status,
+    ).toBe('Expired');
+  });
+
+  it('creates an upcoming successor using source identity fields', async () => {
+    const service = new ContractsService();
+
+    const renewed = await service.renew(
+      'contract-1',
+      {
+        startDate: '2027-09-01',
+        endDate: '2028-08-31',
+        monthlyRent: '₩1,300,000',
+      },
+      undefined,
+      new Date('2026-09-04T00:00:00.000Z'),
+    );
+
+    expect(renewed).toEqual(
+      expect.objectContaining({
+        propertyId: 'property-1',
+        tenantId: 'tenant-1',
+        unit: 'A-101',
+        status: 'Upcoming',
+      }),
+    );
+  });
+
+  it('rejects a renewal that does not start the day after the source end date', async () => {
+    const service = new ContractsService();
+
+    await expect(
+      service.renew(
+        'contract-1',
+        {
+          startDate: '2027-09-02',
+          endDate: '2028-09-01',
+          monthlyRent: '₩1,300,000',
+        },
+        undefined,
+        new Date('2026-09-04T00:00:00.000Z'),
+      ),
+    ).rejects.toThrow('must start on the day after');
+  });
+
+  it('rejects a new contract that overlaps an occupied unit period', async () => {
+    const service = new ContractsService();
+
+    await expect(
+      service.create(
+        {
+          propertyId: 'property-1',
+          tenantId: 'tenant-2',
+          unit: 'A-101',
+          monthlyRent: '₩1,300,000',
+          startDate: '2027-06-01',
+          endDate: '2027-12-31',
+          status: 'Upcoming',
+        },
+        undefined,
+        new Date('2026-09-04T00:00:00.000Z'),
+      ),
+    ).rejects.toThrow('overlaps an existing contract');
+  });
+
   it('maps database rent and nullable termination values to the public contract', () => {
     const mapped = mapContractRow({
       id: 'contract-db',

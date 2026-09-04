@@ -50,6 +50,16 @@ describe('ContractsController', () => {
               endDate: '2027-08-31',
               status: 'Expired',
             }),
+            renew: vi.fn().mockResolvedValue({
+              id: 'contract-renewed',
+              propertyId: 'property-1',
+              tenantId: 'tenant-1',
+              unit: 'A-101',
+              monthlyRent: '??,300,000',
+              startDate: '2027-09-01',
+              endDate: '2028-08-31',
+              status: 'Upcoming',
+            }),
           },
         },
         {
@@ -114,7 +124,9 @@ describe('ContractsController', () => {
         status: 'Upcoming' as const,
       };
       const mockRequest = { user: { subject: 'user-1', role: 'admin' } } as any;
-      (service.create as any).mockRejectedValueOnce(new Error('Property not found'));
+      (service.create as any).mockRejectedValueOnce(
+        new Error('Property not found'),
+      );
 
       expect(async () => {
         await controller.create(input, mockRequest);
@@ -134,7 +146,11 @@ describe('ContractsController', () => {
         id: 'contract-1',
         status: 'Expired',
       });
-      expect(service.update).toHaveBeenCalledWith('contract-1', input, mockRequest.user);
+      expect(service.update).toHaveBeenCalledWith(
+        'contract-1',
+        input,
+        mockRequest.user,
+      );
     });
 
     it('should throw BadRequestException when service throws error', async () => {
@@ -142,11 +158,36 @@ describe('ContractsController', () => {
         status: 'Expired' as const,
       };
       const mockRequest = { user: { subject: 'user-1', role: 'admin' } } as any;
-      (service.update as any).mockRejectedValueOnce(new Error('Contract not found'));
+      (service.update as any).mockRejectedValueOnce(
+        new Error('Contract not found'),
+      );
 
       expect(async () => {
         await controller.update('non-existent-id', input, mockRequest);
       }).rejects.toThrow(BadRequestException);
+    });
+  });
+
+  describe('renew', () => {
+    it('forwards the authenticated principal to the renewal service', async () => {
+      const input = {
+        startDate: '2027-09-01',
+        endDate: '2028-08-31',
+        monthlyRent: '??,300,000',
+      };
+      const mockRequest = { user: { subject: 'user-1', role: 'admin' } } as any;
+
+      const result = await controller.renew('contract-1', input, mockRequest);
+
+      expect(result).toMatchObject({
+        id: 'contract-renewed',
+        status: 'Upcoming',
+      });
+      expect(service.renew).toHaveBeenCalledWith(
+        'contract-1',
+        input,
+        mockRequest.user,
+      );
     });
   });
 });
