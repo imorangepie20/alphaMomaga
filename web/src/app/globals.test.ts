@@ -11,6 +11,18 @@ const nativeSelectSource = readFileSync(
   resolve(__dirname, "../components/ui/native-select.tsx"),
   "utf8"
 );
+const textareaSource = readFileSync(
+  resolve(__dirname, "../components/ui/textarea.tsx"),
+  "utf8"
+);
+const selectSource = readFileSync(
+  resolve(__dirname, "../components/ui/select.tsx"),
+  "utf8"
+);
+const buttonSource = readFileSync(
+  resolve(__dirname, "../components/ui/button.tsx"),
+  "utf8"
+);
 
 describe("global form styles", () => {
   it("declares a light color scheme for browser-native controls", () => {
@@ -35,10 +47,19 @@ describe("global form styles", () => {
     expect(globalStyles).toContain("--dialog-padding: 1.5rem");
   });
 
-  it("keeps text and native select controls light-only and compact", () => {
-    expect(inputSource).toContain("h-9");
+  it("uses the shared height token in every default form control", () => {
+    expect(inputSource).toContain("h-(--control-height)");
+    expect(textareaSource).toContain("min-h-(--control-height)");
+    expect(nativeSelectSource).toContain("h-(--control-height)");
+    expect(selectSource).toContain("h-(--control-height)");
+    expect(buttonSource).toContain("h-(--control-height)");
+  });
+
+  it("keeps shared controls light-only", () => {
     expect(inputSource).not.toContain("dark:");
-    expect(nativeSelectSource).toContain("h-9");
+    expect(textareaSource).not.toContain("dark:");
     expect(nativeSelectSource).not.toContain("dark:");
+    expect(selectSource).not.toContain("dark:");
+    expect(buttonSource).not.toContain("dark:");
   });
 });
