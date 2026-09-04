@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ScheduleModule } from '@nestjs/schedule';
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
 import { PropertiesController } from './properties/properties.controller.js';
@@ -23,7 +24,7 @@ import { AuthModule } from './auth/auth.module.js';
 import { DomainModule } from './domain/domain.module.js';
 
 @Module({
-  imports: [DatabaseModule, AuditModule, DomainModule, RolesModule, AuthModule, ContractsModule, BillingModule],
+  imports: [ScheduleModule.forRoot(), DatabaseModule, AuditModule, DomainModule, RolesModule, AuthModule, ContractsModule, BillingModule],
   controllers: [AppController, PropertiesController, TenantsController, ContractsController, PaymentsController, MaintenanceController, InspectionsController, RolesController, AuthController],
   providers: [AppService, PropertiesService, TenantsService, PaymentsService, MaintenanceService, InspectionsService],
 })

@@ -8,11 +8,12 @@ import { DatabaseModule } from '../database/database.module.js';
 import { RolesModule } from '../roles/roles.module.js';
 import { BillingController } from './billing.controller.js';
 import { BillingService } from './billing.service.js';
+import { BillingScheduler } from './billing.scheduler.js';
 
 @Module({
   imports: [AuditModule, AuthModule, ContractsModule, DatabaseModule, RolesModule],
   controllers: [BillingController],
-  providers: [BillingService, AuthGuard, PermissionsGuard],
+  providers: [BillingService, BillingScheduler, AuthGuard, PermissionsGuard],
   exports: [BillingService],
 })
 export class BillingModule {}
