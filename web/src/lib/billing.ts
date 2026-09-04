@@ -40,6 +40,7 @@ export type PaymentReceipt = {
   receivedDate: string;
   amountWon: number;
   method: "BankTransfer" | "Cash" | "Card" | "Other";
+  allocations: { chargeId: string; amountWon: number }[];
   voidedAt?: string;
   voidReason?: string;
 };
