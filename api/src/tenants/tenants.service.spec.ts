@@ -1,6 +1,20 @@
 import { parseRent, TenantsService } from './tenants.service.js';
 
 describe('TenantsService', () => {
+  it('accepts integer won amounts from the registration form', async () => {
+    const service = new TenantsService();
+    expect(await service.create({ name: 'Lee', propertyId: 'property-2', unit: 'A-109', rent: 2000000 })).toMatchObject({ rent: '₩2,000,000' });
+  });
+
+  it.each([1, 999, 2000000])('accepts positive whole won amounts %s', (rent) => {
+    expect(parseRent(rent)).toBe(rent);
+    expect(parseRent(`₩${rent.toLocaleString('en-US')}`)).toBe(rent);
+  });
+
+  it.each([0, -1, 1.5, NaN, Infinity, Number.MAX_SAFE_INTEGER + 1, null, true, {}])('rejects invalid numeric rent %s', (rent) => {
+    expect(() => parseRent(rent as number)).toThrow();
+  });
+
   it('returns tenant records with payment status', async () => {
     const tenants = await new TenantsService().findAll();
 

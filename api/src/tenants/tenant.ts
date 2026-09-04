@@ -9,7 +9,7 @@ export type Tenant = {
   status: TenantPaymentStatus;
 };
 
-export type CreateTenantInput = Omit<Tenant, 'id' | 'status'>;
+export type CreateTenantInput = Omit<Tenant, 'id' | 'status' | 'rent'> & { rent: number | string };
 
 export type UpdateTenantInput = {
   name?: string;

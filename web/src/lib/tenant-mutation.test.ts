@@ -20,7 +20,7 @@ describe("saveTenant", () => {
     await saveTenant(input);
     expect(mockFetch).toHaveBeenLastCalledWith(
       "/api/proxy/tenants",
-      expect.objectContaining({ method: "POST", body: JSON.stringify({ ...input, rent: "₩1,100,000" }) }),
+      expect.objectContaining({ method: "POST", body: JSON.stringify(input) }),
     );
     await saveTenant(input, "tenant-1");
     expect(mockFetch).toHaveBeenLastCalledWith(

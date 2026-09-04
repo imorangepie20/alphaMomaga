@@ -11,8 +11,12 @@ import { InMemoryReferenceRegistry } from '../domain/in-memory-reference-registr
 
 type TenantRow = typeof tenants.$inferSelect;
 
-export function parseRent(rent: string): number {
-  if (!/^₩(?:0|[1-9]\d{0,2}(?:,\d{3})+)$/.test(rent)) {
+export function parseRent(rent: string | number): number {
+  if (typeof rent === 'number') {
+    if (!Number.isSafeInteger(rent) || rent <= 0) throw new Error('Tenant rent must be a positive whole won amount');
+    return rent;
+  }
+  if (typeof rent !== 'string' || !/^₩[1-9]\d{0,2}(?:,\d{3})*$/.test(rent)) {
     throw new Error('Tenant rent must be a positive won amount such as ₩1,200,000');
   }
 

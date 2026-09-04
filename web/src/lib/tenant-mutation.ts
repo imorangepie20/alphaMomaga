@@ -16,7 +16,7 @@ export async function saveTenant(
       headers: { "content-type": "application/json" },
       body: JSON.stringify(id
         ? { name: input.name, unit: input.unit, rent: input.rent }
-        : { ...input, rent: `₩${input.rent.toLocaleString("en-US")}` }),
+        : input),
     },
   );
   if (!response.ok) throw new Error(String(response.status));
