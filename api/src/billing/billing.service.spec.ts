@@ -20,6 +20,7 @@ describe('billing calendar rules', () => {
     expect(deriveChargeStatus(charge, new Date('2026-09-05T00:00:00.000Z'))).toBe('Approved');
     expect(deriveChargeStatus(charge, new Date('2026-09-06T00:00:00.000Z'))).toBe('Overdue');
     expect(deriveChargeStatus({ ...charge, receivedWon: 100, outstandingWon: 0 }, new Date('2026-09-06T00:00:00.000Z'))).toBe('Paid');
+    expect(deriveChargeStatus({ ...charge, status: 'Draft' }, new Date('2026-09-06T00:00:00.000Z'))).toBe('Draft');
     expect(deriveChargeStatus({ ...charge, status: 'Cancelled' }, new Date('2026-09-06T00:00:00.000Z'))).toBe('Cancelled');
   });
 });

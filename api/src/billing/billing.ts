@@ -67,6 +67,7 @@ export type PaymentReceipt = Omit<PaymentReceiptInput, 'allocations'> & {
 
 export function deriveChargeStatus(charge: MonthlyCharge, referenceDate: Date): MonthlyChargeStatus {
   if (charge.status === 'Cancelled') return 'Cancelled';
+  if (charge.status === 'Draft') return 'Draft';
   if (charge.outstandingWon === 0) return 'Paid';
   const parts = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Seoul', year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(referenceDate);
   const year = parts.find((part) => part.type === 'year')?.value;
@@ -74,7 +75,7 @@ export function deriveChargeStatus(charge: MonthlyCharge, referenceDate: Date): 
   const day = parts.find((part) => part.type === 'day')?.value;
   const asOfDate = year && month && day ? `${year}-${month}-${day}` : '';
   if (asOfDate > charge.dueDate) return 'Overdue';
-  return charge.receivedWon > 0 ? 'PartiallyPaid' : charge.status === 'Draft' ? 'Draft' : 'Approved';
+  return charge.receivedWon > 0 ? 'PartiallyPaid' : 'Approved';
 }
 
 export function parseBillingMonth(value: string): { year: number; month: number } {
