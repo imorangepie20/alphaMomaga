@@ -11,6 +11,7 @@ import { FieldError, FormField } from "@/components/ui/field";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { PropertyMutationError, saveProperty, type PropertyMutationInput } from "@/lib/property-mutation";
+import type { PropertyOperationRow } from "@/lib/property-operations";
 import type { Property, PropertyStatus } from "@/lib/properties";
 
 type PropertyForm = PropertyMutationInput;
@@ -30,7 +31,7 @@ function getErrorMessage(error: unknown): string {
   return "저장하지 못했습니다. 입력값을 확인한 뒤 다시 시도해 주세요.";
 }
 
-export function PropertyManager({ properties }: { properties: Property[] }) {
+export function PropertyManager({ properties }: { properties: PropertyOperationRow[] }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
@@ -82,15 +83,16 @@ export function PropertyManager({ properties }: { properties: Property[] }) {
       </div>
       <Table>
         <TableHeader>
-          <TableRow>
-            <TableHead className="pl-6">자산명</TableHead><TableHead>위치</TableHead><TableHead>유형</TableHead><TableHead>점유율</TableHead><TableHead>상태</TableHead><TableHead className="pr-6 text-right">관리</TableHead>
-          </TableRow>
+          <TableRow><TableHead className="pl-6">자산</TableHead><TableHead>점유율</TableHead><TableHead>이번 달 수납</TableHead><TableHead>운영 현황</TableHead><TableHead>상태</TableHead><TableHead className="pr-6 text-right">관리</TableHead></TableRow>
         </TableHeader>
         <TableBody>
           {properties.map((property) => (
             <TableRow key={property.id}>
-              <TableCell className="pl-6 font-medium">{property.name}</TableCell><TableCell>{property.location}</TableCell><TableCell>{property.type}</TableCell><TableCell>{property.occupancy}</TableCell>
-              <TableCell><Badge variant="outline" className={property.status === "Occupied" ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-700" : "border-amber-500/30 bg-amber-500/10 text-amber-700"}>{property.status === "Occupied" ? "점유" : property.status === "Active" ? "운영 중" : "검토 중"}</Badge></TableCell>
+              <TableCell className="pl-6"><div className="font-medium">{property.name}</div><div className="mt-1 text-xs text-muted-foreground">{property.location} · {property.type}<br />임차인 {property.tenantCount}명 · 활성 계약 {property.activeContractCount}건</div></TableCell>
+              <TableCell className="font-medium">{property.occupancy}</TableCell>
+              <TableCell><div className="text-sm">청구 {property.billedWon.toLocaleString("ko-KR")}원</div><div className={property.outstandingWon > 0 ? "mt-1 text-xs font-medium text-destructive" : "mt-1 text-xs text-muted-foreground"}>수납 {property.receivedWon.toLocaleString("ko-KR")}원 · 미수 {property.outstandingWon.toLocaleString("ko-KR")}원</div></TableCell>
+              <TableCell><div className="text-sm">미완료 업무 {property.openWorkCount}건</div><div className={property.expiringContractCount > 0 ? "mt-1 text-xs font-medium text-amber-700" : "mt-1 text-xs text-muted-foreground"}>90일 내 계약 만료 {property.expiringContractCount}건</div></TableCell>
+              <TableCell><Badge variant="outline" className={property.needsAttention ? "border-amber-500/30 bg-amber-500/10 text-amber-700" : "border-emerald-500/30 bg-emerald-500/10 text-emerald-700"}>{property.needsAttention ? "확인 필요" : "정상"}</Badge></TableCell>
               <TableCell className="pr-6 text-right"><Button variant="ghost" size="sm" onClick={() => openEditDialog(property)}><PencilIcon data-icon="inline-start" />수정</Button></TableCell>
             </TableRow>
           ))}
