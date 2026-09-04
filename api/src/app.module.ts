@@ -6,7 +6,7 @@ import { PropertiesService } from './properties/properties.service.js';
 import { TenantsController } from './tenants/tenants.controller.js';
 import { TenantsService } from './tenants/tenants.service.js';
 import { ContractsController } from './contracts/contracts.controller.js';
-import { ContractsService } from './contracts/contracts.service.js';
+import { ContractsModule } from './contracts/contracts.module.js';
 import { PaymentsController } from './payments/payments.controller.js';
 import { PaymentsService } from './payments/payments.service.js';
 import { MaintenanceController } from './maintenance/maintenance.controller.js';
@@ -26,8 +26,8 @@ import { InMemoryReferenceRegistry } from './domain/in-memory-reference-registry
 import { BillingModule } from './billing/billing.module.js';
 
 @Module({
-  imports: [DatabaseModule, AuditModule, BillingModule],
+  imports: [DatabaseModule, AuditModule, ContractsModule, BillingModule],
   controllers: [AppController, PropertiesController, TenantsController, ContractsController, PaymentsController, MaintenanceController, InspectionsController, RolesController, AuthController],
-  providers: [AppService, InMemoryReferenceRegistry, PropertiesService, TenantsService, ContractsService, PaymentsService, MaintenanceService, InspectionsService, RolesService, AuthGuard, AuthConfigService, AuthService, PermissionsGuard],
+  providers: [AppService, InMemoryReferenceRegistry, PropertiesService, TenantsService, PaymentsService, MaintenanceService, InspectionsService, RolesService, AuthGuard, AuthConfigService, AuthService, PermissionsGuard],
 })
 export class AppModule {}

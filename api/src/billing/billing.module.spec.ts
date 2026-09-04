@@ -10,4 +10,17 @@ describe('BillingModule', () => {
 
     expect(module.get(BillingService)).toBeInstanceOf(BillingService);
   });
+
+  it('shares the contract source needed to generate a monthly draft', async () => {
+    const module = await Test.createTestingModule({
+      imports: [BillingModule],
+    }).compile();
+
+    await expect(
+      module.get(BillingService).generateMonth(
+        '2026-09',
+        new Date('2026-09-04T00:00:00.000Z'),
+      ),
+    ).resolves.toHaveLength(4);
+  });
 });
