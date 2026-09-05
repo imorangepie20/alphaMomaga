@@ -27,6 +27,10 @@ function isReadyForReceipt(status: MonthlyCharge['status']): boolean {
   return status === 'Approved' || status === 'PartiallyPaid' || status === 'Overdue';
 }
 
+function isConfirmedCharge(charge: MonthlyCharge): boolean {
+  return charge.status !== 'Draft' && charge.status !== 'Cancelled';
+}
+
 @Injectable()
 export class BillingService {
   private readonly charges: MonthlyCharge[] = [];
@@ -277,9 +281,11 @@ export class BillingService {
   async getSummary(billingMonth: string): Promise<BillingSummary> {
     const charges = await this.findCharges({ billingMonth });
     return charges.reduce<BillingSummary>((summary, charge) => {
-      summary.billedWon += charge.billedWon;
-      summary.receivedWon += charge.receivedWon;
-      summary.outstandingWon += charge.outstandingWon;
+      if (isConfirmedCharge(charge)) {
+        summary.billedWon += charge.billedWon;
+        summary.receivedWon += charge.receivedWon;
+        summary.outstandingWon += charge.outstandingWon;
+      }
       if (charge.status === 'Draft') summary.draftCount += 1;
       if (charge.status === 'Approved') summary.approvedCount += 1;
       if (charge.status === 'PartiallyPaid') summary.partiallyPaidCount += 1;
@@ -306,14 +312,15 @@ export class BillingService {
       this.findCharges({ tenantId, billingMonth }),
       this.findReceipts({ tenantId, billingMonth }),
     ]);
+    const confirmedCharges = charges.filter(isConfirmedCharge);
     return {
       tenantId,
       billingMonth,
       charges,
       receipts,
-      billedWon: charges.reduce((total, charge) => total + charge.billedWon, 0),
-      receivedWon: charges.reduce((total, charge) => total + charge.receivedWon, 0),
-      outstandingWon: charges.reduce((total, charge) => total + charge.outstandingWon, 0),
+      billedWon: confirmedCharges.reduce((total, charge) => total + charge.billedWon, 0),
+      receivedWon: confirmedCharges.reduce((total, charge) => total + charge.receivedWon, 0),
+      outstandingWon: confirmedCharges.reduce((total, charge) => total + charge.outstandingWon, 0),
     };
   }
 

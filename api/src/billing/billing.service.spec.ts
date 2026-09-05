@@ -165,6 +165,20 @@ describe('BillingService.findCharges', () => {
 });
 
 describe('BillingService.getSummary', () => {
+  it('keeps draft and cancellation counts without counting them as receivables', async () => {
+    const service = new BillingService(new ContractsService());
+    const [first] = await service.generateMonth('2026-09', new Date('2026-09-04T00:00:00.000Z'));
+    await service.cancelCharge(first.id, 'Not billable');
+
+    await expect(service.getSummary('2026-09')).resolves.toMatchObject({
+      billedWon: 0, receivedWon: 0, outstandingWon: 0, draftCount: 3, cancelledCount: 1,
+    });
+    await expect(service.getTenantLedger(first.tenantId, '2026-09')).resolves.toMatchObject({
+      billedWon: 0, receivedWon: 0, outstandingWon: 0,
+      charges: [expect.objectContaining({ id: first.id, status: 'Cancelled' })],
+    });
+  });
+
   it('summarizes billed, received, outstanding, and approval work for one billing month', async () => {
     const service = new BillingService(new ContractsService());
     const [first] = await service.generateMonth('2026-09', new Date('2026-09-04T00:00:00.000Z'));
@@ -175,7 +189,7 @@ describe('BillingService.getSummary', () => {
     });
 
     await expect(service.getSummary('2026-09')).resolves.toMatchObject({
-      billingMonth: '2026-09', billedWon: 4740000, receivedWon: 400000, outstandingWon: 4340000,
+      billingMonth: '2026-09', billedWon: 1200000, receivedWon: 400000, outstandingWon: 800000,
       draftCount: 3, partiallyPaidCount: 1,
     });
   });

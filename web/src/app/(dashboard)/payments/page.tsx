@@ -31,11 +31,17 @@ function statusClass(status: MonthlyChargeStatus): string {
 
 export default async function PaymentsPage({ searchParams }: { searchParams: Promise<{ billingMonth?: string }> }) {
   const billingMonth = (await searchParams).billingMonth ?? currentBillingMonth();
+  let data;
   try {
-    const [summary, charges, receipts, receiptCharges, tenants] = await Promise.all([getBillingSummary(billingMonth), getMonthlyCharges(billingMonth), getPaymentReceipts(billingMonth), getMonthlyCharges(), getTenants()]);
+    data = await Promise.all([getBillingSummary(billingMonth), getMonthlyCharges(billingMonth), getPaymentReceipts(billingMonth), getMonthlyCharges(), getTenants()]);
+  } catch (error) {
+    const message = error instanceof BillingApiError && error.status === 401 ? "로그인이 만료되었습니다. 다시 로그인한 뒤 수납 원장을 확인해 주세요." : "수납 원장을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.";
+    return <div className="space-y-2"><h1 className="text-2xl font-semibold tracking-tight">수납 원장</h1><p role="alert" className="text-sm text-destructive">{message}</p></div>;
+  }
+    const [summary, charges, receipts, receiptCharges, tenants] = data;
     const tenantNames = Object.fromEntries(tenants.map((tenant) => [tenant.id, `${tenant.name} · ${tenant.unit}`]));
     return <div className="space-y-6">
-      <div className="flex flex-wrap items-end justify-between gap-3"><div><h1 className="text-2xl font-semibold tracking-tight">수납 원장</h1><p className="text-sm text-muted-foreground">{billingMonth} 청구월 기준 수납과 미수 현황입니다.</p></div><BillingMonthSelector billingMonth={billingMonth} /></div>
+      <div className="flex flex-wrap items-end justify-between gap-3"><div><h1 className="text-2xl font-semibold tracking-tight">수납 원장</h1><p className="text-sm text-muted-foreground">{billingMonth} 청구월의 확정 청구 기준 수납과 미수 현황입니다. 초안·취소 금액은 합계에서 제외됩니다.</p></div><BillingMonthSelector billingMonth={billingMonth} /></div>
       <div className="grid gap-4 sm:grid-cols-3">
         <Card><CardHeader><CardTitle>청구 금액</CardTitle></CardHeader><CardContent className="text-3xl font-semibold tabular-nums">{formatWon(summary.billedWon)}</CardContent></Card>
         <Card><CardHeader><CardTitle>수납 금액</CardTitle></CardHeader><CardContent className="text-3xl font-semibold tabular-nums">{formatWon(summary.receivedWon)}</CardContent></Card>
@@ -50,8 +56,4 @@ export default async function PaymentsPage({ searchParams }: { searchParams: Pro
       </Table></CardContent></Card>
       <Card><CardContent className="pt-6"><ReceiptHistory receipts={receipts} charges={charges} /></CardContent></Card>
     </div>;
-  } catch (error) {
-    const message = error instanceof BillingApiError && error.status === 401 ? "로그인이 만료되었습니다. 다시 로그인한 뒤 수납 원장을 확인해 주세요." : "수납 원장을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.";
-    return <div className="space-y-2"><h1 className="text-2xl font-semibold tracking-tight">수납 원장</h1><p role="alert" className="text-sm text-destructive">{message}</p></div>;
-  }
 }

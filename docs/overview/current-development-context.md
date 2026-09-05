@@ -20,6 +20,10 @@ property -> tenant -> contract -> monthly charge -> payment -> maintenance -> in
 
 ### 2026-09-05 현재 상태
 
+- API 청구 요약과 임차인 원장 합계를 확정 청구 기준으로 통일했다.
+  초안·취소 금액은 제외하고 건수·이력은 유지한다. 기존 초안 포함 집계 테스트를
+  바로잡았으며 API 208개 및 인메모리 통합 21개 테스트 통과.
+
 - 임시 PostgreSQL 백업·복원 리허설 통과: 10개 테이블 내용·행 수 일치,
   migration 이력 보존 및 복원 DB의 수납 통합 테스트 통과.
   `docs/overview/database-recovery.md`에 재현 절차와 남은 운영 백업 요건 기록.
