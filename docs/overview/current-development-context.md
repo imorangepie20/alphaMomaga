@@ -20,6 +20,9 @@ property -> tenant -> contract -> monthly charge -> payment -> maintenance -> in
 
 ### 2026-09-05 현재 상태
 
+- 사용자 관리 확인창을 기존 테마 `AlertDialog`로 통일했다. 브라우저 기본 confirm 대신
+  테마 확인·취소·처리 중 잠금을 사용한다. 웹 140개 테스트 통과. 이후 확인창도 테마를 사용한다.
+
 - 사용자 초대·역할 변경의 버튼 무반응을 수정했다. 공통 버튼에 submit 타입이 누락돼
   클릭 시 요청이 발생하지 않았다. 실제 클릭 회귀 검증을 추가했으며 웹 139개 테스트 통과.
   `docs/overview/auth0-management-api.md` 참고. 실제 계정 변경은 미실행이다.

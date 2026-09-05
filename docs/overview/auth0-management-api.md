@@ -77,7 +77,18 @@ AUTH0_INVITATION_CLIENT_ID=
 - 웹 139개 테스트 및 변경 파일 린트 통과. 외부 Auth0 쓰기 요청은 테스트에서 mock했다.
   실제 계정을 임의로 생성하거나 권한 변경하지 않았다.
 
-## 공식 문서
+## 테마 확인창 적용
+
+- 사용자 요청에 따라 브라우저 `window.confirm`을 제거하고 기존 테마의
+  `components/ui/alert-dialog`를 사용한다. 초대·역할 변경·차단·차단 해제에 공통 적용했다.
+- 대상과 변경 내용을 먼저 보여주고 확인한 요청만 전송한다. 차단은 destructive 스타일이다.
+- 요청 중 확인·취소를 비활성화하고 닫기와 중복 실행을 막는다. 확인된 요청 데이터는
+  다이얼로그를 열 때의 스냅샷이며 폼 값 변경으로 다른 요청을 전송하지 않는다.
+- 웹 140개 테스트 및 변경 파일 린트 통과. 테마 확인·취소·중복 방지·실패 안내를 검증했다.
+- 프로덕션 빌드 통과.
+- 실제 브라우저 시각 검증은 미실행이다.
+
+## 참고 링크
 
 - [M2M 앱 생성](https://auth0.com/docs/get-started/auth0-overview/create-applications/machine-to-machine-apps)
 - [Management API 토큰 발급](https://auth0.com/docs/secure/tokens/access-tokens/management-api-access-tokens/get-management-api-access-tokens-for-production)
