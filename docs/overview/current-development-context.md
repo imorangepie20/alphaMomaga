@@ -20,6 +20,10 @@ property -> tenant -> contract -> monthly charge -> payment -> maintenance -> in
 
 ### 2026-09-05 현재 상태
 
+- 전체 웹 lint 514개 파일 오류·경고 0. Cloudflare 비로그인 10개 경로 테스트 통과.
+  인증 후 업무 검수는 `npm run test:e2e:authenticated`로 분리했고 세션 부재 시
+  명시적으로 실패한다. 실제 세션과 테스트 계정 API token이 필요한 미완료 검수다.
+
 - API CI의 PostgreSQL 테스트 환경 변수 누락을 수정하고 인메모리 통합·린트 단계를 분리했다.
   웹 CI에는 단위 테스트를 추가하고 API 준비 확인 경로를 `/health/database`로 변경했다.
   로컬 명령 재현 통과. 기존 웹 브라우저 테스트의 인증·화면 전제 갱신과 원격 CI 확인은 남아 있다.
