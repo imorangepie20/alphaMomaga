@@ -90,6 +90,15 @@ AUTH0_INVITATION_CLIENT_ID=
 
 ## 참고 링크
 
+## 사용자 관리 헤더 정리
+
+- 제목 아래 설명을 '계정 초대와 접근 권한을 관리합니다.'로 정리했다.
+- Auth0 테넌트 용어를 제목 영역에서 제거하고 전체/검색 결과 인원수를 별도 배지로 표시한다.
+- 페이지 번호는 여러 페이지가 있을 때 하단 탐색 영역에만 표시한다.
+- 헤더 문구와 검색 결과 구분 회귀 테스트 2개 및 변경 파일 린트 통과.
+
+## 외부 문서
+
 - [M2M 앱 생성](https://auth0.com/docs/get-started/auth0-overview/create-applications/machine-to-machine-apps)
 - [Management API 토큰 발급](https://auth0.com/docs/secure/tokens/access-tokens/management-api-access-tokens/get-management-api-access-tokens-for-production)
 - [사용자 초대 흐름](https://auth0.com/docs/customize/email/send-email-invitations-for-application-signup)
