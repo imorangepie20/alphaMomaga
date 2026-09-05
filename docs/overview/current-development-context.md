@@ -20,6 +20,11 @@ property -> tenant -> contract -> monthly charge -> payment -> maintenance -> in
 
 ### 2026-09-05 현재 상태
 
+- `576a1e8`의 API 원격 CI `33938701720` 성공 확인(품질·PostgreSQL 모두).
+  웹 `33938701745`는 브라우저 단계 실패. Auth0 설정 부재의 미들웨어 오류를 로컬 재현해
+  해당 CI 단계에만 비로그인 검사용 가상 설정을 추가했다. 후속 원격 실행을 확인해야 한다.
+  `release-readiness.md` 최상단 요약에서 과거 검증 이력과 현재 미완료 업무 범위를 구분했다.
+
 - 원격 PostgreSQL CI 성공 확인. Linux 인메모리 병렬 테스트의 ECONNRESET은
   명시적 테스트 서버 listen으로 수정했고 Linux 통합 27개·Windows lifecycle 2개 통과.
   웹 CI가 API 변경도 감지하도록 수정. 후속 원격 실행 결과를 확인해야 한다.
