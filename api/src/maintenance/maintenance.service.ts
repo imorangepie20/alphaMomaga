@@ -1,7 +1,7 @@
 import { Injectable, Optional } from '@nestjs/common';
 import { asc, eq } from 'drizzle-orm';
 import type { Maintenance, CreateMaintenanceInput, UpdateMaintenanceInput } from './maintenance.js';
-import { validateMaintenance } from './maintenance.js';
+import { applyMaintenanceUpdate, validateMaintenance } from './maintenance.js';
 import { maintenance, properties } from '../database/schema.js';
 import { DatabaseService } from '../database/database.service.js';
 import { AuditService } from '../audit/audit.service.js';
@@ -12,7 +12,7 @@ import { InMemoryReferenceRegistry } from '../domain/in-memory-reference-registr
 type MaintenanceRow = typeof maintenance.$inferSelect;
 
 export function mapMaintenanceRow(row: MaintenanceRow): Maintenance {
-  return { id: row.id, propertyId: row.propertyId, task: row.task, dueDate: row.dueDate, status: row.status };
+  return { id: row.id, propertyId: row.propertyId, task: row.task, dueDate: row.dueDate, status: row.status, ...(row.completedAt && { completedAt: row.completedAt }), ...(row.resolution && { resolution: row.resolution }) };
 }
 
 @Injectable()
@@ -35,7 +35,7 @@ export class MaintenanceService {
     const records = database
       ? (await database.select().from(maintenance).orderBy(asc(maintenance.id))).map(mapMaintenanceRow)
       : this.maintenance;
-    records.forEach(validateMaintenance);
+    records.forEach((item) => validateMaintenance(item));
     return records;
   }
 
@@ -48,7 +48,8 @@ export class MaintenanceService {
       id: `maintenance-temp`,
       ...input,
     };
-    validateMaintenance(item);
+    if (typeof item.resolution === 'string') item.resolution = item.resolution.trim();
+    validateMaintenance(item, true);
 
     const database = this.databaseService?.client;
     if (database) {
@@ -65,6 +66,8 @@ export class MaintenanceService {
           task: input.task,
           dueDate: input.dueDate,
           status: input.status,
+          completedAt: item.completedAt,
+          resolution: item.resolution,
         }).returning();
 
         if (this.auditService) {
@@ -74,7 +77,7 @@ export class MaintenanceService {
             actorRole: principal?.role ?? 'system',
             entityType: 'maintenance',
             entityId: row.id,
-            metadata: { propertyId: input.propertyId, task: input.task },
+            metadata: { propertyId: input.propertyId, task: input.task, completedAt: item.completedAt, resolution: item.resolution },
           });
         }
 
@@ -96,8 +99,8 @@ export class MaintenanceService {
 
     }
     const item2: Maintenance = {
-      id: `maintenance-${this.maintenance.length + 1}`,
-      ...input,
+      ...item,
+      id: `maintenance-${randomUUID()}`,
     };
     this.maintenance.push(item2);
     return item2;
@@ -111,11 +114,16 @@ export class MaintenanceService {
     const database = this.databaseService?.client;
     if (database) {
       return database.transaction(async (transaction) => {
+        const [current] = await transaction.select().from(maintenance).where(eq(maintenance.id, id)).for('update');
+        if (!current) throw new Error(`Maintenance ${id} not found`);
+        const updated = applyMaintenanceUpdate(mapMaintenanceRow(current), input);
         const [row] = await transaction
           .update(maintenance)
           .set({
             ...(input.status !== undefined && { status: input.status }),
             ...(input.dueDate !== undefined && { dueDate: input.dueDate }),
+            completedAt: updated.completedAt ?? null,
+            resolution: updated.resolution ?? null,
           })
           .where(eq(maintenance.id, id))
           .returning();
@@ -134,7 +142,7 @@ export class MaintenanceService {
             actorRole: principal?.role ?? 'system',
             entityType: 'maintenance',
             entityId: id,
-            metadata: { changes: input },
+            metadata: { changes: input, previousCompletion: { completedAt: current.completedAt, resolution: current.resolution } },
           });
         }
 
@@ -147,12 +155,7 @@ export class MaintenanceService {
       throw new Error(`Maintenance ${id} not found`);
     }
 
-    const updated: Maintenance = {
-      ...item,
-      ...(input.status !== undefined && { status: input.status }),
-      ...(input.dueDate !== undefined && { dueDate: input.dueDate }),
-    };
-    validateMaintenance(updated);
+    const updated = applyMaintenanceUpdate(item, input);
 
     this.maintenance[this.maintenance.indexOf(item)] = updated;
     return updated;

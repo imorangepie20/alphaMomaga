@@ -1,7 +1,7 @@
 import { getApiUrl } from "@/lib/api-url";
 
 export type MaintenanceStatus = "Pending" | "Scheduled" | "InProgress" | "Completed";
-export type Maintenance = { id: string; propertyId: string; task: string; dueDate: string; status: MaintenanceStatus };
+export type Maintenance = { id: string; propertyId: string; task: string; dueDate: string; status: MaintenanceStatus; completedAt?: string; resolution?: string };
 
 const fallbackMaintenance: Maintenance[] = [
   { id: "maintenance-1", propertyId: "property-1", task: "승강기 정기 점검", dueDate: "2026-09-07", status: "Scheduled" },

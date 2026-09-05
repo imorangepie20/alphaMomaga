@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { FormField } from "@/components/ui/field";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -18,6 +19,11 @@ const labels: Record<MaintenanceStatus, string> = { Pending: "대기", Scheduled
 type Form = Omit<Maintenance, "id">;
 const emptyForm: Form = { propertyId: "", task: "", dueDate: "", status: "Pending" };
 
+function currentSeoulDate() {
+  const parts = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Seoul", year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(new Date());
+  return ["year", "month", "day"].map((key) => parts.find((part) => part.type === key)?.value).join("-");
+}
+
 export function MaintenanceManager({ items, properties, today }: { items: Maintenance[]; properties: Property[]; today: string }) {
   const hydrated = useHydrated();
   const router = useRouter();
@@ -27,6 +33,7 @@ export function MaintenanceManager({ items, properties, today }: { items: Mainte
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState<Maintenance | null>(null);
   const [form, setForm] = useState<Form>(emptyForm);
+  const [completionToday, setCompletionToday] = useState(today);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [busy, setBusy] = useState(false);
@@ -40,8 +47,9 @@ export function MaintenanceManager({ items, properties, today }: { items: Mainte
   ).sort((a, b) => Number(overdue(b)) - Number(overdue(a)) || Number(a.status === "Completed") - Number(b.status === "Completed") || a.dueDate.localeCompare(b.dueDate) || a.id.localeCompare(b.id));
 
   function edit(item?: Maintenance, status?: MaintenanceStatus) {
+    setCompletionToday(currentSeoulDate());
     setSelected(item ?? null);
-    setForm(item ? { propertyId: item.propertyId, task: item.task, dueDate: item.dueDate, status: status ?? item.status } : { ...emptyForm });
+    setForm(item ? { propertyId: item.propertyId, task: item.task, dueDate: item.dueDate, status: status ?? item.status, completedAt: item.completedAt ?? "", resolution: item.resolution ?? "" } : { ...emptyForm });
     setError("");
     setNotice("");
     setOpen(true);
@@ -59,7 +67,7 @@ export function MaintenanceManager({ items, properties, today }: { items: Mainte
       });
       if (!response.ok) {
         const messages: Record<number, string> = {
-          400: "저장하지 못했습니다. 자산, 예정일과 상태를 확인해 주세요.",
+          400: "저장하지 못했습니다. 자산, 예정일, 상태와 완료일·처리 결과를 확인해 주세요.",
           401: "로그인이 만료되었습니다. 다시 로그인해 주세요.",
           403: "현재 계정에는 유지보수 관리 권한이 없습니다.",
           404: "작업을 찾을 수 없습니다. 목록을 새로고침해 주세요.",
@@ -83,7 +91,12 @@ export function MaintenanceManager({ items, properties, today }: { items: Mainte
       setError("자산, 작업 내용과 예정일을 입력해 주세요.");
       return;
     }
-    void save(selected ? { dueDate: form.dueDate, status: form.status } : { ...form, task: form.task.trim() }, selected?.id);
+    if (form.status === "Completed" && (!form.completedAt || form.completedAt > currentSeoulDate() || !form.resolution?.trim())) {
+      setError("오늘 이전 또는 오늘의 완료일과 처리 결과를 입력해 주세요.");
+      return;
+    }
+    const evidence = form.status === "Completed" ? { completedAt: form.completedAt, resolution: form.resolution?.trim() } : {};
+    void save(selected ? { dueDate: form.dueDate, status: form.status, ...evidence } : { propertyId: form.propertyId, task: form.task.trim(), dueDate: form.dueDate, status: form.status, ...evidence }, selected?.id);
   }
 
   const stats = [
@@ -112,7 +125,7 @@ export function MaintenanceManager({ items, properties, today }: { items: Mainte
           <TableBody>{filtered.map((item) => <TableRow key={item.id}>
             <TableCell>{names.get(item.propertyId) ?? "연결되지 않은 자산"}</TableCell><TableCell className="font-medium">{item.task}</TableCell>
             <TableCell><div>{item.dueDate}</div>{overdue(item) && <span className="text-xs text-destructive">기한 초과</span>}</TableCell>
-            <TableCell><Badge variant="outline">{labels[item.status]}</Badge></TableCell>
+            <TableCell><Badge variant="outline">{labels[item.status]}</Badge>{item.status === "Completed" && <div className="mt-1 text-xs text-muted-foreground">{item.completedAt ? `완료일 ${item.completedAt}` : "완료일 기록 없음"}{item.resolution && <p className="max-w-xs whitespace-pre-wrap break-words">{item.resolution}</p>}</div>}</TableCell>
             <TableCell><div className="flex justify-end gap-2">
               {(item.status === "Pending" || item.status === "Scheduled") && <Button variant="outline" size="sm" disabled={!hydrated || busy} aria-label={`${item.task} 작업 시작`} onClick={() => void save({ status: "InProgress" }, item.id)}>작업 시작</Button>}
               {item.status === "InProgress" && <Button variant="outline" size="sm" disabled={!hydrated || busy} aria-label={`${item.task} 완료 처리`} onClick={() => edit(item, "Completed")}>완료 처리</Button>}
@@ -132,6 +145,11 @@ export function MaintenanceManager({ items, properties, today }: { items: Mainte
             <FormField label="예정일" htmlFor="maintenance-due"><Input id="maintenance-due" type="date" value={form.dueDate} required disabled={!hydrated || busy} onChange={(event) => setForm({ ...form, dueDate: event.target.value })} /></FormField>
             <FormField label="상태" htmlFor="maintenance-status"><NativeSelect id="maintenance-status" className="w-full" value={form.status} disabled={!hydrated || busy} onChange={(event) => setForm({ ...form, status: event.target.value as MaintenanceStatus })}>{Object.entries(labels).map(([value, label]) => <NativeSelectOption key={value} value={value}>{label}</NativeSelectOption>)}</NativeSelect></FormField>
           </div>
+          {form.status === "Completed" && <>
+            <FormField label="완료일" htmlFor="maintenance-completed"><Input id="maintenance-completed" type="date" required max={completionToday} disabled={busy} value={form.completedAt ?? ""} onFocus={() => setCompletionToday(currentSeoulDate())} onChange={(event) => { setCompletionToday(currentSeoulDate()); setForm({ ...form, completedAt: event.target.value }); }} /></FormField>
+            <FormField label="처리 결과" htmlFor="maintenance-resolution"><Textarea id="maintenance-resolution" required maxLength={4000} disabled={busy} value={form.resolution ?? ""} onChange={(event) => setForm({ ...form, resolution: event.target.value })} /></FormField>
+          </>}
+          {selected?.status === "Completed" && form.status !== "Completed" && <p className="text-sm text-muted-foreground">다시 진행하면 현재 완료일과 처리 결과가 초기화됩니다. 이전 값은 감사 기록에 보존됩니다.</p>}
           {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
           <DialogFooter><Button type="button" variant="outline" disabled={!hydrated || busy} onClick={() => setOpen(false)}>취소</Button><Button type="submit" disabled={!hydrated || busy}>{busy ? "저장 중..." : "저장"}</Button></DialogFooter>
         </form>

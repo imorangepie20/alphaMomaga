@@ -28,6 +28,11 @@ for (const viewport of [{ width: 1280, height: 900 }, { width: 390, height: 844 
         await trigger.click();
         const dialog = page.getByRole("dialog", { name: form.title, exact: true });
         await expect(dialog).toBeVisible();
+        if (form.route === "/maintenance") {
+          await dialog.getByLabel("상태", { exact: true }).selectOption("Completed");
+          await expect(dialog.getByLabel("완료일", { exact: true })).toHaveAttribute("required", "");
+          await expect(dialog.getByLabel("처리 결과", { exact: true })).toHaveAttribute("required", "");
+        }
         await expect.poll(async () => dialog.evaluate((element) => {
           const rect = element.getBoundingClientRect();
           return rect.left >= 0 && rect.top >= 0 && rect.right <= window.innerWidth

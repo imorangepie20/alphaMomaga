@@ -106,7 +106,7 @@ describe('Property lifecycle simulation (e2e)', () => {
     const completedMaintenance = await request(app.getHttpServer())
       .put('/maintenance/' + maintenance.body.id)
       .set(manager)
-      .send({ status: 'Completed' })
+      .send({ status: 'Completed', completedAt: '2026-09-03', resolution: 'Repaired and verified' })
       .expect(200);
     expect(completedMaintenance.body.status).toBe('Completed');
 

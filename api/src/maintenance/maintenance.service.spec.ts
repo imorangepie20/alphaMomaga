@@ -17,9 +17,33 @@ describe('MaintenanceService', () => {
 
   it('updates maintenance status', async () => {
     const service = new MaintenanceService();
-    const updated = await service.update('maintenance-1', { status: 'Completed' });
+    const updated = await service.update('maintenance-1', { status: 'Completed', completedAt: '2026-09-01', resolution: 'Replaced valve and tested for leaks' });
 
     expect(updated).toMatchObject({ id: 'maintenance-1', status: 'Completed' });
+  });
+
+  it('requires completion evidence without changing the existing status on failure', async () => {
+    const service = new MaintenanceService();
+    await expect(service.update('maintenance-2', { status: 'Completed' })).rejects.toThrow();
+    expect((await service.findAll()).find((item) => item.id === 'maintenance-2')?.status).toBe('InProgress');
+  });
+
+  it('stores completion evidence, allows early completion, and clears it on reopening', async () => {
+    const service = new MaintenanceService();
+    expect(await service.update('maintenance-2', { status: 'Completed', completedAt: '2026-09-01', resolution: '  Valve replaced  ' })).toMatchObject({ completedAt: '2026-09-01', resolution: 'Valve replaced' });
+    const reopened = await service.update('maintenance-2', { status: 'InProgress' });
+    expect(reopened.completedAt).toBeUndefined();
+    expect(reopened.resolution).toBeUndefined();
+  });
+
+  it.each(['2026-02-30', '2999-01-01'])('rejects invalid completion date %s', async (completedAt) => {
+    await expect(new MaintenanceService().update('maintenance-2', { status: 'Completed', completedAt, resolution: 'Fixed' })).rejects.toThrow();
+  });
+
+  it('rejects blank completion results and evidence on unfinished work', async () => {
+    const service = new MaintenanceService();
+    await expect(service.update('maintenance-2', { status: 'Completed', completedAt: '2026-09-01', resolution: '  ' })).rejects.toThrow();
+    await expect(service.create({ propertyId: 'property-1', task: 'Fix', dueDate: '2026-09-07', status: 'Pending', completedAt: '2026-09-01', resolution: 'Fixed' })).rejects.toThrow();
   });
 
   it('updates due date without mutating on invalid input', async () => {

@@ -118,6 +118,8 @@ export const maintenance = pgTable('maintenance', {
   task: text('task').notNull(),
   dueDate: date('due_date').notNull(),
   status: maintenanceStatus('status').notNull(),
+  completedAt: date('completed_at'),
+  resolution: text('resolution'),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
 });
 
