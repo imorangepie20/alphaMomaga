@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import { recordReceipt, BillingMutationError } from "@/lib/billing-client-mutation";
 import type { MonthlyCharge } from "@/lib/billing";
+import { useHydrated } from "@/hooks/use-hydrated";
 
 const methods = ["BankTransfer", "Cash", "Card", "Other"] as const;
 const formatWon = (value: number) => `₩${value.toLocaleString("ko-KR")}`;
@@ -21,6 +22,7 @@ function today(): string {
 }
 
 export function ReceiptManager({ charges, tenantNames }: { charges: MonthlyCharge[]; tenantNames: Record<string, string> }) {
+  const hydrated = useHydrated();
   const router = useRouter();
   const eligible = charges.filter((charge) => (charge.status === "Approved" || charge.status === "PartiallyPaid" || charge.status === "Overdue") && charge.outstandingWon > 0);
   const tenantIds = [...new Set(eligible.map((charge) => charge.tenantId))];
@@ -51,7 +53,7 @@ export function ReceiptManager({ charges, tenantNames }: { charges: MonthlyCharg
     finally { setSaving(false); }
   }
 
-  return <><Button onClick={openDialog} disabled={eligible.length === 0}><PlusIcon data-icon="inline-start" />수납 등록</Button>
+  return <><Button onClick={openDialog} disabled={!hydrated || eligible.length === 0}><PlusIcon data-icon="inline-start" />수납 등록</Button>
     <Dialog open={open} onOpenChange={setOpen}><DialogContent className="max-h-[calc(100dvh-2rem)] overflow-y-auto sm:max-w-xl"><DialogHeader><DialogTitle>수납 등록</DialogTitle><DialogDescription>한 임차인의 여러 청구에 실제 입금액을 배분합니다. 영수증 총액은 아래 배분 금액의 합으로 저장됩니다.</DialogDescription></DialogHeader>
       <form className="space-y-5" onSubmit={submit}>
         <FormField label="임차인" htmlFor="receipt-tenant"><NativeSelect id="receipt-tenant" value={tenantId} onChange={(event) => selectTenant(event.target.value)}><NativeSelectOption value="">임차인 선택</NativeSelectOption>{tenantIds.map((id) => <NativeSelectOption key={id} value={id}>{tenantNames[id] ?? id}</NativeSelectOption>)}</NativeSelect></FormField>

@@ -93,6 +93,10 @@ test("approves a dedicated draft, records a partial receipt, and restores the ba
   await reasonInput.fill(reason);
   const voidResponse = page.waitForResponse((response) => response.url().endsWith(`/payment-receipts/${receipt.id}/void`) && response.request().method() === "POST");
   await reasonInput.locator("..").getByRole("button", { name: "영수증 취소", exact: true }).click();
+  const confirmation = page.getByRole("alertdialog", { name: "영수증 취소 확인" });
+  await expect(confirmation).toContainText(receipt.id);
+  await expect(confirmation).toContainText(won(amount));
+  await confirmation.getByRole("button", { name: "취소 확정", exact: true }).click();
   expect((await voidResponse).status()).toBe(201);
   await expect.poll(async () => (await charges()).find((item) => item.id === chargeId)?.receivedWon).toBe(0);
   await expect(ledgerRow.getByRole("cell").nth(5)).toHaveText(won(charge.billedWon));
