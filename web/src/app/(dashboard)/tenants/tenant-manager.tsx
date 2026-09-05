@@ -3,6 +3,7 @@
 import { useRef, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useHydrated } from "@/hooks/use-hydrated";
 import { PencilIcon, PlusIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -22,6 +23,7 @@ function formatWon(amount: number) {
 }
 
 export function TenantManager({ tenants, properties, charges, billingMonth }: { tenants: Tenant[]; properties: Property[]; charges: MonthlyCharge[]; billingMonth: string }) {
+  const hydrated = useHydrated();
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState<Tenant | null>(null);
@@ -64,7 +66,7 @@ export function TenantManager({ tenants, properties, charges, billingMonth }: { 
   }
 
   return <>
-    <div className="flex flex-wrap items-center justify-between gap-3 px-6 pt-5"><p className="text-sm text-muted-foreground">{billingMonth} 확정 청구 합계입니다. 승인 대기와 취소 금액은 제외합니다.</p><Button disabled={saving || !properties.length} onClick={() => start()}><PlusIcon data-icon="inline-start" />임차인 추가</Button></div>
+    <div className="flex flex-wrap items-center justify-between gap-3 px-6 pt-5"><p className="text-sm text-muted-foreground">{billingMonth} 확정 청구 합계입니다. 승인 대기와 취소 금액은 제외합니다.</p><Button disabled={!hydrated || saving || !properties.length} onClick={() => start()}><PlusIcon data-icon="inline-start" />임차인 추가</Button></div>
     <div className="grid gap-4 px-6 py-4 sm:grid-cols-3">
       <FormField label="검색" htmlFor="tenant-search"><Input id="tenant-search" placeholder="임차인·자산명·호실" value={query} onChange={(event) => setQuery(event.target.value)} /></FormField>
       <FormField label="자산 필터" htmlFor="tenant-property-filter"><NativeSelect id="tenant-property-filter" className="w-full" value={propertyFilter} onChange={(event) => setPropertyFilter(event.target.value)}><NativeSelectOption value="">전체 자산</NativeSelectOption>{properties.map((property) => <NativeSelectOption key={property.id} value={property.id}>{property.name}</NativeSelectOption>)}</NativeSelect></FormField>
@@ -77,7 +79,7 @@ export function TenantManager({ tenants, properties, charges, billingMonth }: { 
         <td className="p-4">{tenant.unit}</td><td className="p-4">{tenant.rent}</td>
         <td className="p-4">{ledger.confirmedCount ? formatWon(ledger.billedWon) : "-"}</td><td className="p-4">{ledger.confirmedCount ? formatWon(ledger.receivedWon) : "-"}</td><td className="p-4">{ledger.confirmedCount ? formatWon(ledger.outstandingWon) : "-"}</td>
         <td className="p-4"><span className={ledger.status === "Overdue" ? "font-medium text-destructive" : "text-muted-foreground"}>{tenantLedgerLabels[ledger.status]}</span>{ledger.draftCount > 0 && <div className="mt-1 text-xs text-muted-foreground">승인 대기 {ledger.draftCount}건</div>}</td>
-        <td className="p-4 pr-6"><div className="flex justify-end gap-2"><Button variant="outline" size="sm" aria-label={`${tenant.name} 청구 내역`} onClick={() => setDetail(tenant)}>청구 내역</Button><Button variant="ghost" size="sm" disabled={saving} onClick={() => start(tenant)}><PencilIcon data-icon="inline-start" />수정</Button></div></td>
+        <td className="p-4 pr-6"><div className="flex justify-end gap-2"><Button disabled={!hydrated} variant="outline" size="sm" aria-label={`${tenant.name} 청구 내역`} onClick={() => setDetail(tenant)}>청구 내역</Button><Button variant="ghost" size="sm" disabled={!hydrated || saving} onClick={() => start(tenant)}><PencilIcon data-icon="inline-start" />수정</Button></div></td>
       </tr>)}{!filtered.length && <tr><td colSpan={8} className="p-8 text-center text-muted-foreground">{tenants.length ? "검색 조건에 맞는 임차인이 없습니다." : "등록된 임차인이 없습니다."}</td></tr>}</tbody></table></div>
     <Dialog open={detail !== null} onOpenChange={(value) => { if (!value) setDetail(null); }}><DialogContent className="max-h-[calc(100dvh-2rem)] overflow-y-auto sm:max-w-2xl">
       <DialogHeader><DialogTitle>{detail?.name} 청구 내역</DialogTitle><DialogDescription>{billingMonth} 청구월의 개별 청구입니다. 초안과 취소 청구는 합계에 포함하지 않습니다.</DialogDescription></DialogHeader>
@@ -90,7 +92,7 @@ export function TenantManager({ tenants, properties, charges, billingMonth }: { 
         <FormField label="속성" htmlFor="tenant-property"><NativeSelect id="tenant-property" disabled={!!selected} className="w-full" value={form.propertyId} onChange={(event) => setForm({ ...form, propertyId: event.target.value })}><NativeSelectOption value="">속성 선택</NativeSelectOption>{properties.map((property) => <NativeSelectOption key={property.id} value={property.id}>{property.name}</NativeSelectOption>)}</NativeSelect></FormField>
         <FormField label="호실" htmlFor="tenant-unit"><Input id="tenant-unit" value={form.unit} onChange={(event) => setForm({ ...form, unit: event.target.value })} /></FormField>
         <FormField label="월 임대료" htmlFor="tenant-rent"><Input id="tenant-rent" type="number" min="1" value={form.rent} onChange={(event) => setForm({ ...form, rent: Number(event.target.value) })} /></FormField>
-        <FieldError>{error}</FieldError><DialogFooter><Button type="button" variant="outline" onClick={() => setOpen(false)} disabled={saving}>취소</Button><Button type="submit" disabled={saving}>{saving ? "저장 중..." : "저장"}</Button></DialogFooter>
+        <FieldError>{error}</FieldError><DialogFooter><Button type="button" variant="outline" onClick={() => setOpen(false)} disabled={!hydrated || saving}>취소</Button><Button type="submit" disabled={!hydrated || saving}>{saving ? "저장 중..." : "저장"}</Button></DialogFooter>
       </form>
     </DialogContent></Dialog>
   </>;

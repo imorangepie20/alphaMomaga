@@ -2,6 +2,7 @@
 
 import { useRef, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import { useHydrated } from "@/hooks/use-hydrated";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -18,6 +19,7 @@ type Form = Omit<Inspection, "id">;
 const emptyForm: Form = { propertyId: "", type: "", scheduledDate: "", status: "Pending", priority: "Routine" };
 
 export function InspectionManager({ items, properties, today }: { items: Inspection[]; properties: Property[]; today: string }) {
+  const hydrated = useHydrated();
   const router = useRouter();
   const [query, setQuery] = useState("");
   const [propertyFilter, setPropertyFilter] = useState("");
@@ -106,7 +108,7 @@ export function InspectionManager({ items, properties, today }: { items: Inspect
     {!open && error && <p role="alert" className="text-sm text-destructive">{error}</p>}
     {notice && <p role="status" className="text-sm">{notice}</p>}
     <Card>
-      <CardHeader className="flex flex-row items-center justify-between gap-4"><CardTitle>점검 요청</CardTitle><Button onClick={() => edit()} disabled={busy || !properties.length}>점검 등록</Button></CardHeader>
+      <CardHeader className="flex flex-row items-center justify-between gap-4"><CardTitle>점검 요청</CardTitle><Button onClick={() => edit()} disabled={!hydrated || busy || !properties.length}>점검 등록</Button></CardHeader>
       <CardContent className="space-y-4">
         {!properties.length && <p className="text-sm text-muted-foreground">점검을 등록하려면 먼저 매물 페이지에서 자산을 등록해 주세요.</p>}
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -123,9 +125,9 @@ export function InspectionManager({ items, properties, today }: { items: Inspect
             <TableCell><Badge variant="outline">{item.priority === "Urgent" ? "긴급" : "일반"}</Badge></TableCell>
             <TableCell><Badge variant="outline">{labels[item.status]}</Badge>{item.status === "Completed" && <div className="mt-1 text-xs text-muted-foreground">완료일 {item.completedAt}</div>}</TableCell>
             <TableCell><div className="flex justify-end gap-2">
-              {(item.status === "Pending" || item.status === "Scheduled") && <Button variant="outline" size="sm" disabled={busy} aria-label={`${item.type} 검토 시작`} onClick={() => void save({ status: "InReview" }, item.id)}>검토 시작</Button>}
-              {item.status === "InReview" && <Button variant="outline" size="sm" disabled={busy} aria-label={`${item.type} 완료 처리`} onClick={() => edit(item, "Completed")}>완료 처리</Button>}
-              <Button variant="ghost" size="sm" disabled={busy} aria-label={`${item.type} 일정·상태 수정`} onClick={() => edit(item)}>일정·상태 수정</Button>
+              {(item.status === "Pending" || item.status === "Scheduled") && <Button variant="outline" size="sm" disabled={!hydrated || busy} aria-label={`${item.type} 검토 시작`} onClick={() => void save({ status: "InReview" }, item.id)}>검토 시작</Button>}
+              {item.status === "InReview" && <Button variant="outline" size="sm" disabled={!hydrated || busy} aria-label={`${item.type} 완료 처리`} onClick={() => edit(item, "Completed")}>완료 처리</Button>}
+              <Button variant="ghost" size="sm" disabled={!hydrated || busy} aria-label={`${item.type} 일정·상태 수정`} onClick={() => edit(item)}>일정·상태 수정</Button>
             </div></TableCell>
           </TableRow>)}{!filtered.length && <TableRow><TableCell colSpan={6} className="h-28 text-center text-muted-foreground">{items.length ? "검색 조건에 맞는 점검이 없습니다." : "등록된 점검이 없습니다. 점검 등록으로 첫 요청을 추가해 주세요."}</TableCell></TableRow>}</TableBody>
         </Table>
@@ -136,15 +138,15 @@ export function InspectionManager({ items, properties, today }: { items: Inspect
         <DialogHeader><DialogTitle>{selected ? "점검 일정·상태 수정" : "점검 등록"}</DialogTitle><DialogDescription>{selected ? "예정일과 처리 상태를 변경합니다. 완료는 실제 점검을 마친 후 선택해 주세요." : "대상 자산과 점검 유형, 예정일을 입력해 주세요."}</DialogDescription></DialogHeader>
         <form onSubmit={submit} className="space-y-4">
           <FormField label="자산" htmlFor="inspection-property"><NativeSelect id="inspection-property" className="w-full" value={form.propertyId} disabled={!!selected || busy} required onChange={(event) => setForm({ ...form, propertyId: event.target.value })}><NativeSelectOption value="">자산 선택</NativeSelectOption>{properties.map((property) => <NativeSelectOption key={property.id} value={property.id}>{property.name}</NativeSelectOption>)}{selected && !names.has(selected.propertyId) && <NativeSelectOption value={selected.propertyId}>연결되지 않은 자산</NativeSelectOption>}</NativeSelect></FormField>
-          <FormField label="점검 유형" htmlFor="inspection-task"><Input id="inspection-task" value={form.type} readOnly={!!selected} disabled={busy} required onChange={(event) => setForm({ ...form, type: event.target.value })} /></FormField>
+          <FormField label="점검 유형" htmlFor="inspection-task"><Input id="inspection-task" value={form.type} readOnly={!!selected} disabled={!hydrated || busy} required onChange={(event) => setForm({ ...form, type: event.target.value })} /></FormField>
           <div className="grid gap-4 sm:grid-cols-2">
-            <FormField label="예정일" htmlFor="inspection-due"><Input id="inspection-due" type="date" value={form.scheduledDate} required disabled={busy} onChange={(event) => setForm({ ...form, scheduledDate: event.target.value })} /></FormField>
-            <FormField label="상태" htmlFor="inspection-status"><NativeSelect id="inspection-status" className="w-full" value={form.status} disabled={busy} onChange={(event) => setForm({ ...form, status: event.target.value as InspectionStatus })}>{Object.entries(labels).map(([value, label]) => <NativeSelectOption key={value} value={value} disabled={!selected && value === "Completed"}>{label}</NativeSelectOption>)}</NativeSelect></FormField>
+            <FormField label="예정일" htmlFor="inspection-due"><Input id="inspection-due" type="date" value={form.scheduledDate} required disabled={!hydrated || busy} onChange={(event) => setForm({ ...form, scheduledDate: event.target.value })} /></FormField>
+            <FormField label="상태" htmlFor="inspection-status"><NativeSelect id="inspection-status" className="w-full" value={form.status} disabled={!hydrated || busy} onChange={(event) => setForm({ ...form, status: event.target.value as InspectionStatus })}>{Object.entries(labels).map(([value, label]) => <NativeSelectOption key={value} value={value} disabled={!selected && value === "Completed"}>{label}</NativeSelectOption>)}</NativeSelect></FormField>
           </div>
-          <FormField label="긴급도" htmlFor="inspection-priority"><NativeSelect id="inspection-priority" className="w-full" value={form.priority} disabled={busy} onChange={(event) => setForm({ ...form, priority: event.target.value as Inspection["priority"] })}><NativeSelectOption value="Routine">일반</NativeSelectOption><NativeSelectOption value="Urgent">긴급</NativeSelectOption></NativeSelect></FormField>
-          {selected && form.status === "Completed" && <FormField label="완료일" htmlFor="inspection-completed"><Input id="inspection-completed" type="date" required min={form.scheduledDate} max={today} disabled={busy} value={form.completedAt ?? ""} onChange={(event) => setForm({ ...form, completedAt: event.target.value })} /></FormField>}
+          <FormField label="긴급도" htmlFor="inspection-priority"><NativeSelect id="inspection-priority" className="w-full" value={form.priority} disabled={!hydrated || busy} onChange={(event) => setForm({ ...form, priority: event.target.value as Inspection["priority"] })}><NativeSelectOption value="Routine">일반</NativeSelectOption><NativeSelectOption value="Urgent">긴급</NativeSelectOption></NativeSelect></FormField>
+          {selected && form.status === "Completed" && <FormField label="완료일" htmlFor="inspection-completed"><Input id="inspection-completed" type="date" required min={form.scheduledDate} max={today} disabled={!hydrated || busy} value={form.completedAt ?? ""} onChange={(event) => setForm({ ...form, completedAt: event.target.value })} /></FormField>}
           {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
-          <DialogFooter><Button type="button" variant="outline" disabled={busy} onClick={() => setOpen(false)}>취소</Button><Button type="submit" disabled={busy}>{busy ? "저장 중..." : "저장"}</Button></DialogFooter>
+          <DialogFooter><Button type="button" variant="outline" disabled={!hydrated || busy} onClick={() => setOpen(false)}>취소</Button><Button type="submit" disabled={!hydrated || busy}>{busy ? "저장 중..." : "저장"}</Button></DialogFooter>
         </form>
       </DialogContent>
     </Dialog>

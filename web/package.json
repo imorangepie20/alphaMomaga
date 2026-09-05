@@ -9,7 +9,7 @@
     "lint": "eslint",
     "test": "vitest run",
     "test:e2e": "playwright test",
-    "test:e2e:authenticated": "playwright test e2e/properties-dashboard.spec.ts e2e/properties-api.spec.ts e2e/operations-api.spec.ts e2e/billing-ledger.spec.ts --workers=1",
+    "test:e2e:authenticated": "playwright test e2e/properties-dashboard.spec.ts e2e/properties-api.spec.ts e2e/operations-api.spec.ts e2e/billing-ledger.spec.ts e2e/operational-dialogs.spec.ts --workers=1",
     "test:e2e:billing-mutation": "playwright test e2e/billing-mutation.spec.ts --workers=1 --retries=0"
   },
   "dependencies": {

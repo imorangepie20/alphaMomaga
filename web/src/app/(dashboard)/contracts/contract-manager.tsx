@@ -2,6 +2,7 @@
 
 import { useRef, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import { useHydrated } from "@/hooks/use-hydrated";
 import { PencilIcon, PlusIcon, RefreshCwIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -93,6 +94,7 @@ export function ContractManager({
   properties: Property[];
   today: string;
 }) {
+  const hydrated = useHydrated();
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState<Contract | null>(null);
@@ -251,7 +253,7 @@ export function ContractManager({
   return (
     <>
       <div className="flex justify-end px-6 pt-5">
-        <Button onClick={startCreate} disabled={saving || !tenants.length}>
+        <Button onClick={startCreate} disabled={!hydrated || saving || !tenants.length}>
           <PlusIcon data-icon="inline-start" />
           계약 추가
         </Button>
@@ -311,6 +313,7 @@ export function ContractManager({
                       <Button
                         variant="ghost"
                         size="sm"
+                        disabled={!hydrated || saving}
                         onClick={() => startRenewal(contract)}
                       >
                         <RefreshCwIcon data-icon="inline-start" />
@@ -320,6 +323,7 @@ export function ContractManager({
                     <Button
                       variant="ghost"
                       size="sm"
+                      disabled={!hydrated || saving}
                       onClick={() => startUpdate(contract)}
                     >
                       <PencilIcon data-icon="inline-start" />
@@ -395,12 +399,12 @@ export function ContractManager({
                 <Button
                   type="button"
                   variant="outline"
-                  disabled={saving}
+                  disabled={!hydrated || saving}
                   onClick={() => setOpen(false)}
                 >
                   취소
                 </Button>
-                <Button type="submit" disabled={saving}>
+                <Button type="submit" disabled={!hydrated || saving}>
                   {saving ? "저장 중..." : "저장"}
                 </Button>
               </DialogFooter>
@@ -501,12 +505,12 @@ export function ContractManager({
                 <Button
                   type="button"
                   variant="outline"
-                  disabled={saving}
+                  disabled={!hydrated || saving}
                   onClick={() => setOpen(false)}
                 >
                   취소
                 </Button>
-                <Button type="submit" disabled={saving}>
+                <Button type="submit" disabled={!hydrated || saving}>
                   {saving ? "저장 중..." : "계약 저장"}
                 </Button>
               </DialogFooter>
@@ -594,12 +598,12 @@ export function ContractManager({
                 <Button
                   type="button"
                   variant="outline"
-                  disabled={saving}
+                  disabled={!hydrated || saving}
                   onClick={() => setRenewalOpen(false)}
                 >
                   취소
                 </Button>
-                <Button type="submit" disabled={saving}>
+                <Button type="submit" disabled={!hydrated || saving}>
                   {saving ? "저장 중..." : "갱신 계약 저장"}
                 </Button>
               </DialogFooter>

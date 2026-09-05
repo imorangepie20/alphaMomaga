@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import { useHydrated } from "@/hooks/use-hydrated";
 import { PencilIcon, PlusIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -32,6 +33,7 @@ function getErrorMessage(error: unknown): string {
 }
 
 export function PropertyManager({ properties }: { properties: PropertyOperationRow[] }) {
+  const hydrated = useHydrated();
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
@@ -79,7 +81,7 @@ export function PropertyManager({ properties }: { properties: PropertyOperationR
     <>
       <div className="flex items-center justify-between px-6 pt-5">
         <h2 className="text-lg font-semibold">자산 목록</h2>
-        <Button onClick={openCreateDialog}><PlusIcon data-icon="inline-start" />속성 추가</Button>
+        <Button disabled={!hydrated} onClick={openCreateDialog}><PlusIcon data-icon="inline-start" />속성 추가</Button>
       </div>
       <Table>
         <TableHeader>
@@ -97,7 +99,7 @@ export function PropertyManager({ properties }: { properties: PropertyOperationR
               </TableCell>
               <TableCell><div className="text-sm">미완료 업무 {property.openWorkCount}건</div><div className={property.expiringContractCount > 0 ? "mt-1 text-xs font-medium text-amber-700" : "mt-1 text-xs text-muted-foreground"}>90일 내 계약 만료 {property.expiringContractCount}건</div></TableCell>
               <TableCell><Badge variant="outline" className={property.needsAttention ? "border-amber-500/30 bg-amber-500/10 text-amber-700" : "border-emerald-500/30 bg-emerald-500/10 text-emerald-700"}>{property.needsAttention ? "확인 필요" : "정상"}</Badge></TableCell>
-              <TableCell className="pr-6 text-right"><Button variant="ghost" size="sm" onClick={() => openEditDialog(property)}><PencilIcon data-icon="inline-start" />수정</Button></TableCell>
+              <TableCell className="pr-6 text-right"><Button disabled={!hydrated} variant="ghost" size="sm" onClick={() => openEditDialog(property)}><PencilIcon data-icon="inline-start" />수정</Button></TableCell>
             </TableRow>
           ))}
         </TableBody>
