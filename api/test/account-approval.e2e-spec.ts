@@ -53,7 +53,7 @@ describe('Account approval with signed tokens', () => {
   it('allows a pending user to check status but not read or mutate business data', async () => {
     const bearer = `Bearer ${await token()}`;
     await request(app.getHttpServer()).get('/auth/status').set('authorization', bearer).expect(200).expect({ status: 'pending' });
-    for (const path of ['/properties', '/tenants', '/contracts', '/payments', '/monthly-charges', '/billing-summary', '/payment-receipts', '/maintenance', '/inspections', '/auth/me']) {
+    for (const path of ['/properties', '/tenants', '/contracts', '/payments', '/monthly-charges', '/billing-summary', '/payment-receipts', '/maintenance', '/inspections', '/auth/me', '/admin/audit-logs']) {
       await request(app.getHttpServer()).get(path).set('authorization', bearer).expect(401);
     }
     await request(app.getHttpServer()).post('/maintenance').set('authorization', bearer)
@@ -66,6 +66,12 @@ describe('Account approval with signed tokens', () => {
     await request(app.getHttpServer()).get('/auth/status').set('authorization', approved).expect(200).expect({ status: 'approved' });
     await request(app.getHttpServer()).get('/properties').set('authorization', approved).expect(200);
     await request(app.getHttpServer()).get('/auth/status').set('authorization', `Bearer ${oldToken}`).expect(200).expect({ status: 'pending' });
+  });
+
+  it('restricts audit reads to a signed administrator token', async () => {
+    await request(app.getHttpServer()).get('/admin/audit-logs').set('authorization', `Bearer ${await token(['PropertyManager'])}`).expect(403);
+    await request(app.getHttpServer()).get('/admin/audit-logs').set('authorization', `Bearer ${await token(['Admin'])}`).expect(200).expect([]);
+    await request(app.getHttpServer()).get('/admin/audit-logs').set('authorization', `Bearer ${await token(['Admin'], { expires: '-1m' })}`).expect(401);
   });
 
   it('rejects forged, expired and incorrectly scoped tokens even for status checks', async () => {

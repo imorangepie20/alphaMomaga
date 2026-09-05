@@ -3,6 +3,8 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { AuditController } from './audit.controller.js';
 import { AuditService } from './audit.service.js';
 import type { AuditLog } from './audit.service.js';
+import { AuthModule } from '../auth/auth.module.js';
+import { RolesModule } from '../roles/roles.module.js';
 
 describe('AuditController', () => {
   let controller: AuditController;
@@ -33,6 +35,7 @@ describe('AuditController', () => {
 
   beforeEach(async () => {
     const moduleRef = await Test.createTestingModule({
+      imports: [AuthModule, RolesModule],
       controllers: [AuditController],
       providers: [
         {

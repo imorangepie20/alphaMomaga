@@ -20,6 +20,11 @@ property -> tenant -> contract -> monthly charge -> payment -> maintenance -> in
 
 ### 2026-09-05 현재 상태
 
+- 감사 API의 인증 가드 누락을 발견해 우선 차단했다. 기존 권한 metadata만으로는 보호되지
+  않았고 격리 HTTP 테스트에서 비로그인 200을 재현했다. 가드·모듈 연결 후 401/403/Admin 200,
+  실제 JWT 경계 및 Cloudflare HEAD 401 확인. 과거 외부 접근 여부는 미확인이다.
+  `phase-20-audit-logging.md` 참고. 다음 감사 조회 UI 개발 전에 이 변경을 유지해야 한다.
+
 - 수익 현황·관리자 보고서의 잘못된 청구월을 이번 달로 조용히 바꾸는 동작을 제거했다.
   오류·월 재선택을 제공하고 금액 조회·CSV를 막는다. 웹 195개, 타입·린트,
   실제 로그인 수익 현황 월 오류 복구 브라우저 1개 통과. `operational-dashboards.md` 참고.
