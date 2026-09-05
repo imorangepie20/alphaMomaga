@@ -23,10 +23,24 @@ describe('Billing ledger (e2e)', () => {
     const charges = await request(app.getHttpServer()).get('/monthly-charges?billingMonth=2026-09').set(manager).expect(200);
     const draft = charges.body.find((charge: { status: string }) => charge.status === 'Draft');
     expect(draft).toBeDefined();
+    const rerun = await request(app.getHttpServer()).post('/billing-runs/2026-09').set(manager).expect(201);
+    expect(rerun.body).toEqual([]);
+    const receiptInput = { propertyId: draft.propertyId, tenantId: draft.tenantId, receivedDate: '2026-09-04', amountWon: 400000, method: 'BankTransfer', allocations: [{ chargeId: draft.id, amountWon: 400000 }] };
+    await request(app.getHttpServer()).post('/payment-receipts').set(manager).send(receiptInput).expect(400);
     await request(app.getHttpServer()).post(`/monthly-charges/${draft.id}/approve`).set(manager).expect(201);
-    const receipt = await request(app.getHttpServer()).post('/payment-receipts').set(manager).send({ propertyId: draft.propertyId, tenantId: draft.tenantId, receivedDate: '2026-09-04', amountWon: 400000, method: 'BankTransfer', allocations: [{ chargeId: draft.id, amountWon: 400000 }] }).expect(201);
+    const before = await request(app.getHttpServer()).get('/billing-summary?billingMonth=2026-09').set(finance).expect(200);
+    const receipt = await request(app.getHttpServer()).post('/payment-receipts').set(manager).send(receiptInput).expect(201);
+    const after = await request(app.getHttpServer()).get('/billing-summary?billingMonth=2026-09').set(finance).expect(200);
+    expect(after.body.receivedWon).toBe(before.body.receivedWon + 400000);
+    expect(after.body.outstandingWon).toBe(before.body.outstandingWon - 400000);
+    expect(after.body.billedWon).toBe(before.body.billedWon);
     await request(app.getHttpServer()).post(`/payment-receipts/${receipt.body.id}/void`).set(manager).send({ reason: 'test correction' }).expect(201);
-    await request(app.getHttpServer()).get('/billing-summary?billingMonth=2026-09').set(finance).expect(200);
+    const restored = await request(app.getHttpServer()).get('/billing-summary?billingMonth=2026-09').set(finance).expect(200);
+    expect(restored.body).toEqual(before.body);
+    const receipts = await request(app.getHttpServer()).get('/payment-receipts?billingMonth=2026-09').set(manager).expect(200);
+    expect(receipts.body.find((item: { id: string }) => item.id === receipt.body.id)).toMatchObject({
+      voidReason: 'test correction', voidedAt: expect.any(String), amountWon: 400000,
+    });
     await request(app.getHttpServer()).post('/billing-runs/2026-09').set(finance).expect(403);
   });
 });

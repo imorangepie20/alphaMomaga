@@ -18,11 +18,15 @@ export class DatabaseService implements OnApplicationShutdown {
     return Boolean(this.connectionString);
   }
 
+  private getPool(): Pool {
+    this.pool ??= new Pool({ connectionString: this.connectionString });
+    return this.pool;
+  }
+
   get client(): NodePgDatabase<typeof schema> | undefined {
     if (!this.connectionString) return undefined;
     if (!this.db) {
-      this.pool = new Pool({ connectionString: this.connectionString });
-      this.db = drizzle(this.pool, { schema });
+      this.db = drizzle(this.getPool(), { schema });
     }
     return this.db;
   }
@@ -31,7 +35,7 @@ export class DatabaseService implements OnApplicationShutdown {
     if (!this.connectionString) return { status: 'unconfigured' };
 
     try {
-      await this.pool?.query('select 1');
+      await this.getPool().query('select 1');
       return { status: 'ok' };
     } catch {
       return { status: 'error', message: 'Database connection failed' };

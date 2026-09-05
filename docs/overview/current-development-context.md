@@ -20,6 +20,12 @@ property -> tenant -> contract -> monthly charge -> payment -> maintenance -> in
 
 ### 2026-09-05 현재 상태
 
+- 운영 준비 검수를 시작했다. DB 첫 상태 확인의 거짓 정상 응답을 수정하고
+  수납 통합 테스트에 금액 변화·void 복구·중복 생성 방지 검증을 추가했다.
+  API 207개, 인메모리 통합 21개 및 Cloudflare 비로그인 테스트 통과.
+  PostgreSQL 전용 테스트는 미실행이며 전체 완료가 아니다.
+  다음 검수 항목과 근거는 `docs/overview/release-readiness.md`를 따른다.
+
 - 공통 헤더의 중복 사용자 이름·큰 검색 영역을 정리하고 계정 드롭다운을 적용했다.
   실제 기능이 없는 알림 버튼은 사용자 요청에 따라 제거했다. `docs/overview/global-header.md` 참고.
 
