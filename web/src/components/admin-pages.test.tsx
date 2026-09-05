@@ -13,6 +13,15 @@ vi.mock("@/lib/billing", () => ({ BillingApiError: class extends Error {}, getMo
 vi.mock("@/lib/contracts-workspace", () => ({ getContractsWorkspace: async () => ({ properties: [], tenants: [], contracts: [] }) }));
 afterEach(() => { cleanup(); vi.clearAllMocks(); });
 
+it.each(["", "2026-13", "0000-01", ["2026-08", "2026-09"]].map((billingMonth) => ({ billingMonth })))("rejects invalid report month $billingMonth without offering an export", async ({ billingMonth }) => {
+  render(await AdminReport({ billingMonth }));
+  expect(getAdminAccess).toHaveBeenCalledWith("report:read");
+  expect(screen.getByRole("alert")).toHaveTextContent("올바른 청구월");
+  expect(getMonthlyCharges).not.toHaveBeenCalled();
+  expect(screen.queryByRole("button", { name: "CSV 다운로드" })).not.toBeInTheDocument();
+  expect(screen.getByRole("button", { name: "조회" })).toBeInTheDocument();
+});
+
 it("shows current identity without fabricated employee accounts", async () => {
   render(await AdminAccountPage({ mode: "users" }));
   expect(screen.getByText("실제 관리자")).toBeInTheDocument();

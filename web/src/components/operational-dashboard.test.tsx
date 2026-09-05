@@ -11,6 +11,15 @@ vi.mock("@/lib/billing", () => ({ getMonthlyCharges: vi.fn(async () => []), Bill
 afterEach(() => { cleanup(); vi.clearAllMocks(); });
 
 describe("operational dashboard pages", () => {
+  it.each(["", "2026-13", "0000-01", ["2026-08", "2026-09"]].map((billingMonth) => ({ billingMonth })))("rejects invalid revenue month $billingMonth without reading another month", async ({ billingMonth }) => {
+    render(await OperationalDashboard({ mode: "revenue", billingMonth }));
+    expect(screen.getByRole("alert")).toHaveTextContent("올바른 청구월");
+    expect(getMonthlyCharges).not.toHaveBeenCalled();
+    expect(getContractsWorkspace).not.toHaveBeenCalled();
+    expect(screen.queryByText("확정 청구")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "조회" })).toBeInTheDocument();
+  });
+
   it.each(["portfolio", "occupancy"] as const)("renders honest empty state for %s without billing access", async (mode) => {
     render(await OperationalDashboard({ mode }));
     expect(screen.getByText("자산을 등록하면 운영 현황이 표시됩니다.")).toBeInTheDocument();

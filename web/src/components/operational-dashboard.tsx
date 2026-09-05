@@ -6,15 +6,19 @@ import { BillingApiError, getMonthlyCharges } from "@/lib/billing";
 import { summarizeAssets, summarizeRevenue } from "@/lib/operational-dashboards";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { InvalidBillingMonth } from "./invalid-billing-month";
 
 const titles = { portfolio: "자산 현황", occupancy: "점유율", revenue: "수익 현황" };
 const types: Record<string, string> = { Apartment: "아파트", Townhouse: "타운하우스", Officetel: "오피스텔", Commercial: "상업용" };
 const won = (value: number) => `${value.toLocaleString("ko-KR")}원`;
 const percent = (value: number | null) => value === null ? "산출 불가" : `${value.toFixed(1)}%`;
 
-export async function OperationalDashboard({ mode, billingMonth }: { mode: keyof typeof titles; billingMonth?: string }) {
+export async function OperationalDashboard({ mode, billingMonth }: { mode: keyof typeof titles; billingMonth?: string | string[] }) {
+  if (billingMonth !== undefined && (typeof billingMonth !== "string" || !/^[1-9][0-9]{3}-(0[1-9]|1[0-2])$/.test(billingMonth))) {
+    return <InvalidBillingMonth title={titles[mode]} action={`/dashboard/${mode}`} />;
+  }
   const today = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Seoul", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
-  const month = billingMonth && /^[1-9][0-9]{3}-(0[1-9]|1[0-2])$/.test(billingMonth) ? billingMonth : today.slice(0, 7);
+  const month = billingMonth ?? today.slice(0, 7);
   let workspace: Awaited<ReturnType<typeof getContractsWorkspace>>;
   let charges: Awaited<ReturnType<typeof getMonthlyCharges>> = [];
   try {

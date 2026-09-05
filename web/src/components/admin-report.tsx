@@ -8,13 +8,19 @@ import { Card, CardHeader, CardTitle, CardContent } from "./ui/card";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table";
+import { InvalidBillingMonth } from "./invalid-billing-month";
 
-export async function AdminReport({ billingMonth }: { billingMonth?: string }) {
+export async function AdminReport({ billingMonth }: { billingMonth?: string | string[] }) {
   const current = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Seoul", year: "numeric", month: "2-digit" }).format(new Date());
-  const month = billingMonth && /^[1-9][0-9]{3}-(0[1-9]|1[0-2])$/.test(billingMonth) ? billingMonth : current;
+  const month = typeof billingMonth === "string" ? billingMonth : current;
   let report: ReturnType<typeof summarizeRevenue>;
   try {
     await getAdminAccess("report:read");
+  } catch (error) { return <AdminAccessNotice error={error} />; }
+  if (billingMonth !== undefined && (typeof billingMonth !== "string" || !/^[1-9][0-9]{3}-(0[1-9]|1[0-2])$/.test(billingMonth))) {
+    return <InvalidBillingMonth title="월별 수납 보고서" action="/admin/reports" />;
+  }
+  try {
     const workspace = await getContractsWorkspace();
     report = summarizeRevenue(workspace.properties, await getMonthlyCharges(month), month);
   } catch (error) { return <AdminAccessNotice error={error} />; }
