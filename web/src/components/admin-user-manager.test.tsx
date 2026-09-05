@@ -23,6 +23,14 @@ it("does not mutate if blocking confirmation is cancelled", () => {
 const directory = { users: [{ user_id: "auth0|target", email: "staff@example.test", blocked: false, email_verified: true, roles: [] }], total: 1, page: 0, pageSize: 20, subject: "actor" };
 const roles = [{ id: "finance", name: "Finance" }];
 
+it("filters approval waiting within the loaded page without hiding the scope", () => {
+  render(<AdminUserManager directory={{ ...directory, total: 100, users: [...directory.users, { ...directory.users[0], user_id: "approved", email: "approved@example.test", roles }] }} roles={roles} />);
+  fireEvent.change(screen.getByLabelText("업무 승인 필터"), { target: { value: "pending" } });
+  expect(screen.queryByText("approved@example.test")).not.toBeInTheDocument();
+  expect(screen.getAllByText("staff@example.test").length).toBeGreaterThan(0);
+  expect(screen.getByText(/현재 페이지 2명 중 1명/)).toBeInTheDocument();
+});
+
 it("submits an invitation when the visible issue button is clicked", async () => {
   const fetcher = vi.spyOn(globalThis, "fetch").mockResolvedValue(Response.json({ ticket: "https://example.test/invite" }));
   render(<AdminUserManager directory={directory} roles={roles} />);
