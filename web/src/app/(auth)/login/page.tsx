@@ -16,12 +16,12 @@ export default function LoginPage() {
         </span>
       }
     >
-      <Link
+      <a
         href="/auth/login"
         className="flex h-9 w-full items-center justify-center rounded-lg bg-primary px-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/80 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
       >
         Continue with Auth0
-      </Link>
+      </a>
     </AuthCard>
   )
 }

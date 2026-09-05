@@ -49,7 +49,7 @@ export async function RealEstateOverview() {
       {revenue ? <div className="space-y-4"><dl className="grid gap-6 sm:grid-cols-3">{[["확정 청구", revenue.billed], ["수납", revenue.received], ["미수", revenue.outstanding]].map(([label, value]) => <div key={label}><dt className="text-sm text-muted-foreground">{label}</dt><dd className="mt-2 break-words text-2xl font-semibold tabular-nums">{won(Number(value))}</dd></div>)}</dl>
         <p className="text-sm">수납률 {revenue.collectionRate === null ? "산출 불가 (확정 청구 없음)" : `${revenue.collectionRate.toFixed(1)}%`} · 확정 대기 초안 {revenue.drafts}건</p>
         <Link href={`/payments?billingMonth=${month}`} className={linkStyle}>청구 확정·수납 처리</Link></div>
-        : <div className="space-y-2"><p role="alert">{billingError}</p><Link href={loginRequired ? "/auth/login" : "/dashboard/real-estate"} className={linkStyle}>{loginRequired ? "다시 로그인" : "다시 조회"}</Link></div>}
+        : <div className="space-y-2"><p role="alert">{billingError}</p><a href={loginRequired ? "/auth/login" : "/dashboard/real-estate"} className={linkStyle}>{loginRequired ? "다시 로그인" : "다시 조회"}</a></div>}
     </CardContent></Card>
     <div className="grid items-start gap-6 xl:grid-cols-2">
       <Card><CardHeader className="space-y-2"><CardTitle>자산별 청구·수납 비교</CardTitle><p className="text-sm text-muted-foreground">{month} 확정 청구액 순 상위 8개 · 공통 금액 척도</p></CardHeader><CardContent className="space-y-5">

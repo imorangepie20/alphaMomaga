@@ -20,6 +20,9 @@ property -> tenant -> contract -> monthly charge -> payment -> maintenance -> in
 
 ### 2026-09-05 현재 상태
 
+- `/auth/login` RSC fetch 오류를 수정했다. 로그인·로그아웃 링크 6곳을 Next `Link`에서
+  일반 `<a>`로 변경했다. 웹 134개 테스트 및 린트 통과. `docs/architecture/web-auth-boundary.md` 참고.
+
 - Auth0 Management API 연결 및 사용자 조회·초대 링크·차단·운영 역할 변경을 구현했다.
   실제 토큰/사용자/역할 조회 200 확인. 웹 128개·API 205개 테스트 및 양쪽 빌드 통과.
   `docs/overview/auth0-management-api.md` 참고. 실제 계정 변경과 초대 링크 사용은 미검증.

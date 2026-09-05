@@ -1,5 +1,4 @@
 import type { User } from "@auth0/nextjs-auth0/types";
-import Link from "next/link";
 
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
@@ -24,7 +23,7 @@ export function AppHeader({ user }: AppHeaderProps) {
       <div className="ml-auto flex items-center gap-2">
         <CommandPalette />
         <Notifications />
-        <Link
+        <a
           href="/auth/logout"
           className="flex items-center gap-2 rounded-md px-1 py-0.5 text-sm hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           aria-label={`Sign out ${displayName}`}
@@ -33,7 +32,7 @@ export function AppHeader({ user }: AppHeaderProps) {
           <Avatar className="size-8">
             <AvatarFallback>{initials}</AvatarFallback>
           </Avatar>
-        </Link>
+        </a>
       </div>
     </header>
   );

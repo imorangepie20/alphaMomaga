@@ -22,7 +22,7 @@ export async function OperationalDashboard({ mode, billingMonth }: { mode: keyof
     if (mode === "revenue") charges = await getMonthlyCharges(month);
   } catch (error) {
     const message = error instanceof BillingApiError && error.status === 401 ? "로그인이 만료되었습니다. 다시 로그인해 주세요." : error instanceof BillingApiError && error.status === 403 ? "수납 현황 조회 권한이 없습니다." : "현황을 불러오지 못했습니다. 잠시 후 다시 조회해 주세요.";
-    return <div className="space-y-4"><h1 className="text-2xl font-semibold">{titles[mode]}</h1><p role="alert">{message}</p><Link className="underline" href={error instanceof BillingApiError && error.status === 401 ? "/auth/login" : `/dashboard/${mode}`}>다시 조회</Link></div>;
+    return <div className="space-y-4"><h1 className="text-2xl font-semibold">{titles[mode]}</h1><p role="alert">{message}</p><a className="underline" href={error instanceof BillingApiError && error.status === 401 ? "/auth/login" : `/dashboard/${mode}`}>다시 조회</a></div>;
   }
   const assets = summarizeAssets(workspace.properties, workspace.tenants, workspace.contracts, today);
   const revenue = summarizeRevenue(workspace.properties, charges, month);

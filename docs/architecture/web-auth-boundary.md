@@ -2,6 +2,17 @@
 
 ## 현재 구조
 
+### 2026-09-05 인증 경로 브라우저 이동 수정
+
+- 원인: 로그인·로그아웃과 인증 오류 안내 6곳이 Next.js `Link`를 사용했다.
+  `/auth/login`은 Auth0 외부 인증 흐름으로 redirect하는 경로이지 RSC 페이지가 아니므로
+  사전 불러오기 또는 클라이언트 이동에서 `Failed to fetch RSC payload`가 발생할 수 있었다.
+- 변경: 인증 경로 링크는 일반 `<a>`로 바꿔 전체 브라우저 이동을 사용한다.
+  SDK의 설치된 `@auth0/nextjs-auth0/README.md`도 이 방식을 명시한다.
+- 검증: 변경 전 재현된 소스 회귀 검사 6건을 포함해 웹 134개 테스트와 변경 파일 린트 통과.
+  인증된 브라우저에서 로그인 왕복 수동 검증은 미실행이다.
+- API 권한, Auth0 자격 증명, Cloudflare 설정은 변경하지 않았다.
+
 `web/`은 `@auth0/nextjs-auth0`를 사용해 Auth0 Universal Login의 Authorization Code + PKCE 흐름을 처리한다. browser JavaScript는 Access Token, Client Secret, session secret을 읽거나 저장하지 않는다.
 
 - `web/src/proxy.ts`가 Next.js 16 Proxy에서 Auth0 SDK middleware를 실행한다.
