@@ -20,6 +20,10 @@ property -> tenant -> contract -> monthly charge -> payment -> maintenance -> in
 
 ### 2026-09-05 현재 상태
 
+- 점검 조기 완료를 거부하던 API·폼의 예정일 하한을 제거했다. 미래 날짜 검증은 유지하며,
+  완료일 직접 입력과 서울 자정 이후 날짜 상한 갱신을 적용했다. API 222개·웹 186개,
+  API 빌드·웹 타입·변경 파일 린트 통과. 상세는 `inspection-workflow-ui.md` 참고.
+
 - 권한과 메뉴 일치: API 확인 권한으로 사이드바·페이지 검색의 사용자/역할/보고서
   항목을 필터링한다. 조회 실패 안내와 기존 API 접근 차단은 유지한다.
   페이지 검색 초기 클릭 문제도 실제 재현 후 hydration gate로 수정했다.

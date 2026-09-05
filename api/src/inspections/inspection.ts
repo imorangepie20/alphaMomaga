@@ -38,7 +38,7 @@ export function validateInspection(item: Inspection, referenceDate = new Date())
       ? new Date(`${item.completedAt}T00:00:00.000Z`)
       : undefined;
     const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Seoul', year: 'numeric', month: '2-digit', day: '2-digit' }).format(referenceDate);
-    if (!item.completedAt || !datePattern.test(item.completedAt) || !completedAt || Number.isNaN(completedAt.getTime()) || completedAt.toISOString().slice(0, 10) !== item.completedAt || completedAt < scheduledDate || item.completedAt > today) {
+    if (!item.completedAt || !datePattern.test(item.completedAt) || !completedAt || Number.isNaN(completedAt.getTime()) || completedAt.toISOString().slice(0, 10) !== item.completedAt || item.completedAt > today) {
       throw new Error(`Inspection ${item.id} has an invalid completion date`);
     }
   }

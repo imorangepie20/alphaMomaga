@@ -18,6 +18,11 @@ const labels: Record<InspectionStatus, string> = { Pending: "대기", Scheduled:
 type Form = Omit<Inspection, "id">;
 const emptyForm: Form = { propertyId: "", type: "", scheduledDate: "", status: "Pending", priority: "Routine" };
 
+function currentSeoulDate() {
+  const parts = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Seoul", year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(new Date());
+  return ["year", "month", "day"].map((key) => parts.find((part) => part.type === key)?.value).join("-");
+}
+
 export function InspectionManager({ items, properties, today }: { items: Inspection[]; properties: Property[]; today: string }) {
   const hydrated = useHydrated();
   const router = useRouter();
@@ -28,6 +33,7 @@ export function InspectionManager({ items, properties, today }: { items: Inspect
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState<Inspection | null>(null);
   const [form, setForm] = useState<Form>(emptyForm);
+  const [completionToday, setCompletionToday] = useState(today);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [busy, setBusy] = useState(false);
@@ -42,8 +48,9 @@ export function InspectionManager({ items, properties, today }: { items: Inspect
   ).sort((a, b) => Number(overdue(b)) - Number(overdue(a)) || Number(a.status === "Completed") - Number(b.status === "Completed") || a.scheduledDate.localeCompare(b.scheduledDate) || a.id.localeCompare(b.id));
 
   function edit(item?: Inspection, status?: InspectionStatus) {
+    setCompletionToday(currentSeoulDate());
     setSelected(item ?? null);
-    setForm(item ? { propertyId: item.propertyId, type: item.type, scheduledDate: item.scheduledDate, status: status ?? item.status, priority: item.priority, completedAt: item.completedAt ?? today } : { ...emptyForm });
+    setForm(item ? { propertyId: item.propertyId, type: item.type, scheduledDate: item.scheduledDate, status: status ?? item.status, priority: item.priority, completedAt: item.completedAt ?? "" } : { ...emptyForm });
     setError("");
     setNotice("");
     setOpen(true);
@@ -85,8 +92,8 @@ export function InspectionManager({ items, properties, today }: { items: Inspect
       setError("자산, 점검 유형과 예정일을 입력해 주세요.");
       return;
     }
-    if (form.status === "Completed" && (!form.completedAt || form.completedAt < form.scheduledDate || form.completedAt > today)) {
-      setError("완료일은 예정일 이후부터 오늘까지 입력해 주세요.");
+    if (form.status === "Completed" && (!form.completedAt || form.completedAt > currentSeoulDate())) {
+      setError("실제 완료일을 오늘 이하의 날짜로 입력해 주세요.");
       return;
     }
     void save(selected
@@ -144,7 +151,7 @@ export function InspectionManager({ items, properties, today }: { items: Inspect
             <FormField label="상태" htmlFor="inspection-status"><NativeSelect id="inspection-status" className="w-full" value={form.status} disabled={!hydrated || busy} onChange={(event) => setForm({ ...form, status: event.target.value as InspectionStatus })}>{Object.entries(labels).map(([value, label]) => <NativeSelectOption key={value} value={value} disabled={!selected && value === "Completed"}>{label}</NativeSelectOption>)}</NativeSelect></FormField>
           </div>
           <FormField label="긴급도" htmlFor="inspection-priority"><NativeSelect id="inspection-priority" className="w-full" value={form.priority} disabled={!hydrated || busy} onChange={(event) => setForm({ ...form, priority: event.target.value as Inspection["priority"] })}><NativeSelectOption value="Routine">일반</NativeSelectOption><NativeSelectOption value="Urgent">긴급</NativeSelectOption></NativeSelect></FormField>
-          {selected && form.status === "Completed" && <FormField label="완료일" htmlFor="inspection-completed"><Input id="inspection-completed" type="date" required min={form.scheduledDate} max={today} disabled={!hydrated || busy} value={form.completedAt ?? ""} onChange={(event) => setForm({ ...form, completedAt: event.target.value })} /></FormField>}
+          {selected && form.status === "Completed" && <FormField label="완료일" htmlFor="inspection-completed"><Input id="inspection-completed" type="date" required max={completionToday} disabled={!hydrated || busy} value={form.completedAt ?? ""} onFocus={() => setCompletionToday(currentSeoulDate())} onChange={(event) => { setCompletionToday(currentSeoulDate()); setForm({ ...form, completedAt: event.target.value }); }} /></FormField>}
           {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
           <DialogFooter><Button type="button" variant="outline" disabled={!hydrated || busy} onClick={() => setOpen(false)}>취소</Button><Button type="submit" disabled={!hydrated || busy}>{busy ? "저장 중..." : "저장"}</Button></DialogFooter>
         </form>

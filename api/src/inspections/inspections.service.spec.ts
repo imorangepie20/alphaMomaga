@@ -8,6 +8,11 @@ const inspection = (overrides: Partial<Inspection> = {}): Inspection => ({
 });
 
 describe('InspectionsService', () => {
+  it('accepts early completion but still rejects future completion', () => {
+    expect(() => validateInspection(inspection({ scheduledDate: '2026-09-10', status: 'Completed', completedAt: '2026-09-02' }), referenceDate)).not.toThrow();
+    expect(() => validateInspection(inspection({ status: 'Completed', completedAt: '2026-09-03' }), referenceDate)).toThrow();
+  });
+
   it('reschedules a pending inspection and changes its priority', async () => {
     expect(await new InspectionsService().update('inspection-1', { scheduledDate: '2026-09-15', priority: 'Urgent' })).toMatchObject({ scheduledDate: '2026-09-15', priority: 'Urgent' });
   });
