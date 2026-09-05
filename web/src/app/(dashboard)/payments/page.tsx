@@ -52,10 +52,14 @@ export default async function PaymentsPage({ searchParams }: { searchParams: Pro
         <Card><CardHeader><CardTitle>미수 금액</CardTitle></CardHeader><CardContent className="text-3xl font-semibold tabular-nums">{formatWon(summary.outstandingWon)}</CardContent></Card>
       </div>
       <Card><CardHeader className="flex-row flex-wrap items-start justify-between gap-3"><div><CardTitle>월별 청구 원장</CardTitle><p className="mt-1 text-sm text-muted-foreground">청구 초안을 생성한 뒤 계약 조건을 검토하고 확정하면 수납을 등록할 수 있습니다.</p></div><div className="flex flex-wrap items-start justify-end gap-2"><BillingRunAction billingMonth={billingMonth} /><ReceiptManager charges={receiptCharges} tenantNames={tenantNames} /></div></CardHeader><CardContent className="px-0"><Table>
-        <TableHeader><TableRow><TableHead className="pl-6">청구월</TableHead><TableHead>납부 기한</TableHead><TableHead>청구</TableHead><TableHead>수납</TableHead><TableHead>미수</TableHead><TableHead>상태</TableHead><TableHead className="pr-6 text-right">관리</TableHead></TableRow></TableHeader>
+        <TableHeader><TableRow><TableHead className="pl-6">청구월 / 번호</TableHead><TableHead>임차인 / 호실</TableHead><TableHead>납부 기한</TableHead><TableHead>청구</TableHead><TableHead>수납</TableHead><TableHead>미수</TableHead><TableHead>상태</TableHead><TableHead className="pr-6 text-right">관리</TableHead></TableRow></TableHeader>
         <TableBody>
-          {charges.map((charge) => <TableRow key={charge.id}><TableCell className="pl-6 font-medium">{charge.billingMonth}</TableCell><TableCell>{charge.dueDate}</TableCell><TableCell>{formatWon(charge.billedWon)}</TableCell><TableCell>{formatWon(charge.receivedWon)}</TableCell><TableCell>{formatWon(charge.outstandingWon)}</TableCell><TableCell><Badge variant="outline" className={statusClass(charge.status)}>{statusLabel(charge.status)}</Badge></TableCell><TableCell className="pr-6 text-right"><ChargeActions charge={charge} /></TableCell></TableRow>)}
-          {charges.length === 0 && <TableRow><TableCell colSpan={7} className="h-28 text-center text-muted-foreground">선택한 청구월에 생성된 청구가 없습니다. 활성 계약이 있다면 청구 초안 생성으로 초안을 만들 수 있습니다.</TableCell></TableRow>}
+          {charges.map((charge) => <TableRow key={charge.id}>
+            <TableCell className="pl-6"><div className="font-medium">{charge.billingMonth}</div><div className="mt-1 max-w-52 whitespace-normal break-all text-xs text-muted-foreground">{charge.id}</div></TableCell>
+            <TableCell><div>{tenantNames[charge.tenantId] ?? `임차인 정보 없음 · ${charge.tenantId}`}</div><div className="mt-1 max-w-60 whitespace-normal break-all text-xs text-muted-foreground">계약 {charge.contractId}</div></TableCell>
+            <TableCell>{charge.dueDate}</TableCell><TableCell>{formatWon(charge.billedWon)}</TableCell><TableCell>{formatWon(charge.receivedWon)}</TableCell><TableCell>{formatWon(charge.outstandingWon)}</TableCell><TableCell><Badge variant="outline" className={statusClass(charge.status)}>{statusLabel(charge.status)}</Badge></TableCell><TableCell className="pr-6 text-right"><ChargeActions charge={charge} /></TableCell>
+          </TableRow>)}
+          {charges.length === 0 && <TableRow><TableCell colSpan={8} className="h-28 text-center text-muted-foreground">선택한 청구월에 생성된 청구가 없습니다. 활성 계약이 있다면 청구 초안 생성으로 초안을 만들 수 있습니다.</TableCell></TableRow>}
         </TableBody>
       </Table></CardContent></Card>
       <Card><CardContent className="pt-6"><ReceiptHistory receipts={receipts} charges={charges} /></CardContent></Card>

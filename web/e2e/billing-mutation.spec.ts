@@ -26,9 +26,8 @@ test("approves a dedicated draft, records a partial receipt, and restores the ba
     return response.json();
   }
 
-  const initial = await charges();
-  // The page currently lacks charge IDs in its rows. Refuse ambiguous targeting.
-  expect(initial, "Use a dedicated month containing exactly one test charge").toHaveLength(1);
+  const initial = (await charges()).filter((charge) => charge.id === chargeId);
+  expect(initial, "The designated test charge must exist exactly once").toHaveLength(1);
   const charge = initial[0];
   expect(charge.id).toBe(chargeId);
   expect(charge.status).toBe("Draft");
@@ -63,12 +62,12 @@ test("approves a dedicated draft, records a partial receipt, and restores the ba
     if (allowed) await route.continue();
   });
   await page.goto(`/payments?billingMonth=${month}`);
-  const row = page.getByRole("row").filter({ has: page.getByRole("button", { name: "청구 확정", exact: true }) });
+  const row = page.getByRole("row").filter({ has: page.getByText(charge.id, { exact: true }) });
   await expect(row).toHaveCount(1);
   const approval = page.waitForResponse((response) => response.url().endsWith(`/monthly-charges/${chargeId}/approve`) && response.request().method() === "POST");
   await row.getByRole("button", { name: "청구 확정", exact: true }).click();
   expect((await approval).status()).toBe(201);
-  await expect.poll(async () => (await charges())[0].status).not.toBe("Draft");
+  await expect.poll(async () => (await charges()).find((item) => item.id === chargeId)?.status).toMatch(/^(Approved|Overdue)$/);
 
   await page.getByRole("button", { name: "수납 등록", exact: true }).click();
   const dialog = page.getByRole("dialog", { name: "수납 등록", exact: true });
@@ -79,11 +78,11 @@ test("approves a dedicated draft, records a partial receipt, and restores the ba
   await dialog.getByRole("button", { name: "수납 저장", exact: true }).click();
   expect((await receiptResponse).status()).toBe(201);
   await expect(dialog).not.toBeVisible();
-  await expect.poll(async () => (await charges())[0].receivedWon).toBe(amount);
-  const ledgerRow = page.getByRole("table").getByRole("row").nth(1);
-  await expect(ledgerRow.getByRole("cell").nth(2)).toHaveText(won(charge.billedWon));
-  await expect(ledgerRow.getByRole("cell").nth(3)).toHaveText(won(amount));
-  await expect(ledgerRow.getByRole("cell").nth(4)).toHaveText(won(charge.billedWon - amount));
+  await expect.poll(async () => (await charges()).find((item) => item.id === chargeId)?.receivedWon).toBe(amount);
+  const ledgerRow = row;
+  await expect(ledgerRow.getByRole("cell").nth(3)).toHaveText(won(charge.billedWon));
+  await expect(ledgerRow.getByRole("cell").nth(4)).toHaveText(won(amount));
+  await expect(ledgerRow.getByRole("cell").nth(5)).toHaveText(won(charge.billedWon - amount));
 
   const created = (await receipts()).filter((receipt) => receipt.reference === reference);
   expect(created).toHaveLength(1);
@@ -95,8 +94,8 @@ test("approves a dedicated draft, records a partial receipt, and restores the ba
   const voidResponse = page.waitForResponse((response) => response.url().endsWith(`/payment-receipts/${receipt.id}/void`) && response.request().method() === "POST");
   await reasonInput.locator("..").getByRole("button", { name: "영수증 취소", exact: true }).click();
   expect((await voidResponse).status()).toBe(201);
-  await expect.poll(async () => (await charges())[0].receivedWon).toBe(0);
-  await expect(ledgerRow.getByRole("cell").nth(4)).toHaveText(won(charge.billedWon));
+  await expect.poll(async () => (await charges()).find((item) => item.id === chargeId)?.receivedWon).toBe(0);
+  await expect(ledgerRow.getByRole("cell").nth(5)).toHaveText(won(charge.billedWon));
   await expect(page.getByText(`취소됨: ${reason}`, { exact: true })).toBeVisible();
   const reversed = (await receipts()).find((item) => item.id === receipt.id);
   expect(reversed?.voidedAt).toBeTruthy();

@@ -64,6 +64,16 @@ Invoke-WebRequest https://api.approid.team/properties -UseBasicParsing
 
 ## Playwright로 Cloudflare 테스트
 
+VS Code 터미널에서도 기존 Playwright를 실행할 수 있다. 별도 브라우저 제어 도구의
+연결 상태와 Playwright 실행 가능 여부는 서로 다른 조건이다.
+브라우저 창을 보려면 기존 테스트 명령에 `--headed`를 추가한다.
+테스트 중 자동으로 이동·종료되는 창은 수동 로그인용 창이 아니므로 조작하지 않는다.
+일반 Chrome 로그인도 Playwright의 새 테스트 context에 자동 공유되지 않는다.
+
+2026-09-05 Cloudflare headed 검사: 10개 중 9개 통과, 역할 경로가 Auth0 로그인으로
+이동하여 1개 실패했다. 원인은 확정하지 않았으며 동일 경로의 headless 재검사는 통과했다.
+이 결과는 Playwright 브라우저 실행과 비로그인 접근 검사이며 인증 후 업무 검수를 대신하지 않는다.
+
 `web/`의 Playwright 설정에서 `PLAYWRIGHT_BASE_URL`을 지정하면 로컬 Next.js 서버를 별도로 시작하지 않고 Cloudflare 관리자 UI를 직접 테스트합니다. Tunnel origin이 `web`의 3001 포트를 가리키도록 전환된 뒤 사용합니다.
 
 ```powershell

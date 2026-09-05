@@ -20,6 +20,12 @@ property -> tenant -> contract -> monthly charge -> payment -> maintenance -> in
 
 ### 2026-09-05 현재 상태
 
+- 수납 표의 대상 식별 누락을 수정했다. 임차인·호실·계약·청구 번호를 표시하며
+  동일 월·금액의 여러 청구 및 임차인 정보 누락 회귀 검사를 추가했다.
+  브라우저 수납 테스트는 지정된 청구 번호로 행을 선택한다.
+- VS Code에서도 기존 Playwright 실행 가능. Cloudflare headed 9/10 통과,
+  Auth0로 이동해 실패한 역할 경로는 headless 단독 재검사 통과. 수동 개입 여부는 미확인.
+
 - 웹 원격 CI `33939051293`(`2dd34fc`) 전체 성공 확인. API CI도 앞서 성공했다.
 - 승인 계획 Task 9의 실제 변경 검수가 빠져 있어 전용 수납 브라우저 시나리오를 추가했다.
   `npm run test:e2e:billing-mutation`은 명시적 테스트 데이터와 실제 세션이 필요하다.
