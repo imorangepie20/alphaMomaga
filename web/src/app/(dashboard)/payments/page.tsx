@@ -29,8 +29,12 @@ function statusClass(status: MonthlyChargeStatus): string {
   return "border-amber-500/30 bg-amber-500/10 text-amber-700";
 }
 
-export default async function PaymentsPage({ searchParams }: { searchParams: Promise<{ billingMonth?: string }> }) {
-  const billingMonth = (await searchParams).billingMonth ?? currentBillingMonth();
+export default async function PaymentsPage({ searchParams }: { searchParams: Promise<{ billingMonth?: string | string[] }> }) {
+  const requestedMonth = (await searchParams).billingMonth;
+  if (requestedMonth !== undefined && (typeof requestedMonth !== "string" || !/^[1-9][0-9]{3}-(0[1-9]|1[0-2])$/.test(requestedMonth))) {
+    return <div className="space-y-4"><h1 className="text-2xl font-semibold tracking-tight">수납 원장</h1><p role="alert" className="text-sm text-destructive">올바른 청구월(YYYY-MM)을 선택해 주세요.</p><BillingMonthSelector billingMonth={currentBillingMonth()} /></div>;
+  }
+  const billingMonth = requestedMonth ?? currentBillingMonth();
   let data;
   try {
     data = await Promise.all([getBillingSummary(billingMonth), getMonthlyCharges(billingMonth), getPaymentReceipts(billingMonth), getMonthlyCharges(), getTenants()]);

@@ -3,6 +3,20 @@ import { BillingService } from './billing.service.js';
 import { vi } from 'vitest';
 
 describe('BillingController', () => {
+  it.each(['2026-00', '2026-13', '2026-9', 'invalid', '', '0000-01'])(
+    'rejects invalid billing month %s before querying records', (month) => {
+      const controller = new BillingController({} as BillingService);
+      for (const read of [
+        () => controller.findCharges(month),
+        () => controller.getSummary(month),
+        () => controller.getTenantLedger('tenant-1', month),
+        () => controller.findReceipts(month),
+      ]) {
+        try { read(); throw new Error('Expected rejection'); }
+        catch (error) { expect((error as { getStatus?: () => number }).getStatus?.()).toBe(400); }
+      }
+    },
+  );
   it('forwards a receipt registration request to the billing service', async () => {
     const recordReceipt = vi.fn().mockResolvedValue({ id: 'receipt-1' });
     const controller = new BillingController({ recordReceipt } as unknown as BillingService);

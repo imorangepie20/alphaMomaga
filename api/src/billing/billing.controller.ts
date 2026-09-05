@@ -6,6 +6,12 @@ import type { AuthenticatedRequest } from '../auth/principal.js';
 import type { PaymentReceiptInput } from './billing.js';
 import { BillingService } from './billing.service.js';
 
+function validateBillingMonth(value: unknown): void {
+  if (typeof value !== 'string' || !/^[1-9][0-9]{3}-(0[1-9]|1[0-2])$/.test(value)) {
+    throw new BadRequestException('billingMonth must be a valid YYYY-MM month');
+  }
+}
+
 @Controller()
 export class BillingController {
   constructor(private readonly billingService: BillingService) {}
@@ -18,6 +24,7 @@ export class BillingController {
     @Query('propertyId') propertyId?: string,
     @Query('tenantId') tenantId?: string,
   ) {
+    if (billingMonth !== undefined) validateBillingMonth(billingMonth);
     return this.billingService.findCharges({ billingMonth, propertyId, tenantId });
   }
 
@@ -26,6 +33,7 @@ export class BillingController {
   @RequirePermission('portfolio:read')
   getSummary(@Query('billingMonth') billingMonth?: string) {
     if (!billingMonth) throw new BadRequestException('billingMonth is required');
+    validateBillingMonth(billingMonth);
     return this.billingService.getSummary(billingMonth);
   }
 
@@ -34,6 +42,7 @@ export class BillingController {
   @RequirePermission('portfolio:read')
   getTenantLedger(@Param('tenantId') tenantId: string, @Query('billingMonth') billingMonth?: string) {
     if (!billingMonth) throw new BadRequestException('billingMonth is required');
+    validateBillingMonth(billingMonth);
     return this.billingService.getTenantLedger(tenantId, billingMonth);
   }
 
@@ -41,6 +50,7 @@ export class BillingController {
   @UseGuards(AuthGuard, PermissionsGuard)
   @RequirePermission('portfolio:read')
   findReceipts(@Query('billingMonth') billingMonth?: string, @Query('propertyId') propertyId?: string, @Query('tenantId') tenantId?: string) {
+    if (billingMonth !== undefined) validateBillingMonth(billingMonth);
     return this.billingService.findReceipts({ billingMonth, propertyId, tenantId });
   }
 
@@ -48,6 +58,7 @@ export class BillingController {
   @UseGuards(AuthGuard, PermissionsGuard)
   @RequirePermission('billing:manage')
   async generateMonth(@Param('billingMonth') billingMonth: string) {
+    validateBillingMonth(billingMonth);
     try {
       return await this.billingService.generateMonth(billingMonth);
     } catch (error) {
