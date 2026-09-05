@@ -30,6 +30,10 @@ jobs:
         run: npm ci
       - name: 단위 테스트
         run: npm test
+      - name: 린트
+        run: npm run lint
+      - name: 인메모리 API 통합 테스트
+        run: npm run test:e2e
       - name: 빌드
         run: npm run build
 
@@ -55,6 +59,7 @@ jobs:
           --health-retries=12
     env:
       DATABASE_URL: postgresql://postgres:postgres@localhost:5432/property_manager
+      TEST_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/property_manager
     steps:
       - name: 저장소 checkout
         uses: actions/checkout@v4
@@ -70,5 +75,5 @@ jobs:
         run: npm run db:migrate
       - name: seed 적용
         run: npm run db:seed
-      - name: API e2e 테스트
-        run: npm run test:e2e -- --no-file-parallelism
+      - name: PostgreSQL 저장·동시성·복구 테스트
+        run: npm run test:e2e -- billing-postgres.e2e-spec.ts --no-file-parallelism

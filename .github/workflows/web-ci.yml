@@ -30,6 +30,8 @@ jobs:
         run: npm ci
       - name: 린트
         run: npm run lint
+      - name: 단위 테스트
+        run: npm test
       - name: 빌드
         run: npm run build
       - name: API 경로 진단
@@ -46,7 +48,7 @@ jobs:
       - name: API 준비 확인
         run: |
           for attempt in {1..30}; do
-            if curl --fail --silent http://localhost:3100/properties > /dev/null; then
+            if curl --fail --silent http://localhost:3100/health/database > /dev/null; then
               exit 0
             fi
             sleep 1
