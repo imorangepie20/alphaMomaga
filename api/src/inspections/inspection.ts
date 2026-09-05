@@ -9,6 +9,7 @@ export type Inspection = {
   status: InspectionStatus;
   priority: InspectionPriority;
   completedAt?: string;
+  result?: string;
 };
 
 export type CreateInspectionInput = {
@@ -17,6 +18,8 @@ export type CreateInspectionInput = {
   scheduledDate: string;
   status: InspectionStatus;
   priority: InspectionPriority;
+  completedAt?: string;
+  result?: string;
 };
 
 export type UpdateInspectionInput = {
@@ -24,9 +27,10 @@ export type UpdateInspectionInput = {
   priority?: InspectionPriority;
   status?: InspectionStatus;
   completedAt?: string;
+  result?: string;
 };
 
-export function validateInspection(item: Inspection, referenceDate = new Date()): void {
+export function validateInspection(item: Inspection, referenceDate = new Date(), requireResult = false): void {
   if (!['Pending', 'Scheduled', 'InReview', 'Completed'].includes(item.status) || !['Routine', 'Urgent'].includes(item.priority)) throw new Error(`Inspection ${item.id} has invalid status or priority`);
   const datePattern = /^\d{4}-\d{2}-\d{2}$/;
   const scheduledDate = new Date(`${item.scheduledDate}T00:00:00.000Z`);
@@ -34,6 +38,7 @@ export function validateInspection(item: Inspection, referenceDate = new Date())
     throw new Error(`Inspection ${item.id} is invalid`);
   }
   if (item.status === 'Completed') {
+    if ((requireResult || item.result !== undefined) && (typeof item.result !== 'string' || !item.result.trim() || item.result.length > 4000)) throw new Error('Inspection result must contain 1 to 4000 characters');
     const completedAt = item.completedAt
       ? new Date(`${item.completedAt}T00:00:00.000Z`)
       : undefined;
@@ -42,4 +47,5 @@ export function validateInspection(item: Inspection, referenceDate = new Date())
       throw new Error(`Inspection ${item.id} has an invalid completion date`);
     }
   }
+  if (item.status !== 'Completed' && (item.result !== undefined || (requireResult && item.completedAt !== undefined))) throw new Error('Only completed inspections can have completion evidence');
 }

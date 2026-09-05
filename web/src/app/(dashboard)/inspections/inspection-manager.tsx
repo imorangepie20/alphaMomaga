@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { FormField } from "@/components/ui/field";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -50,7 +51,7 @@ export function InspectionManager({ items, properties, today }: { items: Inspect
   function edit(item?: Inspection, status?: InspectionStatus) {
     setCompletionToday(currentSeoulDate());
     setSelected(item ?? null);
-    setForm(item ? { propertyId: item.propertyId, type: item.type, scheduledDate: item.scheduledDate, status: status ?? item.status, priority: item.priority, completedAt: item.completedAt ?? "" } : { ...emptyForm });
+    setForm(item ? { propertyId: item.propertyId, type: item.type, scheduledDate: item.scheduledDate, status: status ?? item.status, priority: item.priority, completedAt: item.completedAt ?? "", result: item.result ?? "" } : { ...emptyForm });
     setError("");
     setNotice("");
     setOpen(true);
@@ -92,12 +93,12 @@ export function InspectionManager({ items, properties, today }: { items: Inspect
       setError("자산, 점검 유형과 예정일을 입력해 주세요.");
       return;
     }
-    if (form.status === "Completed" && (!form.completedAt || form.completedAt > currentSeoulDate())) {
-      setError("실제 완료일을 오늘 이하의 날짜로 입력해 주세요.");
+    if (form.status === "Completed" && (!form.completedAt || form.completedAt > currentSeoulDate() || !form.result?.trim())) {
+      setError("실제 완료일을 오늘 이하의 날짜로 입력하고 점검 결과를 작성해 주세요.");
       return;
     }
     void save(selected
-      ? { scheduledDate: form.scheduledDate, priority: form.priority, status: form.status, ...(form.status === "Completed" ? { completedAt: form.completedAt } : {}) }
+      ? { scheduledDate: form.scheduledDate, priority: form.priority, status: form.status, ...(form.status === "Completed" ? { completedAt: form.completedAt, result: form.result?.trim() } : {}) }
       : { propertyId: form.propertyId, type: form.type.trim(), scheduledDate: form.scheduledDate, status: form.status, priority: form.priority }, selected?.id);
   }
 
@@ -130,7 +131,7 @@ export function InspectionManager({ items, properties, today }: { items: Inspect
             <TableCell>{names.get(item.propertyId) ?? "연결되지 않은 자산"}</TableCell><TableCell className="font-medium">{item.type}</TableCell>
             <TableCell><div>{item.scheduledDate}</div>{overdue(item) && <span className="text-xs text-destructive">기한 초과</span>}</TableCell>
             <TableCell><Badge variant="outline">{item.priority === "Urgent" ? "긴급" : "일반"}</Badge></TableCell>
-            <TableCell><Badge variant="outline">{labels[item.status]}</Badge>{item.status === "Completed" && <div className="mt-1 text-xs text-muted-foreground">완료일 {item.completedAt}</div>}</TableCell>
+            <TableCell><Badge variant="outline">{labels[item.status]}</Badge>{item.status === "Completed" && <><div className="mt-1 text-xs text-muted-foreground">완료일 {item.completedAt}</div><p className="mt-1 max-w-sm whitespace-pre-wrap break-words text-xs text-muted-foreground">{item.result || "점검 결과 기록 없음"}</p></>}</TableCell>
             <TableCell><div className="flex justify-end gap-2">
               {(item.status === "Pending" || item.status === "Scheduled") && <Button variant="outline" size="sm" disabled={!hydrated || busy} aria-label={`${item.type} 검토 시작`} onClick={() => void save({ status: "InReview" }, item.id)}>검토 시작</Button>}
               {item.status === "InReview" && <Button variant="outline" size="sm" disabled={!hydrated || busy} aria-label={`${item.type} 완료 처리`} onClick={() => edit(item, "Completed")}>완료 처리</Button>}
@@ -152,6 +153,8 @@ export function InspectionManager({ items, properties, today }: { items: Inspect
           </div>
           <FormField label="긴급도" htmlFor="inspection-priority"><NativeSelect id="inspection-priority" className="w-full" value={form.priority} disabled={!hydrated || busy} onChange={(event) => setForm({ ...form, priority: event.target.value as Inspection["priority"] })}><NativeSelectOption value="Routine">일반</NativeSelectOption><NativeSelectOption value="Urgent">긴급</NativeSelectOption></NativeSelect></FormField>
           {selected && form.status === "Completed" && <FormField label="완료일" htmlFor="inspection-completed"><Input id="inspection-completed" type="date" required max={completionToday} disabled={!hydrated || busy} value={form.completedAt ?? ""} onFocus={() => setCompletionToday(currentSeoulDate())} onChange={(event) => { setCompletionToday(currentSeoulDate()); setForm({ ...form, completedAt: event.target.value }); }} /></FormField>}
+          {selected && form.status === "Completed" && <FormField label="점검 결과" htmlFor="inspection-result"><Textarea id="inspection-result" required maxLength={4000} disabled={busy} value={form.result ?? ""} placeholder="확인 항목, 발견 사항과 후속 조치 내용을 기록해 주세요." onChange={(event) => setForm({ ...form, result: event.target.value })} /></FormField>}
+          {selected?.status === "Completed" && form.status !== "Completed" && <p className="text-sm text-muted-foreground">재점검 전환 시 현재 완료일과 결과는 비워지며 이전 기록은 감사 이력에 보존됩니다.</p>}
           {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
           <DialogFooter><Button type="button" variant="outline" disabled={!hydrated || busy} onClick={() => setOpen(false)}>취소</Button><Button type="submit" disabled={!hydrated || busy}>{busy ? "저장 중..." : "저장"}</Button></DialogFooter>
         </form>

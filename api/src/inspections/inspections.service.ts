@@ -21,6 +21,7 @@ export function mapInspectionRow(row: InspectionRow): Inspection {
     priority: row.priority,
   };
   if (row.completedAt) inspection.completedAt = row.completedAt;
+  if (row.result !== null) inspection.result = row.result;
   return inspection;
 }
 
@@ -56,8 +57,9 @@ export class InspectionsService {
     const item: Inspection = {
       id: `inspection-temp`,
       ...input,
+      ...(typeof input.result === 'string' && { result: input.result.trim() }),
     };
-    validateInspection(item);
+    validateInspection(item, new Date(), true);
 
     const database = this.databaseService?.client;
     if (database) {
@@ -75,6 +77,8 @@ export class InspectionsService {
           scheduledDate: input.scheduledDate,
           status: input.status,
           priority: input.priority,
+          completedAt: item.completedAt,
+          result: item.result,
         }).returning();
 
         if (this.auditService) {
@@ -84,7 +88,7 @@ export class InspectionsService {
             actorRole: principal?.role ?? 'system',
             entityType: 'inspection',
             entityId: row.id,
-            metadata: { propertyId: input.propertyId, type: input.type, priority: input.priority },
+            metadata: { propertyId: input.propertyId, type: input.type, priority: input.priority, completedAt: item.completedAt, result: item.result },
           });
         }
 
@@ -106,14 +110,17 @@ export class InspectionsService {
 
     }
     const item2: Inspection = {
-      id: `inspection-${this.inspections.length + 1}`,
-      ...input,
+      ...item,
+      id: `inspection-${randomUUID()}`,
     };
     this.inspections.push(item2);
     return item2;
   }
 
   async update(id: string, input: UpdateInspectionInput, principal?: AuthenticatedPrincipal): Promise<Inspection> {
+    if (input.result !== undefined && (typeof input.result !== 'string' || !input.result.trim() || input.result.trim().length > 4000)) {
+      throw new Error('Inspection result must contain 1 to 4000 characters');
+    }
     if (Object.keys(input).length === 0) {
       throw new Error('At least one field is required to update');
     }
@@ -130,7 +137,9 @@ export class InspectionsService {
             ...(input.priority !== undefined && { priority: input.priority }),
             ...(input.status !== undefined && { status: input.status }),
             ...(input.completedAt !== undefined && { completedAt: input.completedAt }),
+            ...(input.result !== undefined && { result: typeof input.result === 'string' ? input.result.trim() : input.result }),
             ...(input.status !== undefined && input.status !== 'Completed' && { completedAt: null }),
+            ...(input.status !== undefined && input.status !== 'Completed' && current.status === 'Completed' && { result: null }),
           })
           .where(eq(inspections.id, id))
           .returning();
@@ -140,7 +149,7 @@ export class InspectionsService {
         }
 
         const item = mapInspectionRow(row);
-        validateInspection(item);
+        validateInspection(item, new Date(), true);
 
         if (this.auditService) {
           await this.auditService.record(transaction, {
@@ -149,7 +158,7 @@ export class InspectionsService {
             actorRole: principal?.role ?? 'system',
             entityType: 'inspection',
             entityId: id,
-            metadata: { changes: input, previousCompletion: { completedAt: current.completedAt } },
+            metadata: { changes: input, previousCompletion: { completedAt: current.completedAt, result: current.result } },
           });
         }
 
@@ -168,9 +177,11 @@ export class InspectionsService {
       ...(input.priority !== undefined && { priority: input.priority }),
       ...(input.status !== undefined && { status: input.status }),
       ...(input.completedAt !== undefined && { completedAt: input.completedAt }),
+      ...(input.result !== undefined && { result: typeof input.result === 'string' ? input.result.trim() : input.result }),
     };
     if (input.status !== undefined && input.status !== 'Completed') delete updated.completedAt;
-    validateInspection(updated);
+    if (input.status !== undefined && input.status !== 'Completed' && item.status === 'Completed') delete updated.result;
+    validateInspection(updated, new Date(), true);
 
     this.inspections[this.inspections.indexOf(item)] = updated;
     return updated;

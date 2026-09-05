@@ -129,7 +129,7 @@ describe('Property lifecycle simulation (e2e)', () => {
     const completedInspection = await request(app.getHttpServer())
       .put('/inspections/' + inspection.body.id)
       .set(manager)
-      .send({ status: 'Completed', completedAt: '2026-09-03' })
+      .send({ status: 'Completed', completedAt: '2026-09-03', result: 'Safety verified' })
       .expect(200);
     expect(completedInspection.body.status).toBe('Completed');
 

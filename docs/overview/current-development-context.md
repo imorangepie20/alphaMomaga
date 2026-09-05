@@ -20,6 +20,12 @@ property -> tenant -> contract -> monthly charge -> payment -> maintenance -> in
 
 ### 2026-09-05 현재 상태
 
+- 점검 결과를 API·DB·완료 폼·목록에 연결했다. 새 완료는 1~4,000자 결과를 요구하고,
+  결과 없는 과거 기록은 명시적으로 표시한다. 재점검 전 결과는 감사 기록에 남는다.
+  migration 0004는 격리 검증 및 개발 DB 사전 백업 후 적용했다. API 224개·웹 187개,
+  인메모리 통합 30개·격리 PostgreSQL 2개·실제 브라우저 폼 2개 검사 통과.
+  백업 위치와 미완료 검수는 `inspection-workflow-ui.md` 참고.
+
 - 점검 완료·재개 PostgreSQL 검증을 추가하고 재개 전 완료일의 감사 기록 누락을 수정했다.
   행 잠금으로 동시 수정 이력을 보존한다. 격리 DB 점검·유지보수 2개, API 단위 222개,
   인메모리 통합 30개·빌드 통과. CI PostgreSQL 단계에 포함했으며 운영 DB 변경은 없다.

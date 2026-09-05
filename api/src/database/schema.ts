@@ -131,6 +131,7 @@ export const inspections = pgTable('inspections', {
   status: inspectionStatus('status').notNull(),
   priority: inspectionPriority('priority').notNull(),
   completedAt: date('completed_at'),
+  result: text('result'),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
 });
 

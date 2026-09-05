@@ -1,7 +1,7 @@
 import { getApiUrl } from "@/lib/api-url";
 
 export type InspectionStatus = "Pending" | "Scheduled" | "InReview" | "Completed";
-export type Inspection = { id: string; propertyId: string; type: string; scheduledDate: string; status: InspectionStatus; priority: "Routine" | "Urgent"; completedAt?: string };
+export type Inspection = { id: string; propertyId: string; type: string; scheduledDate: string; status: InspectionStatus; priority: "Routine" | "Urgent"; completedAt?: string; result?: string };
 
 const fallbackInspections: Inspection[] = [
   { id: "inspection-1", propertyId: "property-1", type: "소방 안전", scheduledDate: "2026-09-06", status: "Scheduled", priority: "Routine" },

@@ -37,28 +37,33 @@ const previous = process.env.DATABASE_URL;
     id = created.id;
     await expect(service.update(id, { status: 'Completed' })).rejects.toThrow();
     expect((await pool.query('select status from inspections where id=$1', [id])).rows[0].status).toBe('InReview');
-    await service.update(id, { status: 'Completed', completedAt: '2026-09-01' });
+    await service.update(id, { status: 'Completed', completedAt: '2026-09-01', result: 'Safety verified' });
     await database.onApplicationShutdown();
     database = new DatabaseService();
     service = new InspectionsService(database, new AuditService(database));
-    expect((await service.findAll()).find((item) => item.id === id)).toMatchObject({ status: 'Completed', completedAt: '2026-09-01' });
+    expect((await service.findAll()).find((item) => item.id === id)).toMatchObject({ status: 'Completed', completedAt: '2026-09-01', result: 'Safety verified' });
+    await expect(service.update(id, { result: '' })).rejects.toThrow();
+    await expect(service.update(id, { result: 42 as unknown as string })).rejects.toThrow();
     await expect(service.update(id, { completedAt: '9999-01-01' })).rejects.toThrow();
     expect((await service.findAll()).find((item) => item.id === id)?.completedAt).toBe('2026-09-01');
     expect(await service.update(id, { status: 'InReview' })).not.toHaveProperty('completedAt');
-    expect((await pool.query('select completed_at from inspections where id=$1', [id])).rows[0].completed_at).toBeNull();
+    expect((await pool.query('select completed_at, result from inspections where id=$1', [id])).rows[0]).toEqual({ completed_at: null, result: null });
     const audit = await pool.query('select metadata from audit_logs where entity_id=$1', [id]);
     expect(audit.rows).toHaveLength(3);
-    expect(audit.rows).toContainEqual({ metadata: { changes: { status: 'InReview' }, previousCompletion: { completedAt: '2026-09-01' } } });
+    expect(audit.rows).toContainEqual({ metadata: { changes: { status: 'InReview' }, previousCompletion: { completedAt: '2026-09-01', result: 'Safety verified' } } });
 
     await Promise.all([
-      service.update(id, { status: 'Completed', completedAt: '2026-09-01' }),
-      service.update(id, { status: 'Completed', completedAt: '2026-09-02' }),
+      service.update(id, { status: 'Completed', completedAt: '2026-09-01', result: 'First verification' }),
+      service.update(id, { status: 'Completed', completedAt: '2026-09-02', result: 'Second verification' }),
     ]);
     const history = (await pool.query('select metadata from audit_logs where entity_id=$1', [id])).rows.map((row) => row.metadata);
     expect(history).toHaveLength(5);
     const chained = history.find((entry) => entry.changes?.status === 'Completed' && entry.previousCompletion?.completedAt);
     expect(chained).toBeDefined();
     expect(chained.previousCompletion.completedAt).not.toBe(chained.changes.completedAt);
+    expect(chained.previousCompletion.result).not.toBe(chained.changes.result);
+    expect([chained.previousCompletion.result, chained.changes.result].sort()).toEqual(['First verification', 'Second verification']);
     expect((await service.findAll()).find((item) => item.id === id)?.completedAt).toBe(chained.changes.completedAt);
+    expect((await service.findAll()).find((item) => item.id === id)?.result).toBe(chained.changes.result);
   });
 });

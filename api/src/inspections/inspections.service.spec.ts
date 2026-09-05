@@ -8,6 +8,23 @@ const inspection = (overrides: Partial<Inspection> = {}): Inspection => ({
 });
 
 describe('InspectionsService', () => {
+  it('creates completed work with a result at the maximum length', async () => {
+    const input = { propertyId: 'property-1', type: 'Safety', scheduledDate: '2026-09-10', status: 'Completed' as const, priority: 'Routine' as const, completedAt: '2026-09-01', result: 'x'.repeat(4000) };
+    expect(await new InspectionsService().create(input)).toMatchObject(input);
+    await expect(new InspectionsService().create({ ...input, result: '' })).rejects.toThrow();
+  });
+
+  it('requires a result for new completion and preserves legacy reads', async () => {
+    const service = new InspectionsService();
+    expect((await service.findAll()).find((item) => item.id === 'inspection-2')?.completedAt).toBeDefined();
+    await expect(service.update('inspection-1', { status: 'Completed', completedAt: '2026-09-01' })).rejects.toThrow();
+    expect(await service.update('inspection-1', { status: 'Completed', completedAt: '2026-09-01', result: '  Tested alarm and verified  ' })).toMatchObject({ result: 'Tested alarm and verified' });
+    await expect(service.update('inspection-1', { result: ' ' })).rejects.toThrow();
+    await expect(service.update('inspection-1', { result: 'x'.repeat(4001) })).rejects.toThrow();
+    expect(await service.update('inspection-1', { status: 'InReview' })).not.toHaveProperty('result');
+    await expect(service.update('inspection-1', { result: 'Not completed' })).rejects.toThrow();
+  });
+
   it('accepts early completion but still rejects future completion', () => {
     expect(() => validateInspection(inspection({ scheduledDate: '2026-09-10', status: 'Completed', completedAt: '2026-09-02' }), referenceDate)).not.toThrow();
     expect(() => validateInspection(inspection({ status: 'Completed', completedAt: '2026-09-03' }), referenceDate)).toThrow();
@@ -31,7 +48,7 @@ describe('InspectionsService', () => {
   });
 
   it('maps a database inspection row and omits a null completion date', () => {
-    const mapped = mapInspectionRow({ id: 'inspection-db', propertyId: 'property-1', type: '소방 안전', scheduledDate: '2026-09-01', status: 'Pending', priority: 'Routine', completedAt: null, createdAt: new Date() });
+    const mapped = mapInspectionRow({ id: 'inspection-db', propertyId: 'property-1', type: '소방 안전', scheduledDate: '2026-09-01', status: 'Pending', priority: 'Routine', completedAt: null, result: null, createdAt: new Date() });
     expect(mapped).toEqual(expect.objectContaining({ id: 'inspection-db', scheduledDate: '2026-09-01' }));
     expect(mapped).not.toHaveProperty('completedAt');
   });
@@ -48,6 +65,7 @@ describe('InspectionsService', () => {
     const updated = await service.update('inspection-2', {
       status: 'Completed',
       completedAt: '2026-08-10',
+      result: 'Inspection verified',
     });
 
     expect(updated).toMatchObject({
