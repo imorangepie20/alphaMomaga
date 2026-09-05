@@ -41,7 +41,7 @@ cd C:\Users\jowoo\alpahMomega\web
 npm.cmd run dev -- -p 3001
 ```
 
-`web/.env.local` 또는 origin 프로세스 환경 변수에 `API_URL=https://api.approid.team`을 설정합니다. 설정하지 않으면 서버 페이지가 로컬 fallback fixture를 사용할 수 있습니다.
+`web/.env.local` 또는 origin 프로세스 환경 변수에 `API_URL=https://api.approid.team`을 설정합니다. 운영 원장 조회는 실제 API와 서버 세션 토큰을 사용하며, 설정 누락·조회 실패를 예시 데이터로 대체해서 검수하지 않습니다.
 
 `web/next.config.ts`의 `allowedDevOrigins`에는 `mnre.approid.team`이 포함되어야 합니다. 이 값은 Cloudflare Tunnel을 경유한 Next 개발 리소스와 HMR 요청을 허용합니다. 변경한 뒤에는 `web` 개발 서버를 재시작합니다.
 
@@ -49,16 +49,19 @@ npm.cmd run dev -- -p 3001
 
 ```powershell
 Invoke-WebRequest https://mnre.approid.team/ -UseBasicParsing
-Invoke-WebRequest https://api.approid.team/properties -UseBasicParsing
+Invoke-WebRequest https://api.approid.team/health/database -UseBasicParsing
 ```
 
-두 요청 모두 `200`이어야 합니다.
+웹 요청은 로그인 페이지로 이동할 수 있습니다. DB 상태 확인은 `200` 및 정상 상태를
+확인합니다. `/properties` 등 업무 API는 비로그인 요청에 `401`을 반환하는 것이 정상이며,
+준비 확인을 위해 인증을 제거하지 않습니다.
 
 ## 브라우저 테스트 순서
 
 1. [https://mnre.approid.team/](https://mnre.approid.team/)을 엽니다.
 2. 대시보드, 매물, 임차인, 계약, 수납, 유지보수, 점검 화면을 확인합니다.
-3. 브라우저 개발자 도구 Network 탭에서 API 요청이 `api.approid.team`으로 나가는지 확인합니다.
+3. 서버 렌더링 조회는 웹 서버에서 API로 전달됩니다. 브라우저 Network에서 직접 보이지 않을 수 있습니다.
+   변경 요청은 동일 웹 origin의 `/api/...`를 거쳐 API로 전달되므로 해당 응답 상태를 확인합니다.
 4. API 요청이 `localhost:3000` 또는 잘못된 로컬 포트로 나가면 프론트엔드 환경 설정을 먼저 확인합니다.
 5. 쓰기 작업은 인증 토큰과 권한이 준비된 환경에서만 실행합니다.
 
@@ -79,8 +82,31 @@ VS Code 터미널에서도 기존 Playwright를 실행할 수 있다. 별도 브
 ```powershell
 $env:PLAYWRIGHT_BASE_URL = 'https://mnre.approid.team'
 cd C:\Users\jowoo\alpahMomega\web
-npm.cmd run test:e2e -- e2e/dashboards-ops.spec.ts
+npm.cmd run test:e2e -- e2e/auth-session.spec.ts
 ```
+
+### 실제 로그인 세션 준비
+
+자동 검사와 별도로 아래 명령을 `web/`에서 실행하면 수동 로그인용 창이 열린다.
+
+```powershell
+.\node_modules\.bin\playwright.cmd open --browser chromium --save-storage=auth0-storage-state.json https://mnre.approid.team/login
+```
+
+테스트 계정으로 직접 로그인하고 대시보드를 확인한 뒤 창을 닫는다. 종료 시 생성되는
+`web/auth0-storage-state.json`은 Git 제외 대상이다. 파일에는 로그인 자격 증명이
+포함될 수 있으므로 내용을 출력하거나 채팅·저장소·테스트 보고서에 첨부하지 않는다.
+기존 파일이 있으면 이전 검수에 필요한지 확인하고 새 로그인을 진행한다.
+
+```powershell
+$env:PLAYWRIGHT_BASE_URL = 'https://mnre.approid.team'
+$env:PLAYWRIGHT_AUTH_STORAGE_STATE = 'auth0-storage-state.json'
+npm.cmd run test:e2e -- e2e/properties-dashboard.spec.ts e2e/billing-ledger.spec.ts --workers=1
+```
+
+위 두 검사는 조회 전용이다. API 직접 대조 검사는 별도로 유효한 테스트 계정의
+`PLAYWRIGHT_API_TOKEN`이 필요하다. 수납 변경 검사는 `monthly-billing-operations.md`의
+전용 데이터 조건을 충족한 뒤에만 실행한다. 세션 만료 시 다시 로그인하며 인증을 우회하지 않는다.
 
 ## 라이트 전용 UI 수동 검증
 

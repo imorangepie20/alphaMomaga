@@ -20,6 +20,14 @@ property -> tenant -> contract -> monthly charge -> payment -> maintenance -> in
 
 ### 2026-09-05 현재 상태
 
+- VS Code의 Playwright 수동 로그인 절차를 `cloudflare-browser-testing.md`에 추가했다.
+  로그인 창을 열고 사용자에게 로그인 후 닫기를 요청한 상태다. 세션 파일 생성 후
+  `properties-dashboard.spec.ts`, `billing-ledger.spec.ts` 조회 검수부터 실행한다.
+  로그인 파일은 Git 제외 대상이며 내용을 출력하지 않는다. 창 종료나 파일 존재만으로
+  인증 성공을 판단하지 말고 실제 보호 페이지 접근 결과를 확인한다.
+- 같은 문서의 오래된 공개 업무 API 200 기대와 브라우저 직접 API 조회 설명을
+  현재 인증 경계에 맞게 정정했다. 상태 확인은 `/health/database`를 사용한다.
+
 - 수납 표의 대상 식별 누락을 수정했다. 임차인·호실·계약·청구 번호를 표시하며
   동일 월·금액의 여러 청구 및 임차인 정보 누락 회귀 검사를 추가했다.
   브라우저 수납 테스트는 지정된 청구 번호로 행을 선택한다.
