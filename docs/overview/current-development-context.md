@@ -20,6 +20,11 @@ property -> tenant -> contract -> monthly charge -> payment -> maintenance -> in
 
 ### 2026-09-05 현재 상태
 
+- 자산 현황·점유율·수익 현황의 고정 예시 수치를 실제 자산·계약·월별 청구 집계로 교체했다.
+  `docs/overview/operational-dashboards.md` 참고. 웹 테스트 103개, 변경 파일 린트 및 빌드 통과.
+  호실 총수·입퇴실 이력·비용 원장이 없어 공실 수·가중 점유율·순이익은 산출하지 않는다.
+  인증된 브라우저 시각 검증은 남아 있다.
+
 - 계약 화면의 기간 집계, 검색·자산/상태/만료 필터와 남은 일수 표시를 개선했다.
   `docs/overview/contract-workspace.md` 참고. 웹 테스트 94개 및 변경 파일 린트 통과.
 

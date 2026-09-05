@@ -14,6 +14,9 @@ import {
 function label(segment: string) {
   const labels: Record<string, string> = {
     dashboard: "대시보드",
+    portfolio: "자산 현황",
+    occupancy: "점유율",
+    revenue: "수익 현황",
     "real-estate": "부동산 관리",
     properties: "매물",
     tenants: "임차인",
