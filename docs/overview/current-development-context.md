@@ -20,6 +20,11 @@ property -> tenant -> contract -> monthly charge -> payment -> maintenance -> in
 
 ### 2026-09-05 현재 상태
 
+- 승인 경계 통합 검증 추가: 실제 RSA 서명·로컬 JWKS로 미승인 업무 접근 차단,
+  새 역할 토큰 접근, 위조·만료·잘못된 issuer/audience 거부를 확인했다.
+  전체 인메모리 통합 30개 통과. 운영 계정이나 DB를 변경하지 않았다.
+  `dc31e5f` API 원격 CI `33941749708` 성공 확인.
+
 - 회원가입 후 역할 승인 대기 화면과 로고 파비콘을 추가했다.
   `/auth/status`만 역할 없는 서명 검증 신원을 허용하고 일반 업무 API 거부는 유지한다.
   `/register` 예제 폼을 실제 Auth0 가입으로 교체했다. 역할 부여가 승인 기준이며
