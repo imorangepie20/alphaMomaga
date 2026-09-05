@@ -78,8 +78,34 @@ cd C:\Users\jowoo\alpahMomega\web
 npm.cmd run test:e2e -- e2e/billing-ledger.spec.ts
 ```
 
-세션 파일이 없으면 테스트는 의도적으로 skip됩니다. 자동 브라우저 테스트로 운영
+세션 파일이 없으면 테스트는 명시적으로 실패합니다. 자동 브라우저 테스트로 운영
 수납을 등록하거나 void하지 않으며, 변경 흐름은 별도 안전 fixture에서만 검증합니다.
+
+### 전용 수납 변경 검수
+
+`npm.cmd run test:e2e:billing-mutation`은 읽기 전용 검수와 분리된 명령이다.
+운영 DB가 아닌 검수 환경에 `E2E-BILLING-`으로 시작하는 이름의 임차인과
+해당 월에 단 하나뿐인 `Draft` 청구를 먼저 준비한다. 청구 금액은 3원 이상,
+수납액은 0이어야 한다. 매 실행에 새 초안을 사용한다.
+
+- `PLAYWRIGHT_BASE_URL`: 전용 검수 웹 URL
+- `API_URL`: 같은 검수 웹이 사용하는 전용 API URL
+- `PLAYWRIGHT_AUTH_STORAGE_STATE`: PropertyManager 또는 Admin 테스트 세션 파일
+- `PLAYWRIGHT_API_TOKEN`: 동일 테스트 계정의 유효한 API Access Token
+- `PLAYWRIGHT_BILLING_MUTATIONS`: `dedicated-test-data`
+- `PLAYWRIGHT_BILLING_MONTH`: 전용 청구월 `YYYY-MM`
+- `PLAYWRIGHT_BILLING_CHARGE_ID`: 변경을 허용한 전용 초안 ID
+
+검수는 UI에서 확정, 청구액의 약 1/3 부분 수납, 미수 확인, 영수증 취소를 수행한다.
+API에서도 잔액 복구와 원본 영수증·배분·취소 사유 보존을 대조한다.
+브라우저의 변경 요청은 명시한 청구·임차인·금액·새 영수증에 한정하고 그 외 요청은 차단한다.
+이 테스트는 생성 API, 전체 월 재생성, DELETE를 호출하지 않는다.
+성공 후에도 확정 청구와 void 영수증은 감사 근거로 남긴다.
+
+중간에 실패하면 자동 재시도하거나 데이터를 삭제하지 않는다. `E2E-BILLING-` 거래
+참조번호로 기록을 찾아 수납 성공 여부부터 확인하고 필요한 void를 검수 환경에서 처리한다.
+현재 세션 부재 시 변경 전에 실패하는 것과 정적 검사를 확인했다.
+실제 로그인 세션을 사용한 전체 성공은 아직 검증되지 않았다.
 
 ## PostgreSQL 통합 검증
 
@@ -87,7 +113,7 @@ npm.cmd run test:e2e -- e2e/billing-ledger.spec.ts
 후 잔액 복구를 검증합니다.
 
 ```powershell
-$env:DATABASE_URL = '<dedicated-test-postgres-url>'
+$env:TEST_DATABASE_URL = '<dedicated-test-postgres-url>'
 npm.cmd run test:e2e --prefix api -- billing-postgres.e2e-spec.ts --no-file-parallelism
 ```
 

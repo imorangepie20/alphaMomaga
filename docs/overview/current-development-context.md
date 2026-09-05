@@ -20,6 +20,12 @@ property -> tenant -> contract -> monthly charge -> payment -> maintenance -> in
 
 ### 2026-09-05 현재 상태
 
+- 웹 원격 CI `33939051293`(`2dd34fc`) 전체 성공 확인. API CI도 앞서 성공했다.
+- 승인 계획 Task 9의 실제 변경 검수가 빠져 있어 전용 수납 브라우저 시나리오를 추가했다.
+  `npm run test:e2e:billing-mutation`은 명시적 테스트 데이터와 실제 세션이 필요하다.
+  세션 부재 시 변경 전에 실패함을 확인했으며 실제 성공 검수는 아직 남아 있다.
+  운영 DB 자동 seed·DELETE는 실행하지 않는다. `monthly-billing-operations.md` 참고.
+
 - `576a1e8`의 API 원격 CI `33938701720` 성공 확인(품질·PostgreSQL 모두).
   웹 `33938701745`는 브라우저 단계 실패. Auth0 설정 부재의 미들웨어 오류를 로컬 재현해
   해당 CI 단계에만 비로그인 검사용 가상 설정을 추가했다. 후속 원격 실행을 확인해야 한다.
