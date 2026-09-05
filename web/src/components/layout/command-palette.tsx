@@ -2,8 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useHydrated } from "@/hooks/use-hydrated";
 import { Search } from "lucide-react";
-import { navGroups } from "@/lib/nav";
+import { navigationFor } from "@/lib/nav";
+import type { Permission } from "@/lib/roles";
 import { Button } from "@/components/ui/button";
 import {
   Command,
@@ -21,7 +23,9 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-export function CommandPalette() {
+export function CommandPalette({ permissions = [] }: { permissions?: Permission[] }) {
+  const hydrated = useHydrated();
+  const navGroups = navigationFor(permissions);
   const [open, setOpen] = useState(false);
   const router = useRouter();
 
@@ -42,6 +46,7 @@ export function CommandPalette() {
         variant="outline"
         className="h-9 w-9 justify-center gap-2 px-2 text-muted-foreground sm:w-40 sm:justify-start"
         aria-label="페이지 검색"
+        disabled={!hydrated}
         onClick={() => setOpen(true)}
       >
         <Search className="size-4" />

@@ -3,7 +3,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { navGroups } from "@/lib/nav";
+import { navigationFor } from "@/lib/nav";
+import type { Permission } from "@/lib/roles";
 import {
   Sidebar,
   SidebarContent,
@@ -16,7 +17,8 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar";
 
-export function AppSidebar() {
+export function AppSidebar({ permissions = [] }: { permissions?: Permission[] }) {
+  const navGroups = navigationFor(permissions);
   const pathname = usePathname();
   return (
     <Sidebar collapsible="icon" className="border-border bg-card text-card-foreground">
