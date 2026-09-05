@@ -20,6 +20,10 @@ property -> tenant -> contract -> monthly charge -> payment -> maintenance -> in
 
 ### 2026-09-05 현재 상태
 
+- 메인 부동산 대시보드도 실제 기록으로 전환했다. 자산별 청구·수납·미수 및 입력 점유율
+  그래프, 우선 처리 정비·점검, 만료 임박 계약을 제공한다. 웹 테스트 110개 통과.
+  수납 권한 오류는 별도로 표시한다. 상세는 `docs/overview/operational-dashboards.md` 참고.
+
 - 자산 현황·점유율·수익 현황의 고정 예시 수치를 실제 자산·계약·월별 청구 집계로 교체했다.
   `docs/overview/operational-dashboards.md` 참고. 웹 테스트 103개, 변경 파일 린트 및 빌드 통과.
   호실 총수·입퇴실 이력·비용 원장이 없어 공실 수·가중 점유율·순이익은 산출하지 않는다.
