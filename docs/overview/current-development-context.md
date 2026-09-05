@@ -20,6 +20,10 @@ property -> tenant -> contract -> monthly charge -> payment -> maintenance -> in
 
 ### 2026-09-05 현재 상태
 
+- 원격 API·웹 CI의 API 설치 실패를 Linux npm 10에서 재현하고 잠금 파일을 보정했다.
+  누락된 하위 `typescript@5.9.3` 추가, 앱 TypeScript 6 유지.
+  Linux 새 설치·API 214개 테스트·빌드 통과. 다음 작업은 푸시 후 원격 CI 결과 확인이다.
+
 - 전체 웹 lint 514개 파일 오류·경고 0. Cloudflare 비로그인 10개 경로 테스트 통과.
   인증 후 업무 검수는 `npm run test:e2e:authenticated`로 분리했고 세션 부재 시
   명시적으로 실패한다. 실제 세션과 테스트 계정 API token이 필요한 미완료 검수다.
