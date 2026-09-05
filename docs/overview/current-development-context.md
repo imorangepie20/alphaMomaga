@@ -20,6 +20,10 @@ property -> tenant -> contract -> monthly charge -> payment -> maintenance -> in
 
 ### 2026-09-05 현재 상태
 
+- 점검 완료·재개 PostgreSQL 검증을 추가하고 재개 전 완료일의 감사 기록 누락을 수정했다.
+  행 잠금으로 동시 수정 이력을 보존한다. 격리 DB 점검·유지보수 2개, API 단위 222개,
+  인메모리 통합 30개·빌드 통과. CI PostgreSQL 단계에 포함했으며 운영 DB 변경은 없다.
+
 - 점검 조기 완료를 거부하던 API·폼의 예정일 하한을 제거했다. 미래 날짜 검증은 유지하며,
   완료일 직접 입력과 서울 자정 이후 날짜 상한 갱신을 적용했다. API 222개·웹 186개,
   API 빌드·웹 타입·변경 파일 린트 통과. 상세는 `inspection-workflow-ui.md` 참고.

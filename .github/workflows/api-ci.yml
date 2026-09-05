@@ -76,4 +76,4 @@ jobs:
       - name: seed 적용
         run: npm run db:seed
       - name: PostgreSQL 저장·동시성·복구 테스트
-        run: npm run test:e2e -- billing-postgres.e2e-spec.ts maintenance-postgres.e2e-spec.ts --no-file-parallelism
+        run: npm run test:e2e -- billing-postgres.e2e-spec.ts maintenance-postgres.e2e-spec.ts inspection-postgres.e2e-spec.ts --no-file-parallelism

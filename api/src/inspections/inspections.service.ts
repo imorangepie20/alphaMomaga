@@ -121,6 +121,8 @@ export class InspectionsService {
     const database = this.databaseService?.client;
     if (database) {
       return database.transaction(async (transaction) => {
+        const [current] = await transaction.select().from(inspections).where(eq(inspections.id, id)).for('update');
+        if (!current) throw new Error(`Inspection ${id} not found`);
         const [row] = await transaction
           .update(inspections)
           .set({
@@ -147,7 +149,7 @@ export class InspectionsService {
             actorRole: principal?.role ?? 'system',
             entityType: 'inspection',
             entityId: id,
-            metadata: { changes: input },
+            metadata: { changes: input, previousCompletion: { completedAt: current.completedAt } },
           });
         }
 
