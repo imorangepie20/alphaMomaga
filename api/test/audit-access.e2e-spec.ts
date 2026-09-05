@@ -37,4 +37,8 @@ describe('Audit access boundary', () => {
     await request(app.getHttpServer()).get('/admin/audit-logs?entityType=inspection&entityId=test-id').set('x-demo-role', 'Admin').expect(200);
     expect(findAll).toHaveBeenCalledWith(expect.objectContaining({ entityType: 'inspection', entityId: 'test-id' }));
   });
+  it.each(['limit=-1', 'limit=101', 'limit=10x', 'limit=', 'limit=1&limit=2', 'offset=-1', 'offset=1.5', 'offset=1000001'])('rejects malformed pagination %s before querying', async (query) => {
+    await request(app.getHttpServer()).get(`/admin/audit-logs?${query}`).set('x-demo-role', 'Admin').expect(400);
+    expect(findAll).not.toHaveBeenCalled();
+  });
 });

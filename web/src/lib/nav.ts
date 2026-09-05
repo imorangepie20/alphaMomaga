@@ -43,6 +43,7 @@ export const navGroups: NavGroup[] = [
     items: [
       { title: "사용자", href: "/admin/users", icon: Users, permission: "user:manage" },
       { title: "역할", href: "/admin/roles", icon: ShieldCheck, permission: "user:manage" },
+      { title: "변경 이력", href: "/admin/audit-logs", icon: ClipboardCheck, permission: "user:manage" },
       { title: "보고서", href: "/admin/reports", icon: BarChart3, permission: "report:read" },
       { title: "설정", href: "/settings", icon: Settings },
     ],

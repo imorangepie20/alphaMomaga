@@ -28,6 +28,7 @@ function label(segment: string) {
     users: "사용자",
     roles: "역할",
     reports: "보고서",
+    "audit-logs": "변경 이력",
     settings: "설정",
   };
   if (labels[segment]) return labels[segment];

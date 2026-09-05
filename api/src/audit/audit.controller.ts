@@ -1,8 +1,20 @@
-import { Controller, Get, Query, UseGuards } from '@nestjs/common';
+import { BadRequestException, Controller, Get, Query, UseGuards } from '@nestjs/common';
 import { AuditService } from './audit.service.js';
 import { RequirePermission } from '../auth/permissions.decorator.js';
 import { AuthGuard } from '../auth/auth.guard.js';
 import { PermissionsGuard } from '../auth/permissions.guard.js';
+
+function pagination(value: unknown, fallback: number, min: number, max: number): number {
+  if (value === undefined) return fallback;
+  if (typeof value !== 'string' || !/^\d+$/.test(value)) {
+    throw new BadRequestException('Invalid audit pagination');
+  }
+  const parsed = Number(value);
+  if (!Number.isSafeInteger(parsed) || parsed < min || parsed > max) {
+    throw new BadRequestException('Invalid audit pagination');
+  }
+  return parsed;
+}
 
 @Controller('admin/audit-logs')
 @UseGuards(AuthGuard, PermissionsGuard)
@@ -24,8 +36,8 @@ export class AuditController {
       entityId,
       action,
       actorSubject,
-      limit: limit ? parseInt(limit, 10) : 100,
-      offset: offset ? parseInt(offset, 10) : 0,
+      limit: pagination(limit, 100, 1, 100),
+      offset: pagination(offset, 0, 0, 1_000_000),
     });
   }
 }
