@@ -20,6 +20,11 @@ property -> tenant -> contract -> monthly charge -> payment -> maintenance -> in
 
 ### 2026-09-05 현재 상태
 
+- 후속 격리 PostgreSQL 검수 통과: 빈 DB migration, 동시 청구 유일성,
+  동시 수납 과배분 차단, API 재생성 후 영속성 및 동시 void 잔액 복구.
+  PostgreSQL 테스트는 전용 `TEST_DATABASE_URL`로만 실행한다.
+  API 린트는 Oxlint이며 실행 성공(기존 경고 4개). 상세는 운영 준비 검수 문서 참고.
+
 - 운영 준비 검수를 시작했다. DB 첫 상태 확인의 거짓 정상 응답을 수정하고
   수납 통합 테스트에 금액 변화·void 복구·중복 생성 방지 검증을 추가했다.
   API 207개, 인메모리 통합 21개 및 Cloudflare 비로그인 테스트 통과.

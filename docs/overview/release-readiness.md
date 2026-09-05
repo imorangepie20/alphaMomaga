@@ -10,8 +10,8 @@
 
 - API 단위 테스트: 26개 파일, 207개 테스트 통과. `npm.cmd test`.
 - API 빌드: `npm.cmd run build` 통과.
-- API 변경 파일 ESLint 검사는 설정 파일이 없어 실행 실패했다.
-  테스트·빌드 통과와 별개로 정적 검사 설정은 후속 정리 대상이다.
+- 정정: API 공식 린트는 ESLint가 아니라 Oxlint다. `npm.cmd run lint` 실행 성공,
+  기존 미사용 import 경고 4개가 남아 있다. 앞선 ESLint 실행 실패는 잘못 선택한 명령이었다.
 - 격리된 API 통합 테스트: 21개 통과, PostgreSQL 전용 1개 건너뜀.
   PowerShell 자식 프로세스에서 `$env:DATABASE_URL=''; npm.cmd run test:e2e` 실행.
   실제 사용자 DB에 테스트 데이터를 생성하지 않았다.
@@ -42,3 +42,19 @@
    화면에서 제공되는 것으로 오인하게 만들지 않는다.
 
 위 항목은 이번 테스트만으로 완료되지 않았다. 후속 작업자는 검증 근거를 추가하며 진행한다.
+
+## 격리 PostgreSQL 검증 추가
+
+- 운영 DB와 다른 임시 `postgres:16-alpine` 컨테이너의 빈 DB에 migration 3개를 적용했다.
+- PostgreSQL 통합 테스트를 보강하고 통과했다. 동시 청구 생성의 유일성,
+  부분 수납·void 복구, 잔액을 초과하는 두 동시 수납 중 한 요청만 성공,
+  API 인스턴스 재생성 후 잔액·취소 영수증 보존, 동시 void의 단일 잔액 복구를 검증했다.
+- 테스트는 이제 `DATABASE_URL`만 설정해서 실행되지 않는다.
+  별도 폐기 가능한 DB의 `TEST_DATABASE_URL`을 명시해야 한다.
+  테스트 중에만 해당 값을 애플리케이션 DB 설정으로 적용하고 원래 환경을 복구한다.
+  월별 생성 API는 DB 전체 활성 계약을 대상으로 하므로 운영 DB를 지정하면 안 된다.
+- 재현: 임시 DB에 `DATABASE_URL`로 `npm.cmd run db:migrate`를 실행한 뒤,
+  동일 DB를 `TEST_DATABASE_URL`로 지정하고
+  `npm.cmd run test:e2e -- billing-postgres.e2e-spec.ts --no-file-parallelism` 실행.
+- 이 결과는 단일 청구의 경쟁 조건과 API 인스턴스 재생성 검증이다.
+  대규모 부하, DB 장애 복구, 실제 백업 복원 검증을 대신하지 않는다.
