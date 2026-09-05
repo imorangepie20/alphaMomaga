@@ -67,5 +67,5 @@ jobs:
           AUTH0_CLIENT_ID: public-route-test
           AUTH0_CLIENT_SECRET: not-a-real-client-secret
           AUTH0_SECRET: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
-        run: npx playwright test e2e/auth-session.spec.ts --workers=1
+        run: npx playwright test e2e/auth-session.spec.ts e2e/signup-entry.spec.ts --workers=1
 

@@ -25,7 +25,7 @@ export class AuthService {
     }
   }
 
-  async verifyBearerToken(header: string | undefined): Promise<AuthenticatedPrincipal> {
+  async verifyBearerToken(header: string | undefined, allowUnassigned = false): Promise<AuthenticatedPrincipal> {
     if (!header?.startsWith('Bearer ')) {
       throw new UnauthorizedException('A Bearer token is required');
     }
@@ -47,10 +47,10 @@ export class AuthService {
       });
 
       const role = getAuth0Role(payload);
-      if (typeof payload.sub !== 'string' || !role) {
+      if (typeof payload.sub !== 'string' || !payload.sub.trim() || (!role && !allowUnassigned)) {
         throw new UnauthorizedException('The token principal is invalid');
       }
-      return { role, subject: payload.sub };
+      return { role: role ?? 'Pending', subject: payload.sub };
     } catch (error) {
       if (error instanceof UnauthorizedException) throw error;
       this.logger.debug('Bearer token verification failed', error);

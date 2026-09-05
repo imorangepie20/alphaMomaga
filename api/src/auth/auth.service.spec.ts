@@ -27,6 +27,17 @@ describe('AuthService', () => {
   });
 
   describe('verifyBearerToken', () => {
+    it('allows unassigned identity only for approval status checks', async () => {
+      vi.mocked(jwtVerify).mockResolvedValue({ payload: { sub: 'auth0|new-user' } } as Awaited<ReturnType<typeof jwtVerify>>);
+      await expect(service.verifyBearerToken('Bearer signed', true)).resolves.toEqual({ role: 'Pending', subject: 'auth0|new-user' });
+      await expect(service.verifyBearerToken('Bearer signed')).rejects.toThrow(UnauthorizedException);
+    });
+    it('still rejects invalid signatures and missing subjects during approval checks', async () => {
+      vi.mocked(jwtVerify).mockRejectedValueOnce(new Error('Invalid signature'));
+      await expect(service.verifyBearerToken('Bearer forged', true)).rejects.toThrow(UnauthorizedException);
+      vi.mocked(jwtVerify).mockResolvedValueOnce({ payload: {} } as Awaited<ReturnType<typeof jwtVerify>>);
+      await expect(service.verifyBearerToken('Bearer no-subject', true)).rejects.toThrow(UnauthorizedException);
+    });
     it('maps a verified Auth0 namespaced role to an authenticated principal', async () => {
       vi.mocked(jwtVerify).mockResolvedValueOnce({
         payload: {

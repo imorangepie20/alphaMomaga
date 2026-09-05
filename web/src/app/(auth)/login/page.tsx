@@ -22,6 +22,7 @@ export default function LoginPage() {
       >
         Continue with Auth0
       </a>
+      <Link href="/register" className="mt-4 block text-center text-sm underline underline-offset-4">회원가입 · 관리자 승인 후 이용</Link>
     </AuthCard>
   )
 }
