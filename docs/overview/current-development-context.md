@@ -20,6 +20,10 @@ property -> tenant -> contract -> monthly charge -> payment -> maintenance -> in
 
 ### 2026-09-05 현재 상태
 
+- 임시 PostgreSQL 백업·복원 리허설 통과: 10개 테이블 내용·행 수 일치,
+  migration 이력 보존 및 복원 DB의 수납 통합 테스트 통과.
+  `docs/overview/database-recovery.md`에 재현 절차와 남은 운영 백업 요건 기록.
+
 - 후속 격리 PostgreSQL 검수 통과: 빈 DB migration, 동시 청구 유일성,
   동시 수납 과배분 차단, API 재생성 후 영속성 및 동시 void 잔액 복구.
   PostgreSQL 테스트는 전용 `TEST_DATABASE_URL`로만 실행한다.

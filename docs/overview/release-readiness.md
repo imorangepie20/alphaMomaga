@@ -32,6 +32,10 @@
 
 ## 남은 검수와 개발
 
+후속 검증으로 격리 PostgreSQL 및 소규모 백업·복원 리허설은 통과했다.
+각 항목의 전체 운영 요건이 모두 완료된 것은 아니며 아래 추가 결과와
+`docs/overview/database-recovery.md`에서 검증 범위를 구분한다.
+
 1. 운영 DB와 분리된 PostgreSQL 환경에서 migration, 수납 저장·중복·void·동시성 검증.
 2. 실제 로그인 세션에서 역할별 접근과 등록·수정·실패 복구 및 모바일 폼 검수.
 3. 테스트 전용 Auth0 계정으로 초대 링크 사용·역할 변경·차단을 검증하고
@@ -58,3 +62,11 @@
   `npm.cmd run test:e2e -- billing-postgres.e2e-spec.ts --no-file-parallelism` 실행.
 - 이 결과는 단일 청구의 경쟁 조건과 API 인스턴스 재생성 검증이다.
   대규모 부하, DB 장애 복구, 실제 백업 복원 검증을 대신하지 않는다.
+
+## 백업·복원 검증 추가
+
+- 임시 원본 DB를 custom-format으로 백업하고 별도 빈 DB로 복원했다.
+- 10개 업무 테이블의 행 수·내용 지문 및 migration 이력 3개를 확인했다.
+- 복원 DB에서 PostgreSQL 수납 통합 테스트를 다시 통과했다.
+- 절차와 수량은 `docs/overview/database-recovery.md` 참고.
+  예약 백업·외부 보관·운영 규모 복구 시간·Auth0 복구는 별도 후속 요건이다.
