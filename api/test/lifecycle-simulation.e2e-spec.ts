@@ -133,12 +133,12 @@ describe('Property lifecycle simulation (e2e)', () => {
     expect(completedInspection.body.status).toBe('Completed');
 
     const [properties, tenants, contracts, payments, maintenanceRecords, inspections] = await Promise.all([
-      request(app.getHttpServer()).get('/properties').expect(200),
-      request(app.getHttpServer()).get('/tenants').expect(200),
-      request(app.getHttpServer()).get('/contracts').expect(200),
-      request(app.getHttpServer()).get('/payments').expect(200),
-      request(app.getHttpServer()).get('/maintenance').expect(200),
-      request(app.getHttpServer()).get('/inspections').expect(200),
+      request(app.getHttpServer()).get('/properties').set('x-demo-role', 'PropertyManager').expect(200),
+      request(app.getHttpServer()).get('/tenants').set('x-demo-role', 'PropertyManager').expect(200),
+      request(app.getHttpServer()).get('/contracts').set('x-demo-role', 'PropertyManager').expect(200),
+      request(app.getHttpServer()).get('/payments').set('x-demo-role', 'PropertyManager').expect(200),
+      request(app.getHttpServer()).get('/maintenance').set('x-demo-role', 'PropertyManager').expect(200),
+      request(app.getHttpServer()).get('/inspections').set('x-demo-role', 'PropertyManager').expect(200),
     ]);
     expect(properties.body).toContainEqual(expect.objectContaining({ id: property.body.id }));
     expect(tenants.body).toContainEqual(expect.objectContaining({ id: tenant.body.id, propertyId: property.body.id }));

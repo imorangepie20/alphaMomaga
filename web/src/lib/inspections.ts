@@ -19,3 +19,4 @@ export async function getInspections(): Promise<Inspection[]> {
     return (await response.json()) as Inspection[];
   } catch { return fallbackInspections; }
 }
+import { authenticatedFetch as fetch } from "./authenticated-fetch";

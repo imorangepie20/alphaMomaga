@@ -20,3 +20,4 @@ export async function getTenants(): Promise<Tenant[]> {
   if (!Array.isArray(data)) throw new Error("Invalid tenants response");
   return data as Tenant[];
 }
+import { authenticatedFetch as fetch } from "./authenticated-fetch";

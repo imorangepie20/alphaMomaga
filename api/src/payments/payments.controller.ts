@@ -11,6 +11,8 @@ export class PaymentsController {
   constructor(private readonly paymentsService: PaymentsService) {}
 
   @Get()
+  @UseGuards(AuthGuard, PermissionsGuard)
+  @RequirePermission('portfolio:read')
   findAll() {
     return this.paymentsService.findAll();
   }

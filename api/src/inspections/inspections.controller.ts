@@ -11,6 +11,8 @@ export class InspectionsController {
   constructor(private readonly inspectionsService: InspectionsService) {}
 
   @Get()
+  @UseGuards(AuthGuard, PermissionsGuard)
+  @RequirePermission('portfolio:read')
   findAll() {
     return this.inspectionsService.findAll();
   }

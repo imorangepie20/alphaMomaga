@@ -26,6 +26,8 @@ export class ContractsController {
   constructor(private readonly contractsService: ContractsService) {}
 
   @Get()
+  @UseGuards(AuthGuard, PermissionsGuard)
+  @RequirePermission('portfolio:read')
   findAll() {
     return this.contractsService.findAll();
   }

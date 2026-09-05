@@ -36,3 +36,4 @@ export async function getProperties(): Promise<Property[]> {
     return fallbackProperties;
   }
 }
+import { authenticatedFetch as fetch } from "./authenticated-fetch";

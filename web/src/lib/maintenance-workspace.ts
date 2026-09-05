@@ -16,3 +16,4 @@ export async function getMaintenanceWorkspace(): Promise<{ items: Maintenance[];
   const [items, properties] = await Promise.all([read<Maintenance>("maintenance"), read<Property>("properties")]);
   return { items, properties };
 }
+import { authenticatedFetch as fetch } from "./authenticated-fetch";

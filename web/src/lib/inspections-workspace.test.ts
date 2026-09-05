@@ -14,3 +14,4 @@ it.each(["inspections", "properties"])("fails visibly when %s cannot be loaded",
   vi.stubGlobal("fetch", vi.fn(async (url: string) => new Response("[]", { status: url.endsWith(resource) ? 503 : 200 })));
   await expect(getInspectionWorkspace()).rejects.toThrow(resource);
 });
+vi.mock("./auth0", () => ({ auth0: { getAccessToken: vi.fn(async () => ({ token: "server-token" })) } }));

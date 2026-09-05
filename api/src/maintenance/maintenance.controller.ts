@@ -11,6 +11,8 @@ export class MaintenanceController {
   constructor(private readonly maintenanceService: MaintenanceService) {}
 
   @Get()
+  @UseGuards(AuthGuard, PermissionsGuard)
+  @RequirePermission('portfolio:read')
   findAll() {
     return this.maintenanceService.findAll();
   }

@@ -17,3 +17,4 @@ export async function getContractsWorkspace() {
   const [contracts, tenants, properties] = await Promise.all([read<Contract>("contracts"), read<Tenant>("tenants"), read<Property>("properties")]);
   return { contracts, tenants, properties };
 }
+import { authenticatedFetch as fetch } from "./authenticated-fetch";

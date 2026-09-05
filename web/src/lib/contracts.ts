@@ -33,3 +33,4 @@ export async function getContracts(): Promise<Contract[]> {
     return fallbackContracts;
   }
 }
+import { authenticatedFetch as fetch } from "./authenticated-fetch";

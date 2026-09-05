@@ -19,3 +19,4 @@ export async function getMaintenance(): Promise<Maintenance[]> {
     return (await response.json()) as Maintenance[];
   } catch { return fallbackMaintenance; }
 }
+import { authenticatedFetch as fetch } from "./authenticated-fetch";

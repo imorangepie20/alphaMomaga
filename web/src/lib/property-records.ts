@@ -23,3 +23,4 @@ export async function getPropertyRecords() {
   ]);
   return { properties, tenants, contracts, maintenance, inspections };
 }
+import { authenticatedFetch as fetch } from "./authenticated-fetch";

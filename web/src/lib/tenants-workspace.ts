@@ -16,3 +16,4 @@ export async function getTenantWorkspace(): Promise<{ tenants: Tenant[]; propert
   const [tenants, properties] = await Promise.all([read<Tenant>("tenants"), read<Property>("properties")]);
   return { tenants, properties };
 }
+import { authenticatedFetch as fetch } from "./authenticated-fetch";

@@ -37,6 +37,22 @@ Auth0 API Resource Server Identifier와 `AUTH0_AUDIENCE`는 마지막 `/`까지 
 
 ## API 인증 계약
 
+### 2026-09-05 업무 조회 API 보호
+
+- 발견: 쓰기 API와 월별 수납 API에는 인증 가드가 있었지만, 자산·임차인·계약·기존 결제·정비·점검
+  목록 GET은 공개 상태였다. 외부 Cloudflare API의 비로그인 HEAD 요청도 200이었다.
+- 변경: 6개 목록 조회에 `AuthGuard`, `PermissionsGuard`, `portfolio:read`를 적용했다.
+  변경 후 같은 외부 HEAD 요청이 모두 401임을 확인했다. 검증 중 응답 본문을 수집하지 않았다.
+- 웹 서버의 해당 업무 조회 함수들은 `authenticated-fetch.ts`를 통해 Auth0 세션 토큰을 전달한다.
+  설정된 API origin만 허용하고 `no-store`, `redirect: error`를 사용한다.
+  토큰 발급 실패 시 API 요청을 보내지 않으며 브라우저 코드로 토큰을 반환하지 않는다.
+- 현재 역할별 읽기 범위는 기존 `portfolio:read` 정책을 따른다.
+  자산별 접근 제한이나 서로 다른 조직의 데이터 격리를 추가한 것은 아니다.
+- 회귀 검증: 수정 전 6개 비로그인 차단 테스트 실패, 수정 후 GET·HEAD 401 및
+  개발 테스트 역할의 정상 조회 통과. 웹 서버 토큰 전달·인증 실패·다른 origin 거부 테스트 추가.
+- API 208개 단위 테스트, 인메모리 통합 27개, 웹 157개 테스트 통과.
+  실제 Auth0 로그인 세션의 화면 왕복 검증은 별도 남아 있다.
+
 `api/`는 Auth0 JWKS를 사용해 RS256 Access Token의 issuer와 audience를 검증한다. Post Login Action은 Access Token에 `https://alpha-momega.app/role` claim을 기록한다.
 
 - 허용 역할: `Admin`, `PropertyManager`, `Finance`, `Inspector`

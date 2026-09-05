@@ -10,7 +10,7 @@ it("returns actual records without caching or a duplicate URL slash", async () =
   const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify(records)));
   vi.stubGlobal("fetch", fetchMock);
   expect(await getTenants()).toEqual(records);
-  expect(fetchMock).toHaveBeenCalledWith("http://localhost:3100/tenants", { cache: "no-store" });
+  expect(fetchMock).toHaveBeenCalledWith("http://localhost:3100/tenants", { cache: "no-store", headers: { authorization: "Bearer server-token" }, redirect: "error" });
 });
 
 it("preserves a valid empty directory", async () => {
@@ -37,3 +37,4 @@ it("rejects a malformed directory payload", async () => {
   vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response('{"error":"unavailable"}')));
   await expect(getTenants()).rejects.toThrow("Invalid");
 });
+vi.mock("./auth0", () => ({ auth0: { getAccessToken: vi.fn(async () => ({ token: "server-token" })) } }));

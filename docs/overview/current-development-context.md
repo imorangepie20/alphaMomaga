@@ -20,6 +20,10 @@ property -> tenant -> contract -> monthly charge -> payment -> maintenance -> in
 
 ### 2026-09-05 현재 상태
 
+- 6개 업무 목록 API에 누락된 읽기 인증을 적용하고 웹 서버 조회의 세션 토큰 전달을 연결했다.
+  외부 비로그인 HEAD가 모두 401임을 확인했다. API 단위 208개·통합 27개·웹 157개 테스트 통과.
+  `docs/architecture/web-auth-boundary.md` 참고. 로그인 세션 화면 검증은 아직 필요하다.
+
 - 수납 화면 임차인 조회 실패 시 예시 데이터가 표시되던 동작을 제거했다.
   조회 실패는 오류 안내로 처리하고 등록 UI를 숨긴다. 웹 154개 테스트 및
   변경 파일 ESLint 통과. 상세는 `release-readiness.md` 참고.

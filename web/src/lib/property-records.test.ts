@@ -21,3 +21,4 @@ it("rejects network failures", async () => {
   vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("offline")));
   await expect(getPropertyRecords()).rejects.toThrow("offline");
 });
+vi.mock("./auth0", () => ({ auth0: { getAccessToken: vi.fn(async () => ({ token: "server-token" })) } }));

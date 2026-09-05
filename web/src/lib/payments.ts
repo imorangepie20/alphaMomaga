@@ -31,3 +31,4 @@ export async function getPayments(): Promise<Payment[]> {
     return fallbackPayments;
   }
 }
+import { authenticatedFetch as fetch } from "./authenticated-fetch";

@@ -16,3 +16,4 @@ export async function getInspectionWorkspace(): Promise<{ items: Inspection[]; p
   const [items, properties] = await Promise.all([read<Inspection>("inspections"), read<Property>("properties")]);
   return { items, properties };
 }
+import { authenticatedFetch as fetch } from "./authenticated-fetch";

@@ -6,8 +6,10 @@ import { AppModule } from './../src/app.module.js';
 
 describe('Contracts API (e2e)', () => {
   let app: INestApplication<App>;
+  const previousDemo = process.env.AUTH_ALLOW_DEMO_ROLE;
 
   beforeEach(async () => {
+    process.env.AUTH_ALLOW_DEMO_ROLE = 'true';
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
@@ -17,7 +19,7 @@ describe('Contracts API (e2e)', () => {
   });
 
   it('/contracts (GET) returns lease lifecycle records', async () => {
-    const response = await request(app.getHttpServer()).get('/contracts').expect(200);
+    const response = await request(app.getHttpServer()).get('/contracts').set('x-demo-role', 'PropertyManager').expect(200);
 
     expect(response.body).toHaveLength(4);
     expect(response.body[0]).toEqual(expect.objectContaining({
@@ -33,5 +35,7 @@ describe('Contracts API (e2e)', () => {
 
   afterEach(async () => {
     await app.close();
+    if (previousDemo === undefined) delete process.env.AUTH_ALLOW_DEMO_ROLE;
+    else process.env.AUTH_ALLOW_DEMO_ROLE = previousDemo;
   });
 });

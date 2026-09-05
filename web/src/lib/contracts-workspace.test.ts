@@ -10,3 +10,4 @@ it.each(["contracts", "tenants", "properties"])("rejects a %s outage instead of 
   vi.stubGlobal("fetch", vi.fn(async (url: string) => new Response("[]", { status: url.endsWith(resource) ? 503 : 200 })));
   await expect(getContractsWorkspace()).rejects.toThrow(resource);
 });
+vi.mock("./auth0", () => ({ auth0: { getAccessToken: vi.fn(async () => ({ token: "server-token" })) } }));
