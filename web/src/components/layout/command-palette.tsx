@@ -40,14 +40,12 @@ export function CommandPalette() {
     <>
       <Button
         variant="outline"
-        className="relative h-9 w-full justify-start text-muted-foreground sm:w-64"
+        className="h-9 w-9 justify-center gap-2 px-2 text-muted-foreground sm:w-40 sm:justify-start"
+        aria-label="페이지 검색"
         onClick={() => setOpen(true)}
       >
         <Search className="size-4" />
-        <span className="ml-2">검색…</span>
-        <kbd className="pointer-events-none absolute right-2 top-2 hidden h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 text-[10px] font-medium sm:flex">
-          ⌘K
-        </kbd>
+        <span className="hidden sm:inline">페이지 검색</span>
       </Button>
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent

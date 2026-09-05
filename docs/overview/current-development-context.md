@@ -20,6 +20,9 @@ property -> tenant -> contract -> monthly charge -> payment -> maintenance -> in
 
 ### 2026-09-05 현재 상태
 
+- 공통 헤더의 중복 사용자 이름·큰 검색 영역을 정리하고 계정 드롭다운을 적용했다.
+  실제 기능이 없는 알림 버튼은 사용자 요청에 따라 제거했다. `docs/overview/global-header.md` 참고.
+
 - 사용자 관리 확인창을 기존 테마 `AlertDialog`로 통일했다. 브라우저 기본 confirm 대신
   테마 확인·취소·처리 중 잠금을 사용한다. 웹 140개 테스트 통과. 이후 확인창도 테마를 사용한다.
 

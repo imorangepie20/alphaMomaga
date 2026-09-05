@@ -8,6 +8,7 @@ it.each([
   "components/operational-dashboard.tsx",
   "components/real-estate-overview.tsx",
   "components/layout/app-header.tsx",
+  "components/layout/account-menu.tsx",
   "app/(auth)/login/page.tsx",
 ])("uses browser navigation rather than RSC Link for authentication: %s", (file) => {
   const source = readFileSync(resolve(process.cwd(), "src", file), "utf8");
