@@ -20,6 +20,11 @@ property -> tenant -> contract -> monthly charge -> payment -> maintenance -> in
 
 ### 2026-09-05 현재 상태
 
+- 수납일 기본값의 UTC/서울 날짜 불일치를 수정했다. 자정·월말·연말 테스트를 추가했고
+  웹 167개 테스트, 변경 파일 ESLint 및 TypeScript 검사 통과.
+- 수납 표 식별 변경 `b8628e7`의 원격 웹 CI `33939583401` 성공 확인.
+  Playwright 로그인 창은 계속 실행 중이며 아직 세션 파일이 생성되지 않았다.
+
 - VS Code의 Playwright 수동 로그인 절차를 `cloudflare-browser-testing.md`에 추가했다.
   로그인 창을 열고 사용자에게 로그인 후 닫기를 요청한 상태다. 세션 파일 생성 후
   `properties-dashboard.spec.ts`, `billing-ledger.spec.ts` 조회 검수부터 실행한다.

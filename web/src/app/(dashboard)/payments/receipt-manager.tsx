@@ -13,7 +13,12 @@ import type { MonthlyCharge } from "@/lib/billing";
 
 const methods = ["BankTransfer", "Cash", "Card", "Other"] as const;
 const formatWon = (value: number) => `₩${value.toLocaleString("ko-KR")}`;
-const today = () => new Date().toISOString().slice(0, 10);
+function today(): string {
+  const parts = new Intl.DateTimeFormat("en", {
+    timeZone: "Asia/Seoul", year: "numeric", month: "2-digit", day: "2-digit",
+  }).formatToParts(new Date());
+  return ["year", "month", "day"].map((type) => parts.find((part) => part.type === type)!.value).join("-");
+}
 
 export function ReceiptManager({ charges, tenantNames }: { charges: MonthlyCharge[]; tenantNames: Record<string, string> }) {
   const router = useRouter();
