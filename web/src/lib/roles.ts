@@ -14,56 +14,12 @@ export type Permission =
   | "report:read";
 export type RoleDefinition = { name: RoleName; permissions: Permission[] };
 
-const fallbackRoles: RoleDefinition[] = [
-  {
-    name: "Admin",
-    permissions: [
-      "portfolio:read",
-      "property:manage",
-      "tenant:manage",
-      "contract:manage",
-      "payment:manage",
-      "billing:manage",
-      "maintenance:manage",
-      "inspection:manage",
-      "user:manage",
-      "report:read",
-    ],
-  },
-  {
-    name: "PropertyManager",
-    permissions: [
-      "portfolio:read",
-      "property:manage",
-      "tenant:manage",
-      "contract:manage",
-      "payment:manage",
-      "billing:manage",
-      "maintenance:manage",
-      "inspection:manage",
-      "report:read",
-    ],
-  },
-  {
-    name: "Finance",
-    permissions: ["portfolio:read", "payment:manage", "report:read"],
-  },
-  {
-    name: "Inspector",
-    permissions: ["portfolio:read", "inspection:manage", "report:read"],
-  },
-];
-
 export async function getRoles(): Promise<RoleDefinition[]> {
   const apiUrl = getApiUrl();
-  if (!apiUrl) return fallbackRoles;
-  try {
-    const response = await fetch(`${apiUrl}/admin/roles`, {
-      cache: "no-store",
-    });
-    if (!response.ok) return fallbackRoles;
-    return (await response.json()) as RoleDefinition[];
-  } catch {
-    return fallbackRoles;
-  }
+  if (!apiUrl) throw new Error("Roles API is not configured");
+  const response = await fetch(`${apiUrl.replace(/\/$/, "")}/admin/roles`, {
+    cache: "no-store",
+  });
+  if (!response.ok) throw new Error("Unable to load roles");
+  return (await response.json()) as RoleDefinition[];
 }

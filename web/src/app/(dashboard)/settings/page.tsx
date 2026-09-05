@@ -1,5 +1,3 @@
-import { SettingsPage } from "@/components/pages/settings/settings-page";
+import { AdminAccountPage } from "@/components/admin-account-pages";
 
-export default function PSettingsPage() {
-  return <SettingsPage />;
-}
+export default function SettingsPage() { return <AdminAccountPage mode="settings" />; }

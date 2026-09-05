@@ -20,6 +20,11 @@ property -> tenant -> contract -> monthly charge -> payment -> maintenance -> in
 
 ### 2026-09-05 현재 상태
 
+- 관리자 사용자·역할·보고서·설정의 예시 내용을 제거하고 실제 계정·정책 조회,
+  월별 수납 보고서·CSV 및 적용 설정 확인으로 전환했다. 웹 테스트 121개 통과.
+  `docs/overview/admin-workspace.md` 참고. Auth0 Management API 미연결로 전체 사용자
+  조회·초대·차단·역할 할당 및 설정 영속 수정은 아직 미구현이며 화면에 명시했다.
+
 - 메인 부동산 대시보드도 실제 기록으로 전환했다. 자산별 청구·수납·미수 및 입력 점유율
   그래프, 우선 처리 정비·점검, 만료 임박 계약을 제공한다. 웹 테스트 110개 통과.
   수납 권한 오류는 별도로 표시한다. 상세는 `docs/overview/operational-dashboards.md` 참고.
