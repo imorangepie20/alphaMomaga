@@ -24,7 +24,8 @@ describePostgres('Billing ledger (PostgreSQL e2e)', () => {
     process.env.AUTH_ALLOW_DEMO_ROLE = 'true';
     pool = new Pool({ connectionString: databaseUrl });
     app = (await Test.createTestingModule({ imports: [AppModule] }).compile()).createNestApplication();
-    await app.init();
+    // Concurrent requests must share a listening server, not auto-close it.
+    await app.listen(0, '127.0.0.1');
   });
 
   afterAll(async () => {
@@ -78,7 +79,7 @@ describePostgres('Billing ledger (PostgreSQL e2e)', () => {
 
     await app.close();
     app = (await Test.createTestingModule({ imports: [AppModule] }).compile()).createNestApplication();
-    await app.init();
+    await app.listen(0, '127.0.0.1');
     const persisted = await request(app.getHttpServer()).get(`/monthly-charges?billingMonth=${billingMonth}&propertyId=${ids.propertyId}`).set(manager).expect(200);
     expect(persisted.body[0]).toMatchObject({ receivedWon: 800000, outstandingWon: 400000 });
     const history = await request(app.getHttpServer()).get(`/payment-receipts?tenantId=${ids.tenantId}`).set(manager).expect(200);

@@ -20,6 +20,10 @@ property -> tenant -> contract -> monthly charge -> payment -> maintenance -> in
 
 ### 2026-09-05 현재 상태
 
+- 원격 PostgreSQL CI 성공 확인. Linux 인메모리 병렬 테스트의 ECONNRESET은
+  명시적 테스트 서버 listen으로 수정했고 Linux 통합 27개·Windows lifecycle 2개 통과.
+  웹 CI가 API 변경도 감지하도록 수정. 후속 원격 실행 결과를 확인해야 한다.
+
 - 원격 API·웹 CI의 API 설치 실패를 Linux npm 10에서 재현하고 잠금 파일을 보정했다.
   누락된 하위 `typescript@5.9.3` 추가, 앱 TypeScript 6 유지.
   Linux 새 설치·API 214개 테스트·빌드 통과. 다음 작업은 푸시 후 원격 CI 결과 확인이다.

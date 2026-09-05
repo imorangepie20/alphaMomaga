@@ -16,7 +16,8 @@ describe('Property lifecycle simulation (e2e)', () => {
       imports: [AppModule],
     }).compile();
     app = moduleFixture.createNestApplication();
-    await app.init();
+    // Keep the server alive across concurrent Supertest requests.
+    await app.listen(0, '127.0.0.1');
   });
 
   afterEach(async () => {
