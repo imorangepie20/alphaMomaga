@@ -20,10 +20,15 @@ property -> tenant -> contract -> monthly charge -> payment -> maintenance -> in
 
 ### 2026-09-05 현재 상태
 
+- Auth0 Management API 연결 및 사용자 조회·초대 링크·차단·운영 역할 변경을 구현했다.
+  실제 토큰/사용자/역할 조회 200 확인. 웹 128개·API 205개 테스트 및 양쪽 빌드 통과.
+  `docs/overview/auth0-management-api.md` 참고. 실제 계정 변경과 초대 링크 사용은 미검증.
+  관리자 승격·본인 및 기존 Admin 변경은 콘솔 전용이며 외부 이메일 자동 발송은 없다.
+
 - 관리자 사용자·역할·보고서·설정의 예시 내용을 제거하고 실제 계정·정책 조회,
   월별 수납 보고서·CSV 및 적용 설정 확인으로 전환했다. 웹 테스트 121개 통과.
-  `docs/overview/admin-workspace.md` 참고. Auth0 Management API 미연결로 전체 사용자
-  조회·초대·차단·역할 할당 및 설정 영속 수정은 아직 미구현이며 화면에 명시했다.
+  `docs/overview/admin-workspace.md` 참고. 계정 관리 API는 위 후속 작업으로 연결했다.
+  시스템 설정 영속 수정은 아직 미구현이며 현재 적용값만 표시한다.
 
 - 메인 부동산 대시보드도 실제 기록으로 전환했다. 자산별 청구·수납·미수 및 입력 점유율
   그래프, 우선 처리 정비·점검, 만료 임박 계약을 제공한다. 웹 테스트 110개 통과.

@@ -22,9 +22,10 @@ import { BillingModule } from './billing/billing.module.js';
 import { RolesModule } from './roles/roles.module.js';
 import { AuthModule } from './auth/auth.module.js';
 import { DomainModule } from './domain/domain.module.js';
+import { AdminUsersModule } from './admin-users/admin-users.module.js';
 
 @Module({
-  imports: [ScheduleModule.forRoot(), DatabaseModule, AuditModule, DomainModule, RolesModule, AuthModule, ContractsModule, BillingModule],
+  imports: [ScheduleModule.forRoot(), DatabaseModule, AuditModule, DomainModule, RolesModule, AuthModule, ContractsModule, BillingModule, AdminUsersModule],
   controllers: [AppController, PropertiesController, TenantsController, ContractsController, PaymentsController, MaintenanceController, InspectionsController, RolesController, AuthController],
   providers: [AppService, PropertiesService, TenantsService, PaymentsService, MaintenanceService, InspectionsService],
 })
