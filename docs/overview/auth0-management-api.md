@@ -65,7 +65,19 @@ AUTH0_INVITATION_CLIENT_ID=
 - 인증된 브라우저의 전체 변경 흐름, 데이터베이스 연결 활성화 및 초대 링크 사용은
   아직 실계정으로 검증하지 않았다.
 
-## 참고
+## 2026-09-05 사용자 관리 버튼 무반응 수정
+
+- 원인: 초대 링크 발급과 역할 변경의 공통 `Button`에 `type="submit"`이 없었다.
+  Base UI 버튼의 기본값은 일반 버튼이므로 클릭해도 폼 `onSubmit`이 호출되지 않았다.
+- 기존 검증은 관리자 보호·확인 취소·서버 처리에 집중되어 실제 제출 버튼 클릭을 놓쳤다.
+- 변경: 두 제출 버튼에 명시적 submit 타입을 지정했다. 공통 버튼의 기본 동작이나
+  차단·링크 숨기기 같은 일반 동작 버튼은 변경하지 않았다.
+- 회귀 검증: 실제 버튼 클릭으로 초대·역할 변경 요청이 0회인 실패를 먼저 재현한 뒤
+  수정 후 통과했다. 차단·차단 해제 요청, API 실패 문구 및 재시도 가능 상태도 검증했다.
+- 웹 139개 테스트 및 변경 파일 린트 통과. 외부 Auth0 쓰기 요청은 테스트에서 mock했다.
+  실제 계정을 임의로 생성하거나 권한 변경하지 않았다.
+
+## 공식 문서
 
 - [M2M 앱 생성](https://auth0.com/docs/get-started/auth0-overview/create-applications/machine-to-machine-apps)
 - [Management API 토큰 발급](https://auth0.com/docs/secure/tokens/access-tokens/management-api-access-tokens/get-management-api-access-tokens-for-production)
